@@ -3,13 +3,14 @@ import { auth } from "@clerk/nextjs/server";
 import { hasPermission } from "@/lib/auth";
 import { PERMISSIONS } from "@/lib/permissions";
 import { db } from "@/lib/firebase";
-import { User } from "types";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { userId: string } }
+  context: { params: { userId: string } } // plain object
 ) {
   try {
+    const { userId } = context.params;
+
     const { userId: currentUserId } = auth();
     if (!currentUserId) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -20,23 +21,19 @@ export async function PATCH(
       return new NextResponse("Forbidden", { status: 403 });
     }
 
-    const { userId } = params;
     const { role } = await req.json();
-
     if (!role || (role !== "trader" && role !== "user")) {
       return new NextResponse("Invalid role specified", { status: 400 });
     }
 
     const userRef = db.collection("users").doc(userId);
     const userDoc = await userRef.get();
-
     if (!userDoc.exists) {
       return new NextResponse("User not found", { status: 404 });
     }
 
     await userRef.update({ role });
 
-    // Log the action
     await db.collection("audit_logs").add({
       adminId: currentUserId,
       userId,
@@ -45,9 +42,9 @@ export async function PATCH(
       timestamp: new Date(),
     });
 
-    const updatedUser = (await userRef.get()).data() as User;
+    const updatedUser = (await userRef.get()).data();
 
-    return NextResponse.json(updatedUser);
+    return NextResponse.json(updatedUser); // no <User>
   } catch (error) {
     console.error("Error updating user role:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
