@@ -3,22 +3,25 @@ import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
 import { createUser, updateUser } from '@/lib/users';
 import { User } from 'types';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
-  if (!WEBHOOK_SECRET) {
-    throw new Error('Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local');
-  }
+  if (!WEBHOOK_SECRET) throw new Error('Add CLERK_WEBHOOK_SECRET to .env');
+
   const headerPayload = await headers();
   const svix_id = headerPayload.get('svix-id');
   const svix_timestamp = headerPayload.get('svix-timestamp');
   const svix_signature = headerPayload.get('svix-signature');
+
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return new Response('Error occurred -- no svix headers', { status: 400 });
+    return new NextResponse('No svix headers', { status: 400 });
   }
+
   const payload = await req.json();
   const body = JSON.stringify(payload);
   const wh = new Webhook(WEBHOOK_SECRET);
+
   let evt: WebhookEvent;
   try {
     evt = wh.verify(body, {
@@ -27,33 +30,27 @@ export async function POST(req: Request) {
       'svix-signature': svix_signature,
     }) as WebhookEvent;
   } catch (err) {
-    console.error('Error verifying webhook:', err);
-    return new Response('Error occurred', { status: 400 });
+    console.error('Webhook verification failed:', err);
+    return new NextResponse('Error verifying webhook', { status: 400 });
   }
-  const eventType = evt.type;
-  if (eventType === 'user.created') {
-    const { id, email_addresses, first_name, last_name, image_url } = evt.data;
-    if (!id || !email_addresses) {
-      return new Response('Error occurred -- missing data', { status: 400 });
-    }
-    const user = {
+
+  const data = evt.data as any;
+  if (evt.type === 'user.created') {
+    const { id, email_addresses, first_name, last_name, image_url } = data;
+    if (!id || !email_addresses) return new NextResponse('Missing data', { status: 400 });
+    await createUser({
       uid: id,
       email: email_addresses[0].email_address,
       displayName: `${first_name} ${last_name}`,
       photoURL: image_url,
-    };
-    await createUser(user as Partial<User>);
+    } as Partial<User>);
   }
-  if (eventType === 'user.updated') {
-    const { id, first_name, last_name, image_url } = evt.data;
-    if (!id) {
-      return new Response('Error occurred -- missing data', { status: 400 });
-    }
-    const data = {
-      displayName: `${first_name} ${last_name}`,
-      photoURL: image_url,
-    };
-    await updateUser(id, data as Partial<User>);
+
+  if (evt.type === 'user.updated') {
+    const { id, first_name, last_name, image_url } = data;
+    if (!id) return new NextResponse('Missing data', { status: 400 });
+    await updateUser(id, { displayName: `${first_name} ${last_name}`, photoURL: image_url } as Partial<User>);
   }
-  return new Response('', { status: 200 });
+
+  return new NextResponse('', { status: 200 });
 }
