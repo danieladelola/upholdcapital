@@ -9,7 +9,8 @@ export async function PATCH(req: NextRequest, context: { params: { userId: strin
   try {
     const { userId } = context.params;
 
-    const { userId: currentUserId } = auth();
+    const authResult = await auth();
+    const currentUserId = authResult?.userId;
     if (!currentUserId) return new NextResponse("Unauthorized", { status: 401 });
 
     const isAdmin = await hasPermission(currentUserId, PERMISSIONS.ADMIN_DASHBOARD);
