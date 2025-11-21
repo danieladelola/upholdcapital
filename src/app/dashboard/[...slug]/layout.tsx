@@ -26,11 +26,11 @@ export default async function DashboardLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string[] }>;
 }) {
-  const slug = (await params).slug;
-  const breadcrumbLabel = slug
-    ? String(slug)
+  const slugArr = (await params).slug;
+  const breadcrumbLabel = slugArr && slugArr.length > 0
+    ? slugArr.join("/")
         .replace(/-/g, " ")
         .split(" ")
         .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
@@ -53,7 +53,7 @@ export default async function DashboardLayout({
                       <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
                     </BreadcrumbItem>
 
-                    {slug ? (<>
+                    {slugArr && slugArr.length > 0 ? (<>
                       <BreadcrumbSeparator className="hidden md:block" />
                       <BreadcrumbItem>
                         <BreadcrumbPage><span className="capitalize">{breadcrumbLabel}</span></BreadcrumbPage>
