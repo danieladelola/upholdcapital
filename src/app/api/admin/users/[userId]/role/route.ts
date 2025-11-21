@@ -5,9 +5,9 @@ import { PERMISSIONS } from "@/lib/permissions";
 import { db } from "@/lib/firebase";
 
 // PATCH: update user role
-export async function PATCH(req: NextRequest, context: { params: Promise<{ userId: string }> }) {
+export async function PATCH(req: NextRequest, context: { params: { userId: string } }) {
   try {
-    const { userId } = await context.params; // resolve params from Promise
+    const { userId } = context.params;
 
     const { userId: currentUserId } = auth();
     if (!currentUserId) return new NextResponse("Unauthorized", { status: 401 });
