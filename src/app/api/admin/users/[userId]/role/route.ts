@@ -4,9 +4,10 @@ import { hasPermission } from "@/lib/auth";
 import { PERMISSIONS } from "@/lib/permissions";
 import { db } from "@/lib/firebase";
 
-export async function PATCH(req: NextRequest, context: { params: { userId: string } }) {
+// PATCH: update user role
+export async function PATCH(req: NextRequest, context: { params: Promise<{ userId: string }> }) {
   try {
-    const { userId } = context.params;
+    const { userId } = await context.params; // resolve params from Promise
 
     const { userId: currentUserId } = auth();
     if (!currentUserId) return new NextResponse("Unauthorized", { status: 401 });
@@ -24,6 +25,7 @@ export async function PATCH(req: NextRequest, context: { params: { userId: strin
 
     await userRef.update({ role });
 
+    // log the action
     await db.collection("audit_logs").add({
       adminId: currentUserId,
       userId,
@@ -34,7 +36,7 @@ export async function PATCH(req: NextRequest, context: { params: { userId: strin
 
     const updatedUser = (await userRef.get()).data();
 
-    return NextResponse.json(updatedUser); // plain, no <User>
+    return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("Error updating user role:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
