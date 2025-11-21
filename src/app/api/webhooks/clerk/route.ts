@@ -2,7 +2,6 @@ import { Webhook } from 'svix';
 import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
 import { createUser, updateUser } from '@/lib/users';
-import { User } from 'types';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -43,13 +42,13 @@ export async function POST(req: NextRequest) {
       email: email_addresses[0].email_address,
       displayName: `${first_name} ${last_name}`,
       photoURL: image_url,
-    } as Partial<User>);
+    });
   }
 
   if (evt.type === 'user.updated') {
     const { id, first_name, last_name, image_url } = data;
     if (!id) return new NextResponse('Missing data', { status: 400 });
-    await updateUser(id, { displayName: `${first_name} ${last_name}`, photoURL: image_url } as Partial<User>);
+    await updateUser(id, { displayName: `${first_name} ${last_name}`, photoURL: image_url });
   }
 
   return new NextResponse('', { status: 200 });

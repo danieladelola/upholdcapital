@@ -1,3 +1,4 @@
+// ...existing code...
 import { SubscriptionBalance } from './src/components/subscription-balance';
 
 export type Role = 'user' | 'trader' | 'admin';

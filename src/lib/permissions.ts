@@ -35,4 +35,4 @@ export const rolePermissions: Record<Role, string[]> = {
     PERMISSIONS.POST_TRADE,
   ],
   [ROLES.ADMIN]: Object.values(PERMISSIONS),
-};
+} as Record<Role, string[]>;

@@ -44,7 +44,7 @@ export default function PostTrade() {
         traderName,
         isTrader: true,
         symbol: "",
-        // entryPrice removed
+        entryPrice: "0",
         direction,
         size,
         minStartup,

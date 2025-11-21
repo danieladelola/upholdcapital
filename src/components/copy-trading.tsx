@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Search, Check } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { getTrades, toggleCopy } from "@/lib/trades";
+import type { Asset, UserProfile } from "types"; // Import project root types for compatibility
 
 type TradeCard = {
   id: string;
@@ -23,11 +24,21 @@ type TradeCard = {
   copiedBy?: string[];
 };
 
-export default function CopyTradingPage() {
+interface CopyTradingDashboardProps {
+  assets: Asset[];
+  balance: number;
+  user: any;
+}
+
+export default function CopyTradingDashboard({
+  assets,
+  balance,
+  user,
+}: CopyTradingDashboardProps) {
   const [selectedTrader, setSelectedTrader] = useState<TradeCard | null>(null);
   const [modalTab, setModalTab] = useState<"stats" | "trades">("stats");
   const { toast } = useToast();
-  const { user } = useUser();
+  const { user: clerkUser } = useUser();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] =
     useState<"top-experts" | "copying" | "how-it-works">("top-experts");
@@ -38,22 +49,22 @@ export default function CopyTradingPage() {
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!clerkUser) return;
     const items = getTrades();
     setTrades(items);
     setLoading(false);
-  }, [user]);
+  }, [clerkUser]);
 
   const handleToggleCopy = (tradeId: string) => {
-    if (!user) return;
-    const updated = toggleCopy(tradeId, user.id);
+    if (!clerkUser) return;
+    const updated = toggleCopy(tradeId, clerkUser.id);
     if (!updated) return;
 
     setTrades((prev) =>
       prev.map((t) => (t.id === updated.id ? updated : t))
     );
 
-    if (updated.copiedBy?.includes(user.id)) {
+    if (updated.copiedBy?.includes(clerkUser.id)) {
       toast({
         title: "Expert copied successfully",
         description: "",
@@ -82,14 +93,14 @@ export default function CopyTradingPage() {
 
   const topExperts = filtered;
   const copyingHistory = trades.filter(
-    (t) => t.copiedBy && user && t.copiedBy.includes(user.id)
+    (t) => t.copiedBy && clerkUser && t.copiedBy.includes(clerkUser.id)
   );
 
   const FAQS = [
     { q: "What is Copy Trading?", a: "Copy Trading allows you to follow expert traders." },
     { q: "How do I copy an expert?", a: "Click the Copy button beside any expert." },
     { q: "How can I stop copying?", a: "Click Cancel on the expert you are copying." },
-    { q: "Why don’t I receive any trades?", a: "They may not have placed new trades yet." },
+    { q: "Why don't I receive any trades?", a: "They may not have placed new trades yet." },
     { q: "What is the minimum amount?", a: "Each expert sets their minimum amount." },
     { q: "How does copying work?", a: "Your trades follow the expert settings." },
     { q: "What is profit share?", a: "It's the percent the expert earns from your profits." },
@@ -107,6 +118,11 @@ export default function CopyTradingPage() {
           <p className="text-sm text-gray-600">
             Browse public trades and copy traders you trust.
           </p>
+        </div>
+        {/* Display balance if needed */}
+        <div className="text-right">
+          <p className="text-sm text-gray-600">Your Balance</p>
+          <p className="text-2xl font-semibold">${balance.toFixed(2)}</p>
         </div>
       </div>
 
@@ -261,13 +277,13 @@ export default function CopyTradingPage() {
                     </button>
                     <button
                       className={`px-8 py-3 rounded-xl text-white font-semibold ${
-                        t.copiedBy?.includes(user?.id || "")
+                        t.copiedBy?.includes(clerkUser?.id || "")
                           ? "bg-red-500 hover:bg-red-600"
                           : "bg-blue-600 hover:bg-blue-700"
                       }`}
                       onClick={() => handleToggleCopy(t.id)}
                     >
-                      {t.copiedBy?.includes(user?.id || "")
+                      {t.copiedBy?.includes(clerkUser?.id || "")
                         ? "Cancel"
                         : "Copy"}
                     </button>
@@ -420,7 +436,7 @@ export default function CopyTradingPage() {
                   className="w-full px-8 py-4 rounded-xl text-lg font-bold bg-blue-600 text-white"
                   onClick={() => handleToggleCopy(selectedTrader.id)}
                 >
-                  {selectedTrader.copiedBy?.includes(user?.id || "")
+                  {selectedTrader.copiedBy?.includes(clerkUser?.id || "")
                     ? "Cancel"
                     : "Copy"}
                 </button>
