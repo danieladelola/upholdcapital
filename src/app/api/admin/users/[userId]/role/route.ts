@@ -4,33 +4,23 @@ import { hasPermission } from "@/lib/auth";
 import { PERMISSIONS } from "@/lib/permissions";
 import { db } from "@/lib/firebase";
 
-export async function PATCH(
-  req: NextRequest,
-  context: { params: { userId: string } } // plain object
-) {
+export async function PATCH(req: NextRequest, context: { params: { userId: string } }) {
   try {
     const { userId } = context.params;
 
     const { userId: currentUserId } = auth();
-    if (!currentUserId) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
+    if (!currentUserId) return new NextResponse("Unauthorized", { status: 401 });
 
     const isAdmin = await hasPermission(currentUserId, PERMISSIONS.ADMIN_DASHBOARD);
-    if (!isAdmin) {
-      return new NextResponse("Forbidden", { status: 403 });
-    }
+    if (!isAdmin) return new NextResponse("Forbidden", { status: 403 });
 
     const { role } = await req.json();
-    if (!role || (role !== "trader" && role !== "user")) {
+    if (!role || (role !== "trader" && role !== "user"))
       return new NextResponse("Invalid role specified", { status: 400 });
-    }
 
     const userRef = db.collection("users").doc(userId);
     const userDoc = await userRef.get();
-    if (!userDoc.exists) {
-      return new NextResponse("User not found", { status: 404 });
-    }
+    if (!userDoc.exists) return new NextResponse("User not found", { status: 404 });
 
     await userRef.update({ role });
 
@@ -44,7 +34,7 @@ export async function PATCH(
 
     const updatedUser = (await userRef.get()).data();
 
-    return NextResponse.json(updatedUser); // no <User>
+    return NextResponse.json(updatedUser); // plain, no <User>
   } catch (error) {
     console.error("Error updating user role:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
