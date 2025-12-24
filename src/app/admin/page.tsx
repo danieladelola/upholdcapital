@@ -1,7 +1,5 @@
-"use client";
-import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react"; // Import useEffect
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DepositsManagement from "@/components/deposits-management";
 import UsersManagement from "@/components/users-management";
@@ -10,37 +8,22 @@ import SubscriptionsManagement from "@/components/subscriptions-management";
 import StakingOptionsManagement from "@/components/staking-options-management";
 import WalletConnections from "@/components/wallet-connections";
 
+export const dynamic = 'force-dynamic';
+
 // List of admin emails (can also be stored in environment variables)
 const ADMIN_EMAILS = ["itemilayo.r@gmail.com", "mailbettywood@gmail.com", "temilayox@gmail.com"];
 
-function AdminDashboard() {
-  const { user, isLoaded } = useUser();
-  const router = useRouter();
+export default async function AdminDashboard() {
+  const user = await currentUser();
 
-  // Check if the user is an admin
-  const isAdmin = () => {
-    if (!isLoaded || !user) return false;
+  if (!user) {
+    redirect("/sign-in");
+  }
 
-    // Get the user's email
-    const userEmail = user.primaryEmailAddress?.emailAddress;
-    if (userEmail) {
-      const isAdminUser = ADMIN_EMAILS.includes(userEmail);
-      return isAdminUser;
-    } else {
-      return false;
-    }
-  };
+  const userEmail = user.emailAddresses[0]?.emailAddress;
 
-  // Use useEffect to handle redirection after the user data is loaded
-  useEffect(() => {
-    if (isLoaded && !isAdmin()) {
-      router.push("/dashboard"); // Redirect to the dashboard if the user is not an admin
-    }
-  }, [isLoaded, user]); // Run this effect when isLoaded or user changes
-
-  // If the user is not an admin, return null (the useEffect will handle the redirection)
-  if (!isLoaded || !isAdmin()) {
-    return null; // Render nothing while checking or redirecting
+  if (!userEmail || !ADMIN_EMAILS.includes(userEmail)) {
+    redirect("/dashboard");
   }
 
   return (
@@ -77,6 +60,3 @@ function AdminDashboard() {
     </div>
   );
 }
-
-// Apply the Clerk authentication guard
-export default AdminDashboard;
