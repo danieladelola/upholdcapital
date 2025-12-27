@@ -8,8 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import type { Asset } from "../../types"
-import { db,fire } from "@/lib/firebase"
-import { useUser } from "@clerk/nextjs"
+import { executeTrade } from "@/actions/trading-actions"
 
 import {
   AlertDialog,
@@ -28,7 +27,7 @@ import {
 type TradeType = "Buy" | "Sell" | "Convert"
 type AssetType = "Crypto" | "Stock"
 import { useToast } from "@/hooks/use-toast"
-import { User } from "@clerk/nextjs/server"
+import type { User } from '../../types';
 
 
 
@@ -47,83 +46,40 @@ export function TradingControls({assets,userBalance,user}: {assets: Asset[],user
 
   const handleTrade = async () => {
     console.log(`${tradeType} ${amount} ${asset}`)
-    if(!asset){
+    if(!asset || !user?.id){
       toast({
         title: `Select an asset`
       })
       return
     }
-    // handle the buy or sell logic and update the assets subcolelction
-    // get the current price of the asset and update the
-    // user balance accordingly
-    if((asset.price*parseFloat(amount) > userBalance)&&tradeType.toLocaleLowerCase() == 'buy'){
+
+    const tradeTypeLower = tradeType.toLowerCase()
+    if(tradeTypeLower === 'convert') {
+      // Handle convert logic separately
+      return
+    }
+
+    const result = await executeTrade(
+      user.id,
+      asset.id || asset.symbol, // Use id if available, otherwise symbol (need to fix this)
+      tradeTypeLower as "buy" | "sell",
+      parseFloat(amount),
+      asset.price
+    )
+
+    if (result.success) {
       toast({
-        title: `Insufficient funds`
+        title: `${tradeType} successful`,
+        description: `${amount} ${asset.symbol} ${tradeTypeLower === 'buy' ? 'bought' : 'sold'}`
       })
-  }else{
-
-      if(tradeType.toLowerCase() === 'buy'){
-        const assetRef = db.collection('users').doc(user.id).collection('assets').doc(asset.symbol)
-        await db.collection('users').doc(user.id).collection('trades').add({
-          date: new Date().toISOString(),
-          asset: asset,
-          amount: parseFloat(amount),
-          value: asset.price*parseFloat(amount),
-          action: tradeType,
-          filled: true
-        }).then(()=>{
-          console.log("trade created")
-        })
-        db.collection('users').doc(user.id).update({
-          balance: userBalance - asset.price*parseFloat(amount)
-        })
-        assetRef.get().then((doc)=>{
-          if(doc.exists){
-            assetRef.update({amount:fire.firestore.FieldValue.increment(parseFloat(amount))}).then(val=>{
-              toast({
-                title: `Bought ${amount} $${asset.symbol}`
-              })
-
-            })
-
-          }else{
-            assetRef.set({name:asset.name,amount:parseFloat(amount)})
-          }
-        })
-      }else{
-        await  db.collection('users').doc(user.id).collection('trades').add({
-          date: new Date().toISOString(),
-          asset: asset,
-          amount: parseFloat(amount),
-          value: asset.price*parseFloat(amount),
-          action: tradeType,
-          filled: true
-        })
-        const assetRef = db.collection('users').doc(user.id).collection('assets').doc(asset.symbol)
-        assetRef.get().then((doc)=>{
-          if(doc.exists){
-            if(doc.exists && doc.data()?.amount as number >= parseFloat(amount)){
-              assetRef.update({amount:fire.firestore.FieldValue.increment(-(parseFloat(amount)))})
-            }else{
-              toast({
-                title:"insufficient quantity of selected asset",
-                description:"Sell amount cannot be greater than balance"
-              })
-            }
-          }
-        })
-      db.collection('users').doc(user.id).update({
-          balance: fire.firestore.FieldValue.increment( asset.price*parseFloat(amount))
-        }).then(val=>{
-          toast({
-            title: `Sold ${asset.symbol}`,
-            description: `Sold ${amount} of ${asset.symbol}`,
-            variant: "default",
-          })
-        })
-      }
-    
-  }}
+    } else {
+      toast({
+        title: `Trade failed`,
+        description: result.error,
+        variant: "destructive"
+      })
+    }
+  }
 
   return (
     <Card className="sm:w-[400px] max-w-xs mx-auto w-full">

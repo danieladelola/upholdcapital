@@ -1,10 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import { UserProfile } from "@clerk/nextjs"
+import { useAuth } from "@/components/AuthProvider"
 import { ArrowLeft } from "lucide-react"
 
 export default function UserProfilePage() {
+  const { user } = useAuth()
+
+  if (!user) return <div>Please log in</div>
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-100 to-white dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center p-4">
             <div className="w-full text-left">
@@ -21,7 +25,11 @@ export default function UserProfilePage() {
         </div>
       <div className="w-full overflow-hidden">
         <div className="p-4">
-          <UserProfile />
+          <h1 className="text-2xl font-bold mb-4">User Profile</h1>
+          <p><strong>Name:</strong> {user.firstname} {user.lastname}</p>
+          <p><strong>Email:</strong> {user.email}</p>
+          <p><strong>Role:</strong> {user.role}</p>
+          {/* Add more fields as needed */}
         </div>
       </div>
     </div>

@@ -7,14 +7,14 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { StakingPool } from "./staking-pool"
 import { StakingModal } from "./staking-modal"
 import { db } from "@/lib/firebase"
-import { useUser } from "@clerk/nextjs"
+import { useAuth } from "@/components/AuthProvider"
 import { StakeCard } from "./stake-card"
 import { UserAsset } from "../../types"
 import { fire } from "@/lib/firebase"
 import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { Asset } from "../../types"
-import { User } from "@clerk/nextjs/server"
+import type { User } from '../../types';
 import { useUserAssets } from "@/hooks/use-user-assets"
 
 interface StakingData {

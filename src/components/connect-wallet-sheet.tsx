@@ -11,7 +11,7 @@ import { WalletDialog } from "@/components/wallet-dialog"
 import { SidebarMenuButton } from "./ui/sidebar"
 import { Link2 } from "lucide-react"
 import  {db} from "@/lib/firebase"
-import {useUser} from "@clerk/nextjs"
+import { useAuth } from "@/components/AuthProvider"
 
 interface Wallet {
   name: string
@@ -56,10 +56,10 @@ export function ConnectWalletSheet() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const {user} = useUser()
+  const {user} = useAuth()
   const uid = user?.id
 
-  const walletRef = db.collection("users").doc("uid").collection("wallets")
+  const walletRef = uid ? db.collection("users").doc(uid).collection("wallets") : null
   // use a useeffect to look up existing wallets
   useEffect(()=>{
     const unsubscribeWallets = walletRef.onSnapshot(()=>{

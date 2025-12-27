@@ -15,6 +15,8 @@ export const PERMISSIONS = {
   COPY_TRADING: "copy_trading",
   ADMIN_DASHBOARD: "admin_dashboard",
   POST_TRADE: "post_trade",
+  ASSET_MANAGEMENT: "asset_management",
+  TRADE_HISTORY: "trade_history",
 };
 
 export const rolePermissions: Record<Role, string[]> = {

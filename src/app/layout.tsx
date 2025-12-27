@@ -1,20 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import dynamic from "next/dynamic";
-import ClientClerkProvider from "@/components/ClientClerkProvider";
+import { Inter } from "next/font/google";
+import { AuthProvider } from "@/components/AuthProvider";
 import { Toaster } from "@/components/ui/toaster"
 import "./globals.css";
 
-
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -27,29 +20,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const hasClerkKey = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY)
-
-  // Use a client-only wrapper component when the publishable key exists.
-  // This avoids importing Clerk on the server when env vars are missing.
-
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {hasClerkKey ? (
-          <ClientClerkProvider>
-            <Toaster />
-            {children}
-          </ClientClerkProvider>
-        ) : (
-          // Dev fallback: render children without Clerk when publishable key is missing
-          <>
-            <div className="fixed top-2 left-1/2 -translate-x-1/2 z-50 px-3 py-1 rounded bg-yellow-300 text-black text-sm">
-              Dev: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY not set — auth disabled
-            </div>
-            <Toaster />
-            {children}
-          </>
-        )}
+      <body className={`${inter.variable} antialiased`}>
+        <AuthProvider>
+          <Toaster />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   )

@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import type { Asset} from "../../types"
-import type { UserJSON } from "@clerk/backend"
 import Link from "next/link"
 
 export default function MarketsPage({assets}:{assets:Asset[]}) {

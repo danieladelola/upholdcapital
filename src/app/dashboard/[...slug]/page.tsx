@@ -13,7 +13,7 @@ import { TradingPage } from "@/components/trading-page";
 import MarketsPage from "@/components/market";
 import PostTrade from "@/components/post-trade";
 import { db } from "@/lib/firebase";
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/components/AuthProvider";
 import { useState, useEffect } from "react";
 import type { JSX } from "react";
 import { Asset, UserAsset } from "../../../../types";
@@ -33,9 +33,8 @@ function LoadingSpinner() {
 
 export default function Page() {
   const pathname = usePathname();
-  const { user: clerkUser, isLoaded } = useUser();
-  const user = clerkUser;
-  const slug = pathname.split("/").pop() || "default";
+  const { user, loading } = useAuth();
+  const slug = pathname.split("/").pop() || "home";
   const uid = user?.id;
 
   const [userAssets, setUserAssets] = useState<UserAsset[]>([]);
@@ -45,7 +44,7 @@ export default function Page() {
 
   // Ensure user exists in Firestore
   useEffect(() => {
-    if (uid) {
+    if (uid && !loading) {
       db.collection("users")
         .doc(uid)
         .get()
@@ -58,17 +57,17 @@ export default function Page() {
                 .set(
                   {
                     displayName:
-                      user?.fullName || user?.firstName || "Unknown User",
+                      user?.displayName || `${user?.firstname} ${user?.lastname}` || "Unknown User",
                     email:
-                      user?.emailAddresses[0]?.emailAddress || "Unknown Email",
+                      user?.email || "Unknown Email",
                   },
                   { merge: true }
                 );
             }
           } else {
             db.collection("users").doc(uid).set({
-              displayName: user?.fullName || user?.firstName || "Unknown User",
-              email: user?.emailAddresses[0]?.emailAddress || "Unknown Email",
+              displayName: user?.displayName || `${user?.firstname} ${user?.lastname}` || "Unknown User",
+              email: user?.email || "Unknown Email",
             });
           }
         });
@@ -102,40 +101,50 @@ export default function Page() {
       }
     };
 
-    if (isLoaded && uid) {
+    if (!loading && uid) {
       fetchAndUpdateAssets();
     }
-  }, [userAssets, isLoaded, uid]);
+  }, [userAssets, !loading, uid]);
 
-  // Listen for real-time updates
+  // Fetch balance from database
   useEffect(() => {
-    if (uid) {
-      const unsubscribeBalance = db
-        .collection("users")
-        .doc(uid)
-        .onSnapshot((snapshot) => {
-          const data = snapshot.data();
-          if (data?.balance !== undefined) setBalance(data.balance);
-        });
+    const fetchBalance = async () => {
+      if (!user?.id) return;
+      try {
+        const res = await fetch('/api/user/balance');
+        if (res.ok) {
+          const data = await res.json();
+          setBalance(data.balance);
+        }
+      } catch (error) {
+        console.error('Error fetching balance:', error);
+      }
+    };
 
-      const unsubscribeUserAssets = db
-        .collection("users")
-        .doc(uid)
-        .collection("assets")
-        .onSnapshot((snapshot) => {
-          const updatedUserAssets = snapshot.docs.map((doc) => ({
-            name: doc.id,
-            amount: doc.data().amount,
-            symbol: doc.id,
-          }));
-          setUserAssets(updatedUserAssets);
-        });
+    fetchBalance();
+  }, [user]);
 
-      return () => {
-        unsubscribeBalance();
-        unsubscribeUserAssets();
-      };
-    }
+  // Listen for real-time updates on user assets (from database)
+  useEffect(() => {
+    const fetchUserAssets = async () => {
+      if (uid) {
+        try {
+          const response = await fetch(`/api/user/assets?userId=${uid}`);
+          if (response.ok) {
+            const userAssetsData = await response.json();
+            setUserAssets(userAssetsData.map((ua: any) => ({
+              name: ua.asset.name,
+              symbol: ua.asset.symbol,
+              amount: ua.balance,
+            })));
+          }
+        } catch (error) {
+          console.error('Error fetching user assets:', error);
+        }
+      }
+    };
+
+    fetchUserAssets();
   }, [uid]);
 
   const routeMap: { [key: string]: (props: any) => JSX.Element } = {
@@ -175,7 +184,7 @@ export default function Page() {
       ),
     market: () => <MarketsPage assets={assets} />,
     "join-expert": () =>
-      isLoaded ? (
+      !loading ? (
         <JoinExpert />
       ) : (
         <LoadingSpinner />
@@ -185,7 +194,7 @@ export default function Page() {
 
   const Component = routeMap[slug] || routeMap.default;
 
-  if (!isLoaded || isLoading) {
+  if (loading || isLoading) {
     return <LoadingSpinner />;
   }
 

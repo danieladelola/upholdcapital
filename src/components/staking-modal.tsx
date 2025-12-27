@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { Asset } from '../../types';
 import { db } from '@/lib/firebase'
 import { useToast } from '@/hooks/use-toast'
-import { useUser } from '@clerk/nextjs'
+import { useAuth } from '@/components/AuthProvider'
 
 interface StakingModalProps {
   isOpen: boolean
@@ -33,7 +33,7 @@ export function StakingModal({ isOpen, onClose, pool, onStake,assets, userId, to
   const [amount, setAmount] = useState(pool.minimum.toString())
   const [duration, setDuration] = useState("1")
   const sasset = assets.find(value=>value.symbol == pool.symbol)
-  const { user } = useUser()
+  const { user } = useAuth()
   // Prefer a provided userId prop (server/parent), fallback to client useUser()
   const uid = userId ?? user?.id
   const [liveBalance, setLiveBalance] = useState<number | null>(sasset?.amount ?? null)

@@ -1,0 +1,160 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password_hash String
+  created_at    DateTime @default(now())
+  firstname     String?
+  lastname      String?
+  initials      String?
+  usdBalance    Float?   @default(0)
+  currency      String?  @default("USD")
+  phoneNumber   String?
+  country       String?
+  photoURL      String?
+  displayName   String?
+  verified      Boolean? @default(false)
+  role          String?  @default("user")
+  // wallets and assets can be separate models or JSON
+  wallets       Json?    @default("[]")
+  assets        Json?    @default("[]")
+  deposits      Deposit[]
+  withdrawals   Withdrawal[]
+  userSubscriptions UserSubscription[]
+  walletConnections WalletConnection[]
+  userAssets    UserAsset[]
+  trades        Trade[]
+}
+
+model Admin {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password_hash String
+  created_at    DateTime @default(now())
+}
+
+model Deposit {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount    Float
+  method    String
+  status    String   @default("pending") // pending, approved, declined
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Withdrawal {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amountUsd Float
+  status    String   @default("pending") // pending, approved, declined
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DepositMethod {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  enabled     Boolean  @default(true)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SubscriptionPlan {
+  id          String   @id @default(cuid())
+  name        String
+  price       Float
+  duration    String   // e.g., "monthly", "yearly"
+  features    Json     // JSON array or object of features
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userSubscriptions UserSubscription[]
+}
+
+model UserSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscriptionId    String
+  subscription      SubscriptionPlan @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  status    String   @default("active") // active, completed, cancelled
+  startDate DateTime @default(now())
+  endDate   DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StakingOption {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  roi         Float
+  duration    Int      // in days
+  minimum     Float
+  maximum     Float?
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model WalletConnection {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // e.g., "metamask", "walletconnect"
+  address   String
+  connected Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Asset {
+  id        String   @id @default(cuid())
+  symbol    String   @unique
+  name      String
+  price_usd Float
+  logo_url  String?
+  created_at DateTime @default(now())
+  userAssets UserAsset[]
+  trades     Trade[]
+}
+
+model UserAsset {
+  id       String @id @default(cuid())
+  user_id  String
+  user     User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  asset_id String
+  asset    Asset  @relation(fields: [asset_id], references: [id], onDelete: Cascade)
+  balance  Float  @default(0)
+  @@unique([user_id, asset_id])
+}
+
+model Trade {
+  id         String   @id @default(cuid())
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  asset_id   String
+  asset      Asset    @relation(fields: [asset_id], references: [id], onDelete: Cascade)
+  trade_type String   // "buy" or "sell"
+  amount     Float
+  price_usd  Float
+  created_at DateTime @default(now())
+}

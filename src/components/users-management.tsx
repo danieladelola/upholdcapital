@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/components/AuthProvider";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,8 +13,6 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { updateUserBalance, updateUserRole } from "../actions/user-actions";
-import { db } from "@/lib/firebase";
-import { UserProfile } from "types";
 import { RoleBadge } from "./role-badge";
 import {
   AlertDialog,
@@ -28,43 +26,75 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 
+interface User {
+  id: string;
+  email: string;
+  firstname: string | null;
+  lastname: string | null;
+  usdBalance: number | null;
+  role: string | null;
+  verified: boolean | null;
+  created_at: Date;
+}
+
 export default function UsersManagement() {
-  const { user: currentUser } = useUser();
-  const [users, setUsers] = useState<UserProfile[]>([]);
+  const { user: currentUser } = useAuth();
+  const [users, setUsers] = useState<User[]>([]);
   const [balanceChanges, setBalanceChanges] = useState<{ [key: string]: number }>({});
-  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = db.collection("users").onSnapshot((snapshot) => {
-      const newUsers = snapshot.docs.map((doc) => ({
-        uid: doc.id,
-        ...doc.data(),
-      })) as UserProfile[];
-      setUsers(newUsers);
-    });
-
-    return () => unsubscribe();
+    fetchUsers();
   }, []);
 
-  const handleBalanceChange = (uid: string, amount: number) => {
-    setBalanceChanges({ ...balanceChanges, [uid]: amount });
-  };
-
-  const handleUpdateBalance = async (uid: string) => {
-    const amount = balanceChanges[uid];
-    if (amount !== undefined) {
-      await updateUserBalance(uid, amount);
-      setBalanceChanges({ ...balanceChanges, [uid]: 0 });
-      toast({
-        title: "Success",
-        description: "User balance updated successfully.",
-      });
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch('/api/admin/users');
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(data);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
     }
   };
 
-  const handleRoleChangeClick = (user: UserProfile) => {
+  const handleBalanceChange = (id: string, amount: number) => {
+    setBalanceChanges({ ...balanceChanges, [id]: amount });
+  };
+
+  const handleUpdateBalance = async (id: string) => {
+    const amount = balanceChanges[id];
+    if (amount !== undefined) {
+      try {
+        const res = await fetch(`/api/admin/users/${id}/balance`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount }),
+        });
+        if (res.ok) {
+          setBalanceChanges({ ...balanceChanges, [id]: 0 });
+          toast({
+            title: "Success",
+            description: "User balance updated successfully.",
+          });
+          fetchUsers(); // refresh
+        } else {
+          throw new Error('Failed to update balance');
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to update user balance.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleRoleChangeClick = (user: User) => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };
@@ -73,11 +103,20 @@ export default function UsersManagement() {
     if (selectedUser) {
       const newRole = selectedUser.role === "trader" ? "user" : "trader";
       try {
-        await updateUserRole(selectedUser.uid, newRole);
-        toast({
-          title: "Success",
-          description: `User role updated to ${newRole}.`,
+        const res = await fetch(`/api/admin/users/${selectedUser.id}/role`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: newRole }),
         });
+        if (res.ok) {
+          toast({
+            title: "Success",
+            description: `User role updated to ${newRole}.`,
+          });
+          fetchUsers(); // refresh
+        } else {
+          throw new Error('Failed to update role');
+        }
       } catch (error) {
         toast({
           title: "Error",
@@ -106,24 +145,24 @@ export default function UsersManagement() {
         </TableHeader>
         <TableBody>
           {users.map((user) => (
-            <TableRow key={user.uid}>
-              <TableCell>{user.displayName}</TableCell>
+            <TableRow key={user.id}>
+              <TableCell>{user.firstname} {user.lastname}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>
-                <RoleBadge role={user.role} />
+                <RoleBadge role={user.role || 'user'} />
               </TableCell>
-              <TableCell>{user.balance}</TableCell>
+              <TableCell>${user.usdBalance || 0}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
                   <Input
                     type="number"
-                    value={balanceChanges[user.uid] || 0}
+                    value={balanceChanges[user.id] || 0}
                     onChange={(e) =>
-                      handleBalanceChange(user.uid, parseFloat(e.target.value))
+                      handleBalanceChange(user.id, parseFloat(e.target.value))
                     }
                     className="w-24"
                   />
-                  <Button onClick={() => handleUpdateBalance(user.uid)}>
+                  <Button onClick={() => handleUpdateBalance(user.id)}>
                     Update Balance
                   </Button>
                   {user.role === "user" ? (
@@ -153,7 +192,7 @@ export default function UsersManagement() {
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                You are about to change the role for {selectedUser.displayName}.
+                You are about to change the role for {selectedUser.firstname} {selectedUser.lastname}.
                 {selectedUser.role === "user"
                   ? " This will grant them Trader status, allowing them access to the POST TRADE feature."
                   : " This will revoke their Trader status."}

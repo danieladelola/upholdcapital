@@ -1,62 +1,97 @@
-import { currentUser } from "@clerk/nextjs/server";
+"use client";
+
+import { useAuth } from "@/components/AuthProvider";
 import { redirect } from "next/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Sidebar, SidebarContent, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { LogOut, CreditCard, Users, Settings, Receipt, TrendingUp, Wallet, ArrowDown, Coins, CandlestickChartIcon } from "lucide-react";
 import DepositsManagement from "@/components/deposits-management";
 import UsersManagement from "@/components/users-management";
 import DepositMethodsManagement from "@/components/deposit-methods-management";
 import SubscriptionsManagement from "@/components/subscriptions-management";
 import StakingOptionsManagement from "@/components/staking-options-management";
 import WalletConnections from "@/components/wallet-connections";
+import WithdrawalsManagement from "@/components/withdrawals-management";
+import AdminAssetsPage from "@/components/admin-assets-page";
+import AdminTradesPage from "@/components/admin-trades-page";
 
-export const dynamic = 'force-dynamic';
+const menuItems = [
+  { id: 'assets', label: 'Asset Management', icon: Coins, component: AdminAssetsPage },
+  { id: 'trades', label: 'Trade History', icon: CandlestickChartIcon, component: AdminTradesPage },
+  { id: 'deposits', label: 'Deposits', icon: CreditCard, component: DepositsManagement },
+  { id: 'withdrawals', label: 'Withdrawals', icon: ArrowDown, component: WithdrawalsManagement },
+  { id: 'users', label: 'Users', icon: Users, component: UsersManagement },
+  { id: 'deposit-methods', label: 'Deposit Methods', icon: Settings, component: DepositMethodsManagement },
+  { id: 'subscriptions', label: 'Subscriptions', icon: Receipt, component: SubscriptionsManagement },
+  { id: 'staking', label: 'Staking Options', icon: TrendingUp, component: StakingOptionsManagement },
+  { id: 'connections', label: 'Wallet Connections', icon: Wallet, component: WalletConnections },
+];
 
-// List of admin emails (can also be stored in environment variables)
-const ADMIN_EMAILS = ["itemilayo.r@gmail.com", "mailbettywood@gmail.com", "temilayox@gmail.com"];
+export default function AdminDashboard() {
+  const { user, loading, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState('assets');
 
-export default async function AdminDashboard() {
-  const user = await currentUser();
+  useEffect(() => {
+    if (!loading && (!user || user.role !== 'admin')) {
+      redirect("/admin/login");
+    }
+  }, [user, loading]);
 
-  if (!user) {
-    redirect("/sign-in");
-  }
+  const handleLogout = async () => {
+    await logout();
+    redirect("/admin/login");
+  };
 
-  const userEmail = user.emailAddresses[0]?.emailAddress;
+  if (loading) return <div>Loading...</div>;
+  if (!user || user.role !== 'admin') return null;
 
-  if (!userEmail || !ADMIN_EMAILS.includes(userEmail)) {
-    redirect("/dashboard");
-  }
+  const ActiveComponent = menuItems.find(item => item.id === activeTab)?.component || DepositsManagement;
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-      <Tabs defaultValue="deposits" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="deposits">Deposits</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="deposit-methods">Deposit Methods</TabsTrigger>
-          <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
-          <TabsTrigger value="staking">Staking Options</TabsTrigger>
-          <TabsTrigger value="connections">Wallet Connections</TabsTrigger>
-        </TabsList>
-        <TabsContent value="deposits">
-          <DepositsManagement />
-        </TabsContent>
-        <TabsContent value="users">
-          <UsersManagement />
-        </TabsContent>
-        <TabsContent value="deposit-methods">
-          <DepositMethodsManagement />
-        </TabsContent>
-        <TabsContent value="subscriptions">
-          <SubscriptionsManagement />
-        </TabsContent>
-        <TabsContent value="staking">
-          <StakingOptionsManagement />
-        </TabsContent>
-        <TabsContent value="connections">
-          <WalletConnections />
-        </TabsContent>
-      </Tabs>
-    </div>
+    <SidebarProvider>
+      <div className="flex h-screen w-full">
+        <Sidebar className="border-r">
+          <SidebarContent className="flex flex-col h-full">
+            <div className="p-4 border-b">
+              <h2 className="text-lg font-semibold">Admin Dashboard</h2>
+            </div>
+            <nav className="flex-1 p-4">
+              <ul className="space-y-2">
+                {menuItems.map((item) => (
+                  <li key={item.id}>
+                    <button
+                      onClick={() => setActiveTab(item.id)}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-left transition-colors ${
+                        activeTab === item.id
+                          ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                          : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {item.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <div className="p-4 border-t">
+              <Button onClick={handleLogout} variant="outline" className="w-full flex items-center gap-2">
+                <LogOut className="h-4 w-4" />
+                Logout
+              </Button>
+            </div>
+          </SidebarContent>
+        </Sidebar>
+        <main className="flex-1 overflow-auto">
+          <div className="p-6">
+            <div className="mb-4">
+              <SidebarTrigger />
+            </div>
+            <ActiveComponent />
+          </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 }

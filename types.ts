@@ -4,12 +4,16 @@ import { SubscriptionBalance } from './src/components/subscription-balance';
 export type Role = 'user' | 'trader' | 'admin';
 
 export interface Asset {
-  name: string;
+  id: string;
   symbol: string;
-  type: string;
-  icon: string;
-  price: number;
-  amount: number;
+  name: string;
+  price_usd: number;
+  logo_url: string | null;
+  created_at: Date;
+  type?: string; // For backward compatibility
+  icon?: string; // For backward compatibility
+  price?: number; // For backward compatibility
+  amount?: number; // For backward compatibility
 }
 export type Wallet={
   name: string,
@@ -25,15 +29,14 @@ export type UserWallet = {
 }
 
 export type SubscriptionPlan = {
-  id:string,
-  name:string,
-  sector:string,
-  img:string,
-  minimum:number,
-  maximum:number,
-  duration:number,
-  roi:number
-  description?: string
+  id: string;
+  name: string;
+  price: number;
+  duration: string;
+  features: any; // JSON
+  enabled: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type UserSubscription = {
@@ -44,7 +47,7 @@ export type UserSubscription = {
 }
 
 export type User = {
-  uid?:string,
+  id?:string,
   firstname:string,
   lastname:string,
   initials:string,
@@ -59,6 +62,8 @@ export type User = {
   wallets:UserWallet[],
   assets:UserAsset[],
   role: Role;
+  password_hash?: string;
+  created_at?: Date;
 }
 
 export type DepositTrx = {
@@ -94,9 +99,22 @@ export const generateMockPriceData = (): PriceData[] => {
 };
 
 export interface Trade {
-  id: string
-  date: string
-  asset: Asset
+  id: string;
+  user_id: string;
+  asset_id: string;
+  trade_type: string;
+  amount: number;
+  price_usd: number;
+  created_at: Date;
+  // For backward compatibility
+  date?: string;
+  asset?: Asset;
+  from?: string;
+  to?: string;
+  value?: number;
+  action?: "Buy" | "Sell" | "Convert";
+  filled?: boolean;
+}
   from?: string
   to?: string
   amount: number
@@ -125,9 +143,11 @@ export interface UserProfile {
 }
 
 export type UserAsset = {
-  name: string,
-  symbol: string,
-  amount: number,
+  id: string;
+  user_id: string;
+  asset_id: string;
+  balance: number;
+  asset?: Asset; // Optional relation
 }
 
 export type CryptoMethod ={
@@ -167,10 +187,12 @@ export interface Deposit {
 }
 
 export interface Subscription {
-  id: string
-  planName: string
-  amount: number
-  startDate: string
-  endDate: string
-  status: "active" | "completed" | "cancelled"
+  id: string;
+  userId: string;
+  subscriptionId: string;
+  status: "active" | "completed" | "cancelled";
+  startDate: string;
+  endDate?: string;
+  createdAt: string;
+  updatedAt: string;
 }

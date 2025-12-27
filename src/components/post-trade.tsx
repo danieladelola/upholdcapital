@@ -3,13 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useUser } from "@clerk/nextjs";
-import { hasPermission } from "@/lib/auth";
+import { useAuth } from "@/components/AuthProvider";
 import { PERMISSIONS } from "@/lib/permissions";
 import { saveTrade } from "@/lib/trades";
 
 export default function PostTrade() {
-  const { user } = useUser();
+  const { user } = useAuth();
   // Title and Symbol removed from UI (kept out of form). We'll provide sensible defaults on submit.
   // Entry Price removed from form and state
   const [direction, setDirection] = useState("Buy");
@@ -22,11 +21,7 @@ export default function PostTrade() {
 
   useEffect(() => {
     if (!user) return;
-    const check = async () => {
-      const ok = await hasPermission(user.id, PERMISSIONS.POST_TRADE);
-      setCanPost(!!ok);
-    };
-    check();
+    setCanPost(user.role === 'trader' || user.role === 'admin');
   }, [user]);
 
   const traderName = user?.fullName || user?.firstName || user?.emailAddresses?.[0]?.emailAddress || "Unknown";

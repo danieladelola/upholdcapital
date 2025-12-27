@@ -1,9 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useAuth } from "@/components/AuthProvider"
 
 interface Plan {
   name: string
@@ -23,20 +20,7 @@ export function PurchaseForm({ plans }: PurchaseFormProps) {
   const [balance, setBalance] = useState<number | null>(null)
   const [balanceLoading, setBalanceLoading] = useState(true)
 
-  // lazy import to avoid adding new top-level dependency if Clerk isn't configured
-  let useUserHook: any
-  try {
-    // prefer real Clerk hook when available
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    useUserHook = require("@clerk/nextjs").useUser
-  } catch (e) {
-    // fall back to shim exported in src/lib/clerk-shim.tsx
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    useUserHook = require("@/lib/clerk-shim").useUser
-  }
-  const { user } = useUserHook()
-
-  useEffect(() => {
+  const { user } = useAuth()
     if (!user?.id) {
       setBalance(0)
       setBalanceLoading(false)

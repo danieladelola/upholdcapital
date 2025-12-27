@@ -10,8 +10,7 @@ import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { db } from "@/lib/firebase"
 import { Subscription } from '../../types';
-import  type {CryptoMethod, BankMethod,Deposit, SubscriptionPlan}from '../../types';
-import { User } from "@clerk/nextjs/server"
+import  type {CryptoMethod, BankMethod,Deposit, SubscriptionPlan, User}from '../../types';
 
 
 export function Subscriptions({user,balance}:{user:User,balance:number}) {
@@ -21,122 +20,76 @@ export function Subscriptions({user,balance}:{user:User,balance:number}) {
     const [bankDetails, setBankDetails] = useState<BankMethod|any>(null)
     const [cryptoDetails, setCryptoDetails] = useState<CryptoMethod[]>([])
     const [history, setHistory] = useState<Subscription[]>([])
-   const [plans,setPlans] = useState<SubscriptionPlan[]>([
-      {
-        name: "Starter Plan",
-        minimum: 5000,
-        maximum: 5000,
-        duration: 30,
-        roi: 0,
-        sector: 'Crypto / Beginner',
-        img: '/PNG.svg',
-        id: 'starter',
-        description: 'Perfect for beginners exploring crypto. Includes basic tools and limited staking access.'
-      },
-      {
-        name: "Pro Plan",
-        minimum: 10000,
-        maximum: 10000,
-        duration: 30,
-        roi: 0,
-        sector: 'Crypto / Active Traders',
-        img: '/PNG.svg',
-        id: 'pro',
-        description: 'Designed for active traders. Offers higher limits, faster support, and extra analytics.'
-      },
-      {
-        name: "Elite Plan",
-        minimum: 15000,
-        maximum: 15000,
-        duration: 30,
-        roi: 0,
-        sector: 'Crypto / Investors',
-        img: '/PNG.svg',
-        id: 'elite',
-        description: 'For serious investors. Unlocks advanced staking options, deeper insights, and VIP features.'
-      },
-      {
-        name: "Titan Plan",
-        minimum: 20000,
-        maximum: 20000,
-        duration: 30,
-        roi: 0,
-        sector: 'Crypto / VIP',
-        img: '/PNG.svg',
-        id: 'titan',
-        description: 'Top-tier access with full features, maximum rewards, early updates, and personal support.'
-      },
-    ])
+   const [plans, setPlans] = useState<SubscriptionPlan[]>([])
 
       useEffect(() => {
-        try {
-          const unsubscribeHistory = db.collection("users").doc(uid).collection("subscriptions").onSnapshot((snapshot) => {
-            const updatedSubscriptions = snapshot.docs.map((doc) => {
-              const data = doc.data();
-              return {
-                id: doc.id,
-                planName: data.planName,
-                amount: data.amount,
-                startDate: data.startDate,
-                endDate: data.endDate,
-                status: data.status
-              } as Subscription;
-            })
-            setHistory(updatedSubscriptions)
-          })
-          const unsubscibeDetails = db.collection("bankMethods").onSnapshot((snapshot) => {
-            const newBankDetails = snapshot.docs.map((doc) => ({
-              ...doc.data()
-            })) as unknown as BankMethod[]
-            setBankDetails(newBankDetails[0])
-          })
-          
-          const unsubscribeCrypto = db.collection("cryptoMethods").onSnapshot((snapshot) => {
-            const newCryptoMethods = snapshot.docs.map((doc) => ({
-              ...doc.data()
-            })) as CryptoMethod[]
-            setCryptoDetails(newCryptoMethods)
-          })
-          // Return the cleanup function (do not invoke it)
-          return () => {
-            unsubscibeDetails();
-            unsubscribeCrypto();
-          };
-        } catch (e) {
-          console.error(e);
-        }
+        // Fetch plans
+        fetch('/api/subscriptions')
+          .then(res => res.json())
+          .then(data => setPlans(data))
+          .catch(err => console.error('Error fetching plans:', err));
+
+        // Fetch history
+        fetch(`/api/subscriptions/history?userId=${uid}`)
+          .then(res => res.json())
+          .then(data => setHistory(data))
+          .catch(err => console.error('Error fetching history:', err));
+
+        // Keep Firebase for deposits if needed
+        const unsubscibeDetails = db.collection("bankMethods").onSnapshot((snapshot) => {
+          const newBankDetails = snapshot.docs.map((doc) => ({
+            ...doc.data()
+          })) as unknown as BankMethod[]
+          setBankDetails(newBankDetails[0])
+        })
+        
+        const unsubscribeCrypto = db.collection("cryptoMethods").onSnapshot((snapshot) => {
+          const newCryptoMethods = snapshot.docs.map((doc) => ({
+            ...doc.data()
+          })) as CryptoMethod[]
+          setCryptoDetails(newCryptoMethods)
+        })
+        // Return the cleanup function
+        return () => {
+          unsubscibeDetails();
+          unsubscribeCrypto();
+        };
       }, [user]);
       
-  const handleSubscribe = (planName: string, amount: number) => {
-    console.log(`Subscribed to ${planName} with amount $${amount}`)
-    // Here you would typically make an API call to process the subscription
-    // For now, we'll just update the balance
-    if(balance>amount){
-      const newSubscription:Subscription = {
-        amount:amount,
-        endDate: new Date(new Date().getTime() + (plans.find(plan => plan.name === planName)?.duration ?? 0) * 24 * 60 * 60 * 1000).toISOString(),
-        startDate: new Date().toISOString(),
-        planName:planName,
-        id: `sub-${Date.now()}`,
-        status:'active'
+  const handleSubscribe = async (planId: string) => {
+    try {
+      const response = await fetch('/api/subscriptions/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId, userId: uid }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        toast({
+          title: "Subscribed",
+          description: "Subscription successful!",
+          variant: "default",
+        });
+        // Refresh history
+        fetch('/api/subscriptions/history')
+          .then(res => res.json())
+          .then(data => setHistory(data))
+          .catch(err => console.error('Error fetching history:', err));
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "Subscription failed",
+          variant: "destructive",
+        });
       }
-      db.collection('users').doc(uid).update({
-        balance:balance-amount
-      })
-      db.collection('users').doc(uid).collection('subscriptions').add(newSubscription)
-
+    } catch (error) {
+      console.error('Error subscribing:', error);
       toast({
-        title: "Subscribed",
-        description: `Subscribed to ${planName} with amount \$${amount}`,
-        variant: "default",
-      })
-  }else{
-    toast({
-      title: "Insufficient Balance",
-      description: `You have insufficient balance to subscribe to ${planName} with amount \$${amount}`,
-      variant: "destructive",
-    })
-  }
+        title: "Error",
+        description: "An error occurred",
+        variant: "destructive",
+      });
+    }
   }
 
   const handleDeposit = (amount: number,image:string,method:string,type:string, crypto?: string, network?: string, txHash?: string, address?: string) => {

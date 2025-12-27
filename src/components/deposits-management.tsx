@@ -3,45 +3,58 @@
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { approveDeposit, rejectDeposit } from "../actions/deposit-actions"
-import { db } from "@/lib/firebase"
+import { approveDeposit, declineDeposit } from "@/actions/deposit-actions"
 
 interface Deposit {
   id: string
-  date: string
-  reference: string
-  method: string
-  type: string
+  userId: string
+  user: {
+    email: string
+    firstname: string | null
+    lastname: string | null
+  }
   amount: number
-  totalUSD: number
-  status: "pending" | "approved" | "rejected"
-  image: string
-  uid: string
+  method: string
+  status: string
+  createdAt: string
+  updatedAt: string
 }
 
 export default function DepositsManagement() {
   const [deposits, setDeposits] = useState<Deposit[]>([])
 
   useEffect(() => {
-    const unsubscribe = db.collection("deposits")
-      .orderBy("date", "desc")
-      .onSnapshot((snapshot) => {
-        const newDeposits = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Deposit[]
-        setDeposits(newDeposits)
-      })
-
-    return () => unsubscribe()
+    fetchDeposits()
   }, [])
 
-  const handleApprove = async (id: string,amount:number,type:string,userid:string) => {
-    await approveDeposit(id,amount,type,userid)
+  const fetchDeposits = async () => {
+    try {
+      const res = await fetch('/api/admin/deposits');
+      if (res.ok) {
+        const data = await res.json();
+        setDeposits(data);
+      }
+    } catch (error) {
+      console.error('Error fetching deposits:', error);
+    }
+  }
+
+  const handleApprove = async (id: string) => {
+    try {
+      await approveDeposit(id);
+      fetchDeposits(); // Refresh the list
+    } catch (error) {
+      console.error('Error approving deposit:', error);
+    }
   }
 
   const handleReject = async (id: string) => {
-    await rejectDeposit(id)
+    try {
+      await declineDeposit(id);
+      fetchDeposits(); // Refresh the list
+    } catch (error) {
+      console.error('Error rejecting deposit:', error);
+    }
   }
 
   return (
@@ -51,11 +64,9 @@ export default function DepositsManagement() {
         <TableHeader>
           <TableRow>
             <TableHead>Date</TableHead>
-            <TableHead>Reference</TableHead>
+            <TableHead>User</TableHead>
             <TableHead>Method</TableHead>
-            <TableHead>Type</TableHead>
             <TableHead>Amount</TableHead>
-            <TableHead>Total USD</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -63,18 +74,16 @@ export default function DepositsManagement() {
         <TableBody>
           {deposits.map((deposit) => (
             <TableRow key={deposit.id}>
-              <TableCell>{new Date(deposit.date).toLocaleString('en-US')}</TableCell>
-              <TableCell>{deposit.reference}</TableCell>
+              <TableCell>{new Date(deposit.createdAt).toLocaleString('en-US')}</TableCell>
+              <TableCell>{deposit.user.firstname} {deposit.user.lastname} ({deposit.user.email})</TableCell>
               <TableCell>{deposit.method}</TableCell>
-              <TableCell>{deposit.type}</TableCell>
-              <TableCell>{deposit.amount}</TableCell>
-              <TableCell>{deposit.totalUSD}</TableCell>
+              <TableCell>${deposit.amount}</TableCell>
               <TableCell>{deposit.status}</TableCell>
               <TableCell>
                 {deposit.status === "pending" && (
                   <>
-                    <Button onClick={() =>{ handleApprove(deposit.id,deposit.amount,deposit.type,deposit.uid); alert(`${deposit.id}, ${deposit.uid}: ${deposit}`)}} className="mr-2">Approve</Button>
-                    <Button onClick={() => handleReject(deposit.id)} variant="destructive">Reject</Button>
+                    <Button onClick={() => handleApprove(deposit.id)} className="mr-2">Approve</Button>
+                    <Button onClick={() => handleReject(deposit.id)} variant="destructive">Decline</Button>
                   </>
                 )}
               </TableCell>

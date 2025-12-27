@@ -1,35 +1,86 @@
-"use client";
+"use server";
 
-import { db } from "@/lib/firebase";
+import { prisma } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
-export async function approveDeposit(
-  id: string,
-  amount: number,
-  type: string,
-  userid: string
-) {
-  // get the balance or subscription balance if type is subscription
-  let balance = 0;
-
-  const snapshot = await db.collection("users").doc(userid).get();
-  if (snapshot.exists) {
-    const data = snapshot.data();
-    if (data) {
-      balance =parseFloat(data.balance);
-    }
-  }
-  db.collection("users")
-    .doc(userid)
-    .update({
-      balance: balance + amount,
+export async function createDeposit(userId: string, amount: number, method: string) {
+  try {
+    const deposit = await prisma.deposit.create({
+      data: {
+        userId,
+        amount,
+        method,
+        status: "pending",
+      },
     });
-  await db.collection("deposits").doc(id).update({
-    status: "approved",
-  });
+    revalidatePath("/admin");
+    return deposit;
+  } catch (error) {
+    console.error("Error creating deposit:", error);
+    throw new Error("Failed to create deposit");
+  }
 }
 
-export async function rejectDeposit(id: string) {
-  await db.collection("deposits").doc(id).update({
-    status: "rejected",
-  });
+export async function approveDeposit(depositId: string) {
+  try {
+    const deposit = await prisma.deposit.findUnique({
+      where: { id: depositId },
+    });
+    if (!deposit) {
+      throw new Error("Deposit not found");
+    }
+    if (deposit.status !== "pending") {
+      throw new Error("Deposit is not pending");
+    }
+
+    // Update deposit status
+    await prisma.deposit.update({
+      where: { id: depositId },
+      data: { status: "approved" },
+    });
+
+    // Update user's usdBalance
+    await prisma.user.update({
+      where: { id: deposit.userId },
+      data: {
+        usdBalance: {
+          increment: deposit.amount,
+        },
+      },
+    });
+
+    revalidatePath("/admin");
+    revalidatePath("/dashboard"); // Assuming user sees in dashboard
+    return { success: true };
+  } catch (error) {
+    console.error("Error approving deposit:", error);
+    throw error;
+  }
+}
+
+export async function declineDeposit(depositId: string) {
+  try {
+    const deposit = await prisma.deposit.findUnique({
+      where: { id: depositId },
+    });
+    if (!deposit) {
+      throw new Error("Deposit not found");
+    }
+    if (deposit.status !== "pending") {
+      throw new Error("Deposit is not pending");
+    }
+
+    // Update deposit status
+    await prisma.deposit.update({
+      where: { id: depositId },
+      data: { status: "declined" },
+    });
+
+    revalidatePath("/admin");
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error) {
+    console.error("Error declining deposit:", error);
+    throw error;
+  }
 }

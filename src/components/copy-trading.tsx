@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Search, Check } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/components/AuthProvider";
 import { getTrades, toggleCopy } from "@/lib/trades";
 import type { Asset, UserProfile } from "types"; // Import project root types for compatibility
 
@@ -38,7 +38,7 @@ export default function CopyTradingDashboard({
   const [selectedTrader, setSelectedTrader] = useState<TradeCard | null>(null);
   const [modalTab, setModalTab] = useState<"stats" | "trades">("stats");
   const { toast } = useToast();
-  const { user: clerkUser } = useUser();
+  const { user: currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] =
     useState<"top-experts" | "copying" | "how-it-works">("top-experts");
@@ -49,22 +49,22 @@ export default function CopyTradingDashboard({
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
-    if (!clerkUser) return;
+    if (!currentUser) return;
     const items = getTrades();
     setTrades(items);
     setLoading(false);
-  }, [clerkUser]);
+  }, [currentUser]);
 
   const handleToggleCopy = (tradeId: string) => {
-    if (!clerkUser) return;
-    const updated = toggleCopy(tradeId, clerkUser.id);
+    if (!currentUser) return;
+    const updated = toggleCopy(tradeId, currentUser.id);
     if (!updated) return;
 
     setTrades((prev) =>
       prev.map((t) => (t.id === updated.id ? updated : t))
     );
 
-    if (updated.copiedBy?.includes(clerkUser.id)) {
+    if (updated.copiedBy?.includes(currentUser.id)) {
       toast({
         title: "Expert copied successfully",
         description: "",
@@ -93,7 +93,7 @@ export default function CopyTradingDashboard({
 
   const topExperts = filtered;
   const copyingHistory = trades.filter(
-    (t) => t.copiedBy && clerkUser && t.copiedBy.includes(clerkUser.id)
+    (t) => t.copiedBy && currentUser && t.copiedBy.includes(currentUser.id)
   );
 
   const FAQS = [
@@ -277,13 +277,13 @@ export default function CopyTradingDashboard({
                     </button>
                     <button
                       className={`px-8 py-3 rounded-xl text-white font-semibold ${
-                        t.copiedBy?.includes(clerkUser?.id || "")
+                        t.copiedBy?.includes(currentUser?.id || "")
                           ? "bg-red-500 hover:bg-red-600"
                           : "bg-blue-600 hover:bg-blue-700"
                       }`}
                       onClick={() => handleToggleCopy(t.id)}
                     >
-                      {t.copiedBy?.includes(clerkUser?.id || "")
+                      {t.copiedBy?.includes(currentUser?.id || "")
                         ? "Cancel"
                         : "Copy"}
                     </button>
@@ -436,7 +436,7 @@ export default function CopyTradingDashboard({
                   className="w-full px-8 py-4 rounded-xl text-lg font-bold bg-blue-600 text-white"
                   onClick={() => handleToggleCopy(selectedTrader.id)}
                 >
-                  {selectedTrader.copiedBy?.includes(clerkUser?.id || "")
+                  {selectedTrader.copiedBy?.includes(currentUser?.id || "")
                     ? "Cancel"
                     : "Copy"}
                 </button>

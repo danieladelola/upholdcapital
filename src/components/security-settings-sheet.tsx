@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import SheetButton from "./sheet-button"
 import { ShieldAlert } from "lucide-react"
-import { useUser } from "@clerk/nextjs"
+import { useAuth } from "@/components/AuthProvider"
 import { useToast } from "@/hooks/use-toast"
 
 export function SecuritySettingsSheet() {
@@ -17,7 +17,7 @@ export function SecuritySettingsSheet() {
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
-  const { user } = useUser()
+  const { user } = useAuth()
   const {toast} = useToast()
 
   const handleSave = async () => {

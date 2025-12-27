@@ -11,12 +11,12 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { SidebarMenuButton } from "./ui/sidebar"
 import { Cog } from "lucide-react"
 import { VerificationSheet } from "./verification-sheet"
-import {useUser} from "@clerk/nextjs"
+import { useAuth } from "@/components/AuthProvider"
 
 export function SettingsSheet() {
   const [open, setOpen] = useState(false)
   const router = useRouter()
-  const user = useUser()
+  const { user } = useAuth()
 
   const handleLogout = () => {
     // Implement logout logic here
@@ -43,8 +43,8 @@ export function SettingsSheet() {
                 <AvatarFallback>SZ</AvatarFallback>
               </Avatar>
               <div>
-                <h3 className="font-semibold">{user.user?.fullName}</h3>
-                <p className="text-muted-foreground">{user.user?.emailAddresses[0].emailAddress}</p>
+                <h3 className="font-semibold">{user?.displayName}</h3>
+                <p className="text-muted-foreground">{user?.email}</p>
               </div>
             </div>
 

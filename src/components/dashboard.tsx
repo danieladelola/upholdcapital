@@ -10,7 +10,7 @@ import { ChevronDown, DollarSign, Briefcase, PieChart, TrendingUp, TrendingDown 
 import { motion, AnimatePresence } from "framer-motion"
 import React from "react"
 import { useRouter } from "next/navigation"
-import { User } from "@clerk/nextjs/server"
+import type { User } from '../../types';
 
 
 export default function PortfolioDashboard({

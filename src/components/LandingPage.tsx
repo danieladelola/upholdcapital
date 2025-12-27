@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, BarChart, Briefcase, HeadphonesIcon } from "lucide-react"
 import Image from "next/image"
 import { useInView } from "@/hooks/useInView"
-import { SignInButton, SignedIn, SignedOut, } from '@clerk/nextjs'
+import { useAuth } from "@/components/AuthProvider"
 import Link from 'next/link'
 import TradingViewTickerTape from "./TickerWidget"
 
@@ -27,24 +27,26 @@ const LandingPage = () => {
   )
 }
 
-const Header = () => (
-  <header className="container mx-auto p-6">
-    <nav className="flex justify-between items-center">
-       <Image src={'/logo.png'}  width={100} height={100} alt='Xfoundation'/>
+const Header = () => {
+  const { user } = useAuth()
+  return (
+    <header className="container mx-auto p-6">
+      <nav className="flex justify-between items-center">
+         <Image src={'/logo.png'}  width={100} height={100} alt='Xfoundation'/>
 
-       <SignedOut>
-            <SignInButton />
-          </SignedOut>
-
-          <SignedIn>
-
-          <Button asChild>
-            <Link href="/dashboard/home">Dashboard</Link>
-          </Button>
-          </SignedIn>
-    </nav>
-  </header>
-)
+         {user ? (
+           <Button asChild>
+             <Link href="/dashboard/home">Dashboard</Link>
+           </Button>
+         ) : (
+           <Button asChild>
+             <Link href="/login">Login</Link>
+           </Button>
+         )}
+      </nav>
+    </header>
+  )
+}
 
 const Hero = () => {
   const [ref, isInView] = useInView()

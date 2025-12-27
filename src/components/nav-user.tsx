@@ -28,14 +28,18 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { useUser,SignOutButton } from "@clerk/nextjs"
+import { useAuth } from "@/components/AuthProvider"
 
 export function NavUser() {
   const { isMobile } = useSidebar()
-  const { user } = useUser()
-  const email = user?.emailAddresses[0].emailAddress
-  const name = user?.fullName
-  const avatar = user?.imageUrl
+  const { user, logout } = useAuth()
+  const email = user?.email
+  const name = user?.displayName
+  const avatar = user?.photoURL
+  const initials = user?.initials
+
+  if (!user) return null;
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -47,7 +51,7 @@ export function NavUser() {
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={avatar} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{name}</span>
@@ -66,7 +70,7 @@ export function NavUser() {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={avatar}  />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{name}</span>
@@ -76,10 +80,9 @@ export function NavUser() {
             </DropdownMenuLabel>
 
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <SignOutButton/>
-
-
+            <DropdownMenuItem onClick={logout}>
+              <LogOut />
+              Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

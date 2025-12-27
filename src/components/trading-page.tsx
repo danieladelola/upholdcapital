@@ -4,12 +4,12 @@ import { useState } from "react"
 import { TradingControls } from "./trading-controls"
 import { TradesTable } from "./trades-table"
 import TradingviewWidget from "./TradingviewWidget"
-import { db } from "@/lib/firebase"
 import { useEffect } from "react"
 import { Asset,Trade } from "../../types"
 import { ResponsiveContainer } from "recharts"
 import TradingViewTickerTape from "./TickerWidget"
-import type { User} from "@clerk/nextjs/server"
+import type { User} from "../../types"
+import { getUserTrades } from "@/actions/trading-actions"
 
 export function TradingPage({assets,user,balance}:{assets:Asset[],user:User,balance:number}) {
   const [activeTab, setActiveTab] = useState<"open" | "filled">("open")
@@ -17,31 +17,32 @@ export function TradingPage({assets,user,balance}:{assets:Asset[],user:User,bala
 
   const uid = user.id;
   useEffect(() => {
-    const unsubscribeTrades = db
-    .collection('users')
-    .doc(uid)
-    .collection('trades')
-    .onSnapshot(snapshot => {
-      const updatedTrades = snapshot.docs.map(doc => {
-        const data = doc.data()
-        return {
-          id: doc.id,
-          date: data.date,
-          asset: data.asset,
-          from: data.from,
-          to: data.to,
-          amount: data.amount,
-          value: data.value,
-          action: data.action,
-          filled: data.filled
-        }
-      })
-      setTradeHistory(updatedTrades)
-    });
-
-    return () => {
-      unsubscribeTrades();
-    };
+    const fetchTrades = async () => {
+      if (user?.id) {
+        const trades = await getUserTrades(user.id)
+        // Convert to the expected format for TradesTable
+        const formattedTrades = trades.map(trade => ({
+          id: trade.id,
+          date: trade.created_at.toISOString(),
+          asset: {
+            name: trade.asset.name,
+            symbol: trade.asset.symbol,
+            type: 'crypto', // Default type
+            icon: trade.asset.logo_url || '',
+            price: trade.price_usd,
+            amount: trade.amount
+          },
+          from: trade.trade_type === 'sell' ? trade.asset.symbol : undefined,
+          to: trade.trade_type === 'buy' ? trade.asset.symbol : undefined,
+          amount: trade.amount,
+          value: trade.amount * trade.price_usd,
+          action: trade.trade_type === 'buy' ? 'Buy' : 'Sell',
+          filled: true
+        }))
+        setTradeHistory(formattedTrades)
+      }
+    }
+    fetchTrades()
   }, [user]);
 
 

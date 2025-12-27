@@ -1,95 +1,58 @@
 "use client"
 
-import { useState, useEffect, Fragment } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DepositModal } from "./deposit-modal"
-import type { BankMethod, CryptoMethod, Deposit } from "../../types"
-import { useUser } from "@clerk/nextjs"
-import { db } from "@/lib/firebase"
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { useAuth } from "@/components/AuthProvider"
 import { useToast } from "@/hooks/use-toast"
+import { createDeposit } from "@/actions/deposit-actions"
 // Use shared Deposit type from types.ts
 
 export function DepositsSection() {
-  const [deposits, setDeposits] = useState<Deposit[]>([])
+  const [deposits, setDeposits] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState("all")
-  const [bankDetails, setBankDetails] = useState<BankMethod|any>()
-  const [cryptoDetails, setCryptoDetails] = useState<CryptoMethod[]>([])
-  const [expandedRow, setExpandedRow] = useState<string | null>(null)
-  const { user } = useUser()
+  const { user } = useAuth()
   const {toast} = useToast()
   useEffect(() => {
+    fetchDeposits();
+  }, [user]);
+
+  const fetchDeposits = async () => {
+    if (!user?.id) return;
     try {
-      const unsubscribe = db.collection("deposits").onSnapshot((snapshot) => {
-        const updatedDeposits: Deposit[] = snapshot.docs.map((doc: any) => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
-        const filtered = updatedDeposits.filter((deposit) => deposit.uid === user?.id)
-        setDeposits(filtered)
-      })
-      const unsubscribeDetails = db.collection("bankMethods").onSnapshot((snapshot) => {
-        const newBankDetails = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-        })) as unknown as BankMethod[]
-        setBankDetails(newBankDetails[0])
-      })
-
-      const unsubscribeCrypto = db.collection("cryptoMethods").onSnapshot((snapshot) => {
-        const newCryptoMethods = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-        })) as CryptoMethod[]
-        setCryptoDetails(newCryptoMethods)
-      })
-
-      return () => {
-        unsubscribe()
-        unsubscribeDetails()
-        unsubscribeCrypto()
+      const res = await fetch('/api/deposits');
+      if (res.ok) {
+        const data = await res.json();
+        setDeposits(data);
       }
-    } catch (e) {
-      console.error(e)
+    } catch (error) {
+      console.error('Error fetching deposits:', error);
     }
-  }, [user])
+  }
 
   const filteredDeposits = deposits.filter((deposit) => {
-    const matchesSearch = deposit.reference.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesFilter = filterType === "all" || deposit.status === filterType || deposit.type === filterType
+    const matchesSearch = deposit.id.toLowerCase().includes(searchTerm.toLowerCase()) || deposit.method.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesFilter = filterType === "all" || deposit.status === filterType
     return matchesSearch && matchesFilter
   })
 
-  const handleDeposit = (amount: number, image: string, method: string, type: string, crypto?: string, network?: string, txHash?: string, address?: string) => {
+  const handleDeposit = async (amount: number, crypto: string, network: string, txHash: string) => {
     if (!user?.id) {
-      alert("You need to be signed in to make a deposit")
-      return
-    }
-    const newDeposit: Deposit = {
-      id: Date.now().toString(),
-      date: new Date().toISOString().split("T")[0],
-      reference: `DEP${Date.now()}`,
-      method: "Crypto",
-      type: type,
-      amount: amount,
-      totalUSD: amount,
-      status: "pending",
-      uid: user.id,
-      image,
-      network: network || "",
-      txHash: txHash || "",
-      address: address || "",
+      toast({ title: "Error", description: "You need to be signed in to make a deposit" });
+      return;
     }
     try {
-      db.collection("deposits").doc(newDeposit.id).set(newDeposit).then(()=>{
-        toast({title:"Deposit queued",description:"deposit queued, awaiting review."})
-      })
-      setDeposits([newDeposit, ...deposits])
-    } catch (e) {
-      console.error(e)
+      const method = `${crypto} (${network})`;
+      await createDeposit(user.id, amount, method);
+      toast({ title: "Deposit queued", description: "Deposit queued, awaiting review." });
+      // Optionally refresh deposits, but since it's pending, and user sees status
+    } catch (error) {
+      console.error("Error creating deposit:", error);
+      toast({ title: "Error", description: "Failed to create deposit" });
     }
   }
 
@@ -134,83 +97,34 @@ export function DepositsSection() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[50px]"></TableHead>
                 <TableHead>Date</TableHead>
-                <TableHead className="hidden sm:table-cell">Reference</TableHead>
+                <TableHead className="hidden sm:table-cell">ID</TableHead>
                 <TableHead className="hidden md:table-cell">Method</TableHead>
-                <TableHead className="hidden lg:table-cell">Type</TableHead>
                 <TableHead>Amount</TableHead>
-                <TableHead className="hidden xl:table-cell">Total (USD)</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredDeposits.map((deposit) => (
-                <Fragment key={deposit.id}>
-                  <TableRow className="cursor-pointer" onClick={() => toggleRowExpansion(deposit.id)}>
-                    <TableCell>
-                      {expandedRow === deposit.id ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
-                    </TableCell>
-                    <TableCell>{deposit.date}</TableCell>
-                    <TableCell className="hidden sm:table-cell">{deposit.reference}</TableCell>
-                    <TableCell className="hidden md:table-cell">{deposit.method}</TableCell>
-                    <TableCell className="hidden lg:table-cell">{deposit.type}</TableCell>
-                    <TableCell>{deposit.amount.toFixed(2)}</TableCell>
-                    <TableCell className="hidden xl:table-cell">{deposit.totalUSD.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          deposit.status === "approved"
-                            ? "bg-green-100 text-green-800"
-                            : deposit.status === "rejected"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {deposit.status}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                  {expandedRow === deposit.id && (
-                    <TableRow>
-                      <TableCell colSpan={8}>
-                        <Card>
-                          <CardHeader>
-                            <CardTitle>Deposit Details</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
-                              <div className="sm:col-span-2">
-                                <dt className="font-medium">Reference</dt>
-                                <dd>{deposit.reference}</dd>
-                              </div>
-                              <div>
-                                <dt className="font-medium">Method</dt>
-                                <dd>{deposit.method}</dd>
-                              </div>
-                              <div>
-                                <dt className="font-medium">Type</dt>
-                                <dd>{deposit.type}</dd>
-                              </div>
-                              <div>
-                                <dt className="font-medium">Amount</dt>
-                                <dd>{deposit.amount.toFixed(2)}</dd>
-                              </div>
-                              <div>
-                                <dt className="font-medium">Total (USD)</dt>
-                                <dd>{deposit.totalUSD.toFixed(2)}</dd>
-                              </div>
-                            </dl>
-                          </CardContent>
-                            </Card>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </Fragment>
+                <TableRow key={deposit.id}>
+                  <TableCell>{new Date(deposit.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell className="hidden sm:table-cell">{deposit.id}</TableCell>
+                  <TableCell className="hidden md:table-cell">{deposit.method}</TableCell>
+                  <TableCell>${deposit.amount.toFixed(2)}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        deposit.status === "approved"
+                          ? "bg-green-100 text-green-800"
+                          : deposit.status === "declined"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {deposit.status}
+                    </span>
+                  </TableCell>
+                </TableRow>
               ))}
             </TableBody>
           </Table>

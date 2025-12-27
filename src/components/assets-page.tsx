@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react";
-import { db } from "@/lib/firebase";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,40 +8,88 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Search } from 'lucide-react';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useUser } from "@clerk/nextjs";
-import type { UserAsset,Asset } from "../../types";
+import { useAuth } from "@/components/AuthProvider";
+import type { UserAsset, Asset } from "../../types";
+import { getUserAssets, getUserTrades } from "@/actions/trading-actions";
 
-interface Activity {
+type Activity = {
   description: string;
   date: string;
+  type: 'buy' | 'sell';
+  amount: number;
+  asset: string;
 }
-
-
-
-const recentActivity: Activity[] = [];
 // take an asset string as a prop
-export function AssetsPage({assets}:{assets:Asset[]}) {
-const [searchTerm,setSearchTerm] = useState("")
-const [balance,setBalance] = useState(0)
-    useEffect(()=>{
-      const balance = assets.reduce((acc, asset) => acc + asset.amount * asset.price, 0);
-    setBalance(balance);
+export function AssetsPage({assets: apiAssets}:{assets:Asset[]}) {
+  const { user } = useAuth();
+  const [searchTerm, setSearchTerm] = useState("")
+  const [userAssets, setUserAssets] = useState<UserAsset[]>([])
+  const [recentActivity, setRecentActivity] = useState<Activity[]>([])
+  const [loading, setLoading] = useState(true)
 
-},[assets])
-  const tslaIndex = assets.findIndex((asset) => asset.symbol === "TSLA");
-  if (tslaIndex !== -1) {
-    const tsla = assets.splice(tslaIndex, 1);
-    assets.unshift(tsla[0]);
-  }
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (user?.id) {
+        const [userAssetsData, userTradesData] = await Promise.all([
+          getUserAssets(user.id),
+          getUserTrades(user.id)
+        ])
+        
+        setUserAssets(userAssetsData)
+        
+        // Format recent trades for activity display
+        const activities = userTradesData.slice(0, 5).map(trade => ({
+          description: `${trade.trade_type.toUpperCase()} ${trade.amount} ${trade.asset.symbol}`,
+          date: new Date(trade.created_at).toLocaleDateString(),
+          type: trade.trade_type as 'buy' | 'sell',
+          amount: trade.amount,
+          asset: trade.asset.symbol
+        }))
+        
+        setRecentActivity(activities)
+      }
+      setLoading(false)
+    }
+    fetchUserData()
+  }, [user])
+
+  const balance = useMemo(() => {
+    // Calculate total portfolio value in USD
+    return userAssets.reduce((acc, userAsset) => {
+      if (!userAsset.asset) return acc
+      return acc + (userAsset.balance * (userAsset.asset.price_usd || 0))
+    }, 0)
+  }, [userAssets])
+
+  const mergedAssets = useMemo(() => {
+    return userAssets.map(userAsset => {
+      const asset = userAsset.asset
+      if (!asset) return null
+      
+      return {
+        ...asset,
+        amount: userAsset.balance,
+        icon: asset.logo_url || `/asseticons/${asset.symbol}.svg`, // Fallback to default icon path
+        price: asset.price_usd,
+        type: 'crypto' // Default type, could be enhanced
+      }
+    }).filter(Boolean) as Asset[]
+  }, [userAssets])
+
   const filteredAssets = useMemo(
     () =>
-      assets.filter(
+      mergedAssets.filter(
         (asset) =>
-          asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          asset.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+          asset &&
+          (asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          asset.symbol.toLowerCase().includes(searchTerm.toLowerCase()))
       ),
-    [assets, searchTerm]
+    [mergedAssets, searchTerm]
   );
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <div className="w-full p-4 space-y-4 max-w-full overflow-x-hidden">
@@ -53,29 +100,43 @@ const [balance,setBalance] = useState(0)
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
-            <CardTitle>Total Balance</CardTitle>
+            <CardTitle>Total Portfolio Value</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">${balance.toLocaleString('en-US')}</p>
+            <p className="text-xs text-muted-foreground">Total value of all your assets</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+            <CardTitle>Recent Transactions</CardTitle>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[100px]">
+            <ScrollArea className="h-[120px]">
               <ul className="space-y-2">
-                {recentActivity.map((activity, index) => (
+                {recentActivity.length > 0 ? recentActivity.map((activity, index) => (
                   <li
                     key={index}
-                    className="flex flex-col sm:flex-row sm:justify-between sm:items-center"
+                    className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-2 rounded-md bg-muted/50"
                   >
-                    <span className="text-sm">{activity.description}</span>
+                    <div className="flex items-center space-x-2">
+                      <span className={`text-xs px-2 py-1 rounded ${
+                        activity.type === 'buy' 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' 
+                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                      }`}>
+                        {activity.type.toUpperCase()}
+                      </span>
+                      <span className="text-sm font-medium">{activity.description}</span>
+                    </div>
                     <span className="text-xs text-muted-foreground">{activity.date}</span>
                   </li>
-                ))}
+                )) : (
+                  <li className="text-sm text-muted-foreground text-center py-4">
+                    No recent transactions
+                  </li>
+                )}
               </ul>
             </ScrollArea>
           </CardContent>
@@ -127,14 +188,14 @@ const [balance,setBalance] = useState(0)
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">{asset.type}</TableCell>
                     <TableCell className="hidden sm:table-cell">
-                      ${asset.price.toFixed(2)}/{asset.symbol}
+                      ${asset.price?.toFixed(2)}/{asset.symbol}
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {asset.amount.toFixed(2)} {asset.symbol}
+                        {asset.amount?.toFixed(2)} {asset.symbol}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        ${(asset.amount * asset.price).toFixed(2)}
+                        ${(asset.amount && asset.price ? (asset.amount * asset.price).toFixed(2) : '0.00')}
                       </div>
                     </TableCell>
                   </TableRow>
