@@ -31,9 +31,9 @@ export async function executeTrade(
       // Get or create user asset record
       let userAsset = await tx.userAsset.findUnique({
         where: {
-          user_id_asset_id: {
-            user_id: userId,
-            asset_id: asset.id,
+          userId_assetId: {
+            userId: userId,
+            assetId: asset.id,
           },
         },
       })
@@ -41,8 +41,8 @@ export async function executeTrade(
       if (!userAsset) {
         userAsset = await tx.userAsset.create({
           data: {
-            user_id: userId,
-            asset_id: asset.id,
+            userId: userId,
+            assetId: asset.id,
             balance: 0,
           },
         })
@@ -54,10 +54,10 @@ export async function executeTrade(
         // Check if user has sufficient balance
         const user = await tx.user.findUnique({
           where: { id: userId },
-          select: { usdBalance: true },
+          select: { balance: true },
         })
 
-        if (!user || (user.usdBalance || 0) < totalValue) {
+        if (!user || (user.balance || 0) < totalValue) {
           throw new Error("Insufficient funds")
         }
 
@@ -65,7 +65,7 @@ export async function executeTrade(
         await tx.user.update({
           where: { id: userId },
           data: {
-            usdBalance: {
+            balance: {
               decrement: totalValue,
             },
           },
@@ -74,9 +74,9 @@ export async function executeTrade(
         // Update user asset balance
         await tx.userAsset.update({
           where: {
-            user_id_asset_id: {
-              user_id: userId,
-              asset_id: asset.id,
+            userId_assetId: {
+              userId: userId,
+              assetId: asset.id,
             },
           },
           data: {
@@ -95,7 +95,7 @@ export async function executeTrade(
         await tx.user.update({
           where: { id: userId },
           data: {
-            usdBalance: {
+            balance: {
               increment: totalValue,
             },
           },
@@ -104,9 +104,9 @@ export async function executeTrade(
         // Update user asset balance
         await tx.userAsset.update({
           where: {
-            user_id_asset_id: {
-              user_id: userId,
-              asset_id: asset.id,
+            userId_assetId: {
+              userId: userId,
+              assetId: asset.id,
             },
           },
           data: {
@@ -120,11 +120,11 @@ export async function executeTrade(
       // Create trade record
       await tx.trade.create({
         data: {
-          user_id: userId,
-          asset_id: asset.id,
-          trade_type: tradeType,
+          userId: userId,
+          assetId: asset.id,
+          tradeType: tradeType,
           amount: amount,
-          price_usd: priceUsd,
+          priceUsd: priceUsd,
         },
       })
     })
@@ -145,7 +145,7 @@ export async function executeTrade(
 export async function getUserAssets(userId: string) {
   try {
     const userAssets = await prisma.userAsset.findMany({
-      where: { user_id: userId },
+      where: { userId: userId },
       include: {
         asset: true,
       },
@@ -161,12 +161,12 @@ export async function getUserAssets(userId: string) {
 export async function getUserTrades(userId: string) {
   try {
     const trades = await prisma.trade.findMany({
-      where: { user_id: userId },
+      where: { userId: userId },
       include: {
         asset: true,
       },
       orderBy: {
-        created_at: "desc",
+        createdAt: "desc",
       },
     })
 

@@ -115,13 +115,6 @@ export interface Trade {
   action?: "Buy" | "Sell" | "Convert";
   filled?: boolean;
 }
-  from?: string
-  to?: string
-  amount: number
-  value: number
-  action: "Buy" | "Sell" | "Convert",
-  filled:boolean
-}
 
 export interface UserProfile {
   uid: string;

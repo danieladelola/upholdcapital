@@ -8,7 +8,6 @@ import { PlanCard } from "./plan-card"
 import { SubscriptionHistoryView } from "./subscription-history-view"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
-import { db } from "@/lib/firebase"
 import { Subscription } from '../../types';
 import  type {CryptoMethod, BankMethod,Deposit, SubscriptionPlan, User}from '../../types';
 
@@ -36,24 +35,24 @@ export function Subscriptions({user,balance}:{user:User,balance:number}) {
           .catch(err => console.error('Error fetching history:', err));
 
         // Keep Firebase for deposits if needed
-        const unsubscibeDetails = db.collection("bankMethods").onSnapshot((snapshot) => {
-          const newBankDetails = snapshot.docs.map((doc) => ({
-            ...doc.data()
-          })) as unknown as BankMethod[]
-          setBankDetails(newBankDetails[0])
-        })
+        // const unsubscibeDetails = db.collection("bankMethods").onSnapshot((snapshot) => {
+        //   const newBankDetails = snapshot.docs.map((doc) => ({
+        //     ...doc.data()
+        //   })) as unknown as BankMethod[]
+        //   setBankDetails(newBankDetails[0])
+        // })
         
-        const unsubscribeCrypto = db.collection("cryptoMethods").onSnapshot((snapshot) => {
-          const newCryptoMethods = snapshot.docs.map((doc) => ({
-            ...doc.data()
-          })) as CryptoMethod[]
-          setCryptoDetails(newCryptoMethods)
-        })
+        // const unsubscribeCrypto = db.collection("cryptoMethods").onSnapshot((snapshot) => {
+        //   const newCryptoMethods = snapshot.docs.map((doc) => ({
+        //     ...doc.data()
+        //   })) as CryptoMethod[]
+        //   setCryptoDetails(newCryptoMethods)
+        // })
         // Return the cleanup function
-        return () => {
-          unsubscibeDetails();
-          unsubscribeCrypto();
-        };
+        // return () => {
+        //   unsubscibeDetails();
+        //   unsubscribeCrypto();
+        // };
       }, [user]);
       
   const handleSubscribe = async (planId: string) => {
@@ -110,12 +109,9 @@ export function Subscriptions({user,balance}:{user:User,balance:number}) {
       address: address || "",
     }
     try{
-      db.collection("deposits").doc(newDeposit.id).set(newDeposit).then(() => {
+      // db.collection("deposits").doc(newDeposit.id).set(newDeposit).then(() => {
         console.log("Deposit submitted successfully")
-      }
-      )
-
-
+      // })
     }catch(e){
       console.error(e)
     }

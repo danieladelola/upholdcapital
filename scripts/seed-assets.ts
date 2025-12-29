@@ -19,40 +19,52 @@ async function seedAssets() {
 
   // Seed crypto assets
   for (const symbol of cryptoSymbols) {
-    const name = assetNames[symbol] || symbol
+    const name = (assetNames as Record<string, string>)[symbol] || symbol
     const logoUrl = `/asseticons/${symbol}.svg`
 
     await prisma.asset.upsert({
       where: { symbol },
       update: {
         name,
-        logo_url: logoUrl,
+        logoUrl: logoUrl,
+        stakingEnabled: true,
+        stakeMin: 10,
+        stakeMax: 100,
+        stakeRoi: 4,
+        stakeCycleDays: 6,
       },
       create: {
         symbol,
         name,
-        price_usd: 0, // Will be updated by external API
-        logo_url: logoUrl,
+        priceUsd: 0, // Will be updated by external API
+        logoUrl: logoUrl,
+        stakingEnabled: true,
+        stakeMin: 10,
+        stakeMax: 100,
+        stakeRoi: 4,
+        stakeCycleDays: 6,
       },
     })
   }
 
   // Seed stock assets
   for (const symbol of stockSymbols) {
-    const name = assetNames[symbol] || symbol
+    const name = (assetNames as Record<string, string>)[symbol] || symbol
     const logoUrl = `/asseticons/${symbol}.svg`
 
     await prisma.asset.upsert({
       where: { symbol },
       update: {
         name,
-        logo_url: logoUrl,
+        logoUrl: logoUrl,
+        stakingEnabled: false, // Stocks not stakable
       },
       create: {
         symbol,
         name,
-        price_usd: 0, // Will be updated by external API
-        logo_url: logoUrl,
+        priceUsd: 0, // Will be updated by external API
+        logoUrl: logoUrl,
+        stakingEnabled: false,
       },
     })
   }

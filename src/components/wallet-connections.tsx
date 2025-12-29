@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { db } from "@/lib/firebase"
 
 interface WalletConnection {
   id: string
@@ -16,26 +15,26 @@ export default function WalletConnections() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const unsubscribe = db.collection("wallets")
-      .onSnapshot(
-        (snapshot) => {
-          const newWallets = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data()
-          })) as WalletConnection[]
-          setWallets(newWallets)
-          setLoading(false)
-        },
-        (err) => {
-          console.error("Error fetching wallets:", err)
-          setError("Failed to load wallet connections. Please try again later.")
-          setLoading(false)
-        }
-      )
+  // useEffect(() => {
+  //   const unsubscribe = db.collection("wallets")
+  //     .onSnapshot(
+  //       (snapshot) => {
+  //         const newWallets = snapshot.docs.map((doc) => ({
+  //           id: doc.id,
+  //           ...doc.data()
+  //         })) as WalletConnection[]
+  //         setWallets(newWallets)
+  //         setLoading(false)
+  //       },
+  //       (err) => {
+  //         console.error("Error fetching wallets:", err)
+  //         setError("Failed to load wallet connections. Please try again later.")
+  //         setLoading(false)
+  //       }
+  //     )
 
-    return () => unsubscribe()
-  }, [])
+  //   return () => unsubscribe()
+  // }, [])
 
   if (loading) {
     return <div className="text-center py-4">Loading wallet connections...</div>

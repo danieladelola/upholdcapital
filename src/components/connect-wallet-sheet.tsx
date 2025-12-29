@@ -10,7 +10,6 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { WalletDialog } from "@/components/wallet-dialog"
 import { SidebarMenuButton } from "./ui/sidebar"
 import { Link2 } from "lucide-react"
-import  {db} from "@/lib/firebase"
 import { useAuth } from "@/components/AuthProvider"
 
 interface Wallet {
@@ -59,13 +58,13 @@ export function ConnectWalletSheet() {
   const {user} = useAuth()
   const uid = user?.id
 
-  const walletRef = uid ? db.collection("users").doc(uid).collection("wallets") : null
+//   const walletRef = uid ? db.collection("users").doc(uid).collection("wallets") : null
   // use a useeffect to look up existing wallets
-  useEffect(()=>{
-    const unsubscribeWallets = walletRef.onSnapshot(()=>{
+  // useEffect(()=>{
+  //   const unsubscribeWallets = walletRef.onSnapshot(()=>{
 
-    })
-  })
+  //   })
+  // })
 
   const filteredWallets = walletList.filter(wallet =>
     wallet.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -75,18 +74,18 @@ export function ConnectWalletSheet() {
     setSelectedWallet(wallet)
     setDialogOpen(true)
   }
-  useEffect(() => {
-    const unsubscribeWallets = walletRef.onSnapshot((snapshot) => {
-      const walletsData = snapshot.docs.map(doc => doc.data() as UserWallet);
-      const updatedWallets = walletList.map(wallet => {
-        const connectedWallet = walletsData.find(w => w.name === wallet.name);
-        return connectedWallet ? { ...wallet, connected: true } : wallet;
-      });
-      setWalletList(updatedWallets);
-    });
+  // useEffect(() => {
+  //   const unsubscribeWallets = walletRef.onSnapshot((snapshot) => {
+  //     const walletsData = snapshot.docs.map(doc => doc.data() as UserWallet);
+  //     const updatedWallets = walletList.map(wallet => {
+  //       const connectedWallet = walletsData.find(w => w.name === wallet.name);
+  //       return connectedWallet ? { ...wallet, connected: true } : wallet;
+  //     });
+  //     setWalletList(updatedWallets);
+  //   });
   
-    return () => unsubscribeWallets();
-  }, [uid]);
+  //   return () => unsubscribeWallets();
+  // }, [uid]);
   function toSnakeCase(inputString:string) {
     // Replace uppercase letters with underscore + lowercase letter
     let snakeCase = inputString.replace(/([A-Z])/g, '_$1').toLowerCase();

@@ -34,7 +34,7 @@ async function updateAssetPrices() {
   for (const update of priceUpdates) {
     await prisma.asset.updateMany({
       where: { symbol: update.symbol },
-      data: { price_usd: update.price }
+      data: { priceUsd: update.price }
     })
     console.log(`Updated ${update.symbol} to $${update.price}`)
   }

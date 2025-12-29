@@ -1,15 +1,22 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { PersonalSettingsContent } from "./personal-settings-content";
+import { Button } from "./ui/button";
 
 export function PersonalSettingsSheet() {
-
-
   return (
-    <Button  variant={'link'} asChild>
-      <Link href={'/user-profile'}>Personal Settings</Link>
-    </Button>
-  )
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant={"link"}>Personal Settings</Button>
+      </SheetTrigger>
+      <SheetContent>
+        <PersonalSettingsContent />
+      </SheetContent>
+    </Sheet>
+  );
 }

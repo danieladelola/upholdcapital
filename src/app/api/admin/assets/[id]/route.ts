@@ -4,21 +4,22 @@ import { prisma } from '@/lib/db';
 // PUT /api/admin/assets/[id] - Update an asset
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const body = await request.json();
     const { symbol, name, price_usd, logo_url } = body;
 
     const asset = await prisma.asset.update({
       where: {
-        id: params.id,
+        id: id,
       },
       data: {
         symbol,
         name,
-        price_usd,
-        logo_url,
+        priceUsd,
+        logoUrl,
       },
     });
 
@@ -35,12 +36,13 @@ export async function PUT(
 // DELETE /api/admin/assets/[id] - Delete an asset
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     await prisma.asset.delete({
       where: {
-        id: params.id,
+        id: id,
       },
     });
 

@@ -7,93 +7,89 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { Asset } from '../../types';
-import { db } from '@/lib/firebase'
 import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/components/AuthProvider'
 
 interface StakingModalProps {
   isOpen: boolean
   onClose: () => void
-  pool: {
+  asset: {
+    id: string
     name: string
     symbol: string
-    minimum: number
-    maximum: number
-    roi:number
+    stakeMin?: number
+    stakeMax?: number
+    stakeRoi?: number
+    stakeCycleDays?: number
+    userBalance: number
   }
-  onStake: (amount: number,duration:number) => void
-  assets: Asset[]
-  userId?: string
-  // total USD balance of the user (optional). When provided, the modal will show this
-  // value as the "Current balance" formatted like the StatCard component.
-  totalBalance?: number
+  onStake: (amount: number) => void
 }
 
-export function StakingModal({ isOpen, onClose, pool, onStake,assets, userId, totalBalance }: StakingModalProps) {
-  const [amount, setAmount] = useState(pool.minimum.toString())
-  const [duration, setDuration] = useState("1")
-  const sasset = assets.find(value=>value.symbol == pool.symbol)
+export function StakingModal({ isOpen, onClose, asset, onStake }: StakingModalProps) {
+  const [amount, setAmount] = useState((asset.stakeMin || 0).toString())
+  const sasset = assets.find(value=>value.symbol == asset.symbol)
   const { user } = useAuth()
   // Prefer a provided userId prop (server/parent), fallback to client useUser()
   const uid = userId ?? user?.id
-  const [liveBalance, setLiveBalance] = useState<number | null>(sasset?.amount ?? null)
+  const [liveBalance, setLiveBalance] = useState<number | null>(asset.userBalance)
   // Internal total balance (USD) fetched from user's document when totalBalance prop isn't provided
   const [internalTotalBalance, setInternalTotalBalance] = useState<number | null>(totalBalance ?? null)
   const [submitting, setSubmitting] = useState(false)
   const { toast } = useToast()
 
-  useEffect(() => {
-    // If we were passed assets that already contain the balance, prefer that.
-    if (sasset?.amount != null) {
-      setLiveBalance(sasset.amount)
-      return
-    }
+  // useEffect(() => {
+  //   // If we were passed assets that already contain the balance, prefer that.
+  //   if (sasset?.amount != null) {
+  //     setLiveBalance(sasset.amount)
+  //     return
+  //   }
 
-    // Avoid calling doc() with an empty path — ensure uid and pool.symbol are valid
-    if (!uid || !pool?.symbol) {
-      // fallback to any provided asset amount or zero
-      setLiveBalance(sasset?.amount ?? 0)
-      return
-    }
+  //   // Avoid calling doc() with an empty path — ensure uid and pool.symbol are valid
+  //   if (!uid || !pool?.symbol) {
+  //     // fallback to any provided asset amount or zero
+  //     setLiveBalance(sasset?.amount ?? 0)
+  //     return
+  //   }
 
-    const docRef = db.collection('users').doc(uid).collection('assets').doc(String(pool.symbol))
-    const unsubscribe = docRef.onSnapshot((doc) => {
-      if (!doc.exists) {
-        setLiveBalance(0)
-        return
-      }
-      const data = doc.data() as { amount?: number } | undefined
-      setLiveBalance(data?.amount ?? 0)
-    }, (err) => {
-      console.error('Failed to subscribe to asset balance:', err)
-    })
+  //   const docRef = db.collection('users').doc(uid).collection('assets').doc(String(pool.symbol))
+  //   const unsubscribe = docRef.onSnapshot((doc) => {
+  //     if (!doc.exists) {
+  //       setLiveBalance(0)
+  //       return
+  //     }
+  //     const data = doc.data() as { amount?: number } | undefined
+  //     setLiveBalance(data?.amount ?? 0)
+  //   }, (err) => {
+  //     console.error('Failed to subscribe to asset balance:', err)
+  //   })
 
-    return () => unsubscribe()
-  }, [pool.symbol, sasset?.amount, uid])
+  //   return () => unsubscribe()
+  // }, [pool.symbol, sasset?.amount, uid])
 
   // Subscribe to user's top-level balance (USD) if parent didn't provide it
-  useEffect(() => {
-    // Prefer the passed totalBalance as an initial value, but still subscribe
-    // to the user's doc to get live updates after any write.
-    setInternalTotalBalance(totalBalance ?? 0)
+  // useEffect(() => {
+  //   // Prefer the passed totalBalance as an initial value, but still subscribe
+  //   // to the user's doc to get live updates after any write.
+  //   setInternalTotalBalance(totalBalance ?? 0)
 
-    if (!uid) {
-      return
-    }
+  //   if (!uid) {
+  //     return
+  //   }
 
-    const unsubscribe = db.collection('users').doc(uid).onSnapshot((doc) => {
-      if (!doc.exists) {
-        setInternalTotalBalance(0)
-        return
-      }
-      const data = doc.data() as { balance?: number } | undefined
-      setInternalTotalBalance(data?.balance ?? 0)
-    }, (err) => {
-      console.error('Failed to subscribe to user balance:', err)
-    })
+  //   const unsubscribe = db.collection('users').doc(uid).onSnapshot((doc) => {
+  //     if (!doc.exists) {
+  //       setInternalTotalBalance(0)
+  //       return
+  //     }
+  //     const data = doc.data() as { balance?: number } | undefined
+  //     setInternalTotalBalance(data?.balance ?? 0)
+  //   }, (err) => {
+  //     console.error('Failed to subscribe to user balance:', err)
+  //   })
 
-    return () => unsubscribe()
-  }, [uid, totalBalance])
+  //   return () => unsubscribe()
+  // }, [uid, totalBalance])
 
   // Calculate token USD value if price is available
   const tokenAmount = liveBalance ?? (sasset?.amount ?? 0)
@@ -101,38 +97,20 @@ export function StakingModal({ isOpen, onClose, pool, onStake,assets, userId, to
 
   const handleStake = async () => {
     const stakeAmount = parseFloat(amount)
-    if (!(stakeAmount >= pool.minimum && stakeAmount <= pool.maximum)) return
+    if (!(stakeAmount >= (asset.stakeMin || 0) && stakeAmount <= (asset.stakeMax || 0))) return
 
     setSubmitting(true)
     try {
-      // perform Firestore transaction to deduct balances if we have a uid
-      const usdPrice = sasset?.price ?? 0
-      const usdDeduction = stakeAmount * usdPrice
-
-  // local available balances
-      const availableToken = tokenAmount
-      const availableUSD = internalTotalBalance ?? (totalBalance ?? 0)
-
-      // simple client-side validation to avoid calling parent when insufficient
-      if ((availableToken ?? 0) < stakeAmount && (availableUSD ?? 0) < usdDeduction) {
-        // show a toast and abort
-        toast({ title: 'Insufficient balance', description: `You have ${availableToken ?? 0} ${pool.symbol} and $${(availableUSD ?? 0).toFixed(2)} available` })
+      // Check balance
+      if (asset.userBalance < stakeAmount) {
+        toast({ title: 'Insufficient balance', description: `You have ${asset.userBalance} ${asset.symbol} available` })
         setSubmitting(false)
         return
       }
 
-      // optimistic local updates (no server writes here) — parent will do authoritative writes
-      if ((availableToken ?? 0) >= stakeAmount) {
-        setLiveBalance((prev) => (typeof prev === 'number' ? prev - stakeAmount : (sasset?.amount ?? 0) - stakeAmount))
-      }
-      if ((availableUSD ?? 0) >= usdDeduction) {
-        setInternalTotalBalance((prev) => (typeof prev === 'number' ? prev - usdDeduction : (totalBalance ?? 0) - usdDeduction))
-      }
-
-      // support async onStake (call after updating balances)
-      console.debug('StakingModal: calling onStake', { stakeAmount, duration })
+      console.debug('StakingModal: calling onStake', { stakeAmount })
       try {
-        const res = await Promise.resolve(onStake(stakeAmount, parseInt(duration)))
+        const res = await Promise.resolve(onStake(stakeAmount))
         console.debug('StakingModal: onStake resolved', { res })
       } catch (err) {
         console.error('onStake failed:', err)
@@ -146,8 +124,12 @@ export function StakingModal({ isOpen, onClose, pool, onStake,assets, userId, to
   }
 
   const calculateROI = () => {
-    // This is a placeholder calculation. Replace with your actual ROI calculation logic.
-    return (parseFloat(duration) * pool.roi).toFixed(2)
+    const stakeAmount = parseFloat(amount) || 0
+    const roi = asset.stakeRoi || 0
+    const cycleDays = asset.stakeCycleDays || 1
+    // Assuming ROI is annual, but since cycle is days, perhaps it's simple.
+    // For now, profit = amount * roi / 100
+    return ((stakeAmount * roi) / 100).toFixed(2)
   }
 
   // Format total balance the same way as StatCard in dashboard
@@ -163,7 +145,7 @@ export function StakingModal({ isOpen, onClose, pool, onStake,assets, userId, to
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Stake {pool.symbol}</DialogTitle>
+          <DialogTitle>Stake {asset.symbol}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
@@ -174,37 +156,26 @@ export function StakingModal({ isOpen, onClose, pool, onStake,assets, userId, to
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                min={pool.minimum}
-                max={pool.maximum}
+                min={asset.stakeMin || 0}
+                max={asset.stakeMax || 0}
               />
-              <span>{pool.symbol}</span>
+              <span>{asset.symbol}</span>
             </div>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">
-              Current balance: {displayTokenAmount} {pool.symbol}{displayTokenUSD !== null ? ` (~$${displayTokenUSD.toFixed(2)})` : ''}
+              Current balance: {asset.userBalance} {asset.symbol}
             </p>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="duration">Duration</Label>
-            <Select value={duration} onValueChange={setDuration}>
-              <SelectTrigger id="duration">
-                <SelectValue placeholder="Select duration" />
-              </SelectTrigger>
-              <SelectContent>
-                {[...Array(10)].map((_, i) => (
-                  <SelectItem key={i + 1} value={(i + 1).toString()}>
-                    {i + 1} day{i > 0 ? "s" : ""}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div>
+            <Label>Cycle</Label>
+            <p className="text-lg">{asset.stakeCycleDays || 0} days</p>
           </div>
           <div>
             <Label>ROI</Label>
-            <p className="text-2xl font-bold">{calculateROI()}%</p>
+            <p className="text-2xl font-bold">{calculateROI()} {asset.symbol}</p>
           </div>
-          <Button onClick={handleStake} className="w-full" disabled={submitting || Number(amount) < pool.minimum || Number(amount) > pool.maximum}>
+          <Button onClick={handleStake} className="w-full" disabled={submitting || Number(amount) < (asset.stakeMin || 0) || Number(amount) > (asset.stakeMax || 0)}>
             {submitting ? 'Staking...' : 'Stake'}
           </Button>
         </div>

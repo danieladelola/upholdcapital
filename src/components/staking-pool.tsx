@@ -1,47 +1,51 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { type LucideIcon } from 'lucide-react'
 
 interface StakingPoolProps {
-  pool: {
+  asset: {
+    id: string
     name: string
     symbol: string
-    icon: LucideIcon
-    minimum: number
-    maximum: number
-    cycle: string
-    roi:number
+    logo?: string
+    stakeRoi?: number
+    stakeMin?: number
+    stakeMax?: number
+    stakeCycleDays?: number
+    userBalance: number
   }
   onStake: () => void
 }
 
-export function StakingPool({ pool, onStake }: StakingPoolProps) {
-  const Icon = pool.icon
-
+export function StakingPool({ asset, onStake }: StakingPoolProps) {
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
-          {
-            typeof Icon !='string'?(<Icon className="h-6 w-6" />):(<img src={`/asseticons/${Icon}.svg`} className="h-6 w-6"/>)          }
-          
-          <span>{pool.name}</span>
+          {asset.logo ? (
+            <img src={asset.logo} alt={asset.symbol} className="h-6 w-6" />
+          ) : (
+            <div className="h-6 w-6 bg-gray-200 rounded"></div>
+          )}
+          <span>{asset.name}</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-2xl font-bold mb-4">{pool.symbol}</p>
+        <p className="text-2xl font-bold mb-4">{asset.symbol}</p>
         <div className="space-y-2">
           <p>
-            <span className="font-semibold">Minimum:</span> {pool.minimum} {pool.symbol}
+            <span className="font-semibold">ROI:</span> {asset.stakeRoi || 0}%
           </p>
           <p>
-            <span className="font-semibold">Maximum:</span> {pool.maximum} {pool.symbol}
+            <span className="font-semibold">Min:</span> {asset.stakeMin || 0}
           </p>
           <p>
-            <span className="font-semibold">ROI:</span> {pool.roi}
+            <span className="font-semibold">Max:</span> {asset.stakeMax || 0}
           </p>
           <p>
-            <span className="font-semibold">Cycle:</span> {pool.cycle}
+            <span className="font-semibold">Cycle:</span> {asset.stakeCycleDays || 0} days
+          </p>
+          <p>
+            <span className="font-semibold">Balance:</span> {asset.userBalance}
           </p>
         </div>
       </CardContent>

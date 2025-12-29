@@ -47,19 +47,19 @@ const data = {
       name: "Home",
       url: "/dashboard/home",
       icon: Frame,
-      permission: PERMISSIONS.DASHBOARD,
+      permission: null, // Show to all users
     },
     {
       name: "Deposit",
       url: "/dashboard/deposit",
       icon: Landmark,
-      permission: PERMISSIONS.DEPOSITS,
+      permission: null, // Show to all users
     },
     {
       name: "Withdraw",
       url: "/dashboard/withdraw",
       icon: HandCoins,
-      permission: PERMISSIONS.DEPOSITS,
+      permission: null, // Show to all users
     },
     {
       name: "Copy Trading",
@@ -72,19 +72,19 @@ const data = {
       name: "Assets",
       url: "/dashboard/assets",
       icon: Wallet,
-      permission: PERMISSIONS.WALLET_CONNECTIONS,
+      permission: null, // Show to all users
     },
     {
       name: "Market",
       url: "/dashboard/market",
       icon: PieChart,
-      permission: PERMISSIONS.DASHBOARD,
+      permission: null, // Show to all users
     },
     {
       name: "Trade",
       url: "/dashboard/trade",
       icon: CandlestickChartIcon,
-      permission: PERMISSIONS.DASHBOARD,
+      permission: null, // Show to all users
     },
     {
       name: "Post Trade",
@@ -96,26 +96,26 @@ const data = {
       name: "Subscriptions",
       url: "/dashboard/subscriptions",
       icon: Coins,
-      permission: PERMISSIONS.SUBSCRIPTIONS,
+      permission: null, // Show to all users
     },
     {
       name: "Stake",
       url: "/dashboard/stake",
       icon: Vault,
-      permission: PERMISSIONS.STAKING,
+      permission: null, // Show to all users
     },
-    // {
-    //   name: "Connect Wallet",
-    //   url: "/dashboard/connect-wallet",
-    //   icon: PlugZap2,
-    //   permission: PERMISSIONS.WALLET_CONNECTIONS,
-    // },
-    // {
-    //   name: "Settings",
-    //   url: "/dashboard/settings",
-    //   icon: Settings2,
-    //   permission: PERMISSIONS.DASHBOARD,
-    // },
+    {
+      name: "Connect Wallet",
+      url: "/dashboard/connect-wallet",
+      icon: PlugZap2,
+      permission: null, // Show to all users
+    },
+    {
+      name: "Settings",
+      url: "/dashboard/settings",
+      icon: Settings2,
+      permission: null, // Show to all users
+    },
     {
       name: "Admin Dashboard",
       url: "/admin",

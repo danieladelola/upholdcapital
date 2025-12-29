@@ -1,11 +1,10 @@
 "use server"
 
-import { db } from "@/lib/firebase"
 import firebase from "firebase/compat/app"
 
 export async function updateUserBalance(uid: string, amount: number) {
 
-  await db.collection("users").doc(uid).update({
+//   await db.collection("users").doc(uid).update({
 
     balance: firebase.firestore.FieldValue.increment(amount)
 
@@ -17,7 +16,7 @@ export async function updateUserBalance(uid: string, amount: number) {
 
 export async function updateUserRole(uid: string, role: string) {
 
-  await db.collection("users").doc(uid).update({
+//   await db.collection("users").doc(uid).update({
 
     role
 
@@ -29,7 +28,7 @@ export async function updateUserRole(uid: string, role: string) {
 
 export async function migrateUsers() {
 
-  const usersRef = db.collection("users")
+//   const usersRef = db.collection("users")
 
   const snapshot = await usersRef.get()
 

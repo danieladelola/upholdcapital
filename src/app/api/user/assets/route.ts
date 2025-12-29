@@ -1,34 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { getServerSession } from 'next-auth';
+import { getUserFromRequest } from '@/lib/auth';
 
-// GET /api/user/assets - Get current user's assets
+// GET /api/user/assets - Get current user's assets with staking info
 export async function GET(request: NextRequest) {
   try {
-    // For now, get user ID from query param (should use session in production)
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID required' },
-        { status: 400 }
-      );
+    const currentUser = await getUserFromRequest(request);
+    if (!currentUser) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userAssets = await prisma.userAsset.findMany({
+    const userAssets = await prisma.userAssetBalance.findMany({
       where: {
-        user_id: userId,
-        balance: {
-          gt: 0, // Only return assets with positive balance
-        },
+        userId: currentUser.id,
       },
       include: {
-        asset: true,
+        asset: {
+          select: {
+            name: true,
+            symbol: true,
+            logoUrl: true,
+            stakingEnabled: true,
+            stakeMin: true,
+            stakeMax: true,
+            stakeRoi: true,
+            stakeCycleDays: true,
+          },
+        },
       },
     });
 
-    return NextResponse.json(userAssets);
+    const result = userAssets.map(ua => ({
+      id: ua.asset.id,
+      name: ua.asset.name,
+      symbol: ua.asset.symbol,
+      logo: ua.asset.logoUrl,
+      stakingEnabled: ua.asset.stakingEnabled,
+      stakeMin: ua.asset.stakeMin,
+      stakeMax: ua.asset.stakeMax,
+      stakeRoi: ua.asset.stakeRoi,
+      stakeCycleDays: ua.asset.stakeCycleDays,
+      userBalance: ua.balance,
+    }));
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Error fetching user assets:', error);
     return NextResponse.json(

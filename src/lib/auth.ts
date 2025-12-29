@@ -16,7 +16,7 @@ export interface AuthUser {
 export interface Admin {
   id: string;
   email: string;
-  password_hash: string;
+  passwordHash: string;
   created_at: Date;
 }
 
@@ -45,28 +45,30 @@ export function verifyToken(token: string): AuthUser | null {
 }
 
 export async function getUserByEmail(email: string): Promise<User | null> {
+  console.log('Looking for user:', email);
   const user = await prisma.user.findUnique({
     where: { email },
   });
+  console.log('User found:', !!user);
   if (!user) return null;
   return {
     id: user.id,
     email: user.email,
-    firstname: user.firstname || '',
-    lastname: user.lastname || '',
+    firstname: user.firstName || '',
+    lastname: user.lastName || '',
     initials: user.initials || '',
-    usdBalance: user.usdBalance || 0,
+    usdBalance: user.balance || 0,
     currency: user.currency || 'USD',
-    phoneNumber: user.phoneNumber || '',
+    phoneNumber: user.phone || '',
     country: user.country || '',
-    photoURL: user.photoURL || '',
+    photoURL: user.profileImage || '',
     displayName: user.displayName || '',
     verified: user.verified || false,
     wallets: user.wallets as any || [],
     assets: user.assets as any || [],
     role: user.role as any || 'user',
-    password_hash: user.password_hash,
-    created_at: user.created_at,
+    passwordHash: user.passwordHash,
+    created_at: user.createdAt,
   };
 }
 
@@ -75,31 +77,42 @@ export async function createUser(email: string, password: string, firstname: str
   const user = await prisma.user.create({
     data: {
       email,
-      password_hash,
-      firstname,
-      lastname,
+      passwordHash,
+      firstName: firstname,
+      lastName: lastname,
       initials: `${firstname[0]}${lastname[0]}`.toUpperCase(),
       displayName: `${firstname} ${lastname}`,
     },
   });
+
+  // Create UserAssetBalance for all assets
+  const assets = await prisma.asset.findMany();
+  await prisma.userAssetBalance.createMany({
+    data: assets.map(asset => ({
+      userId: user.id,
+      assetId: asset.id,
+      balance: 0,
+    })),
+  });
+
   return {
     id: user.id,
     email: user.email,
-    firstname: user.firstname || '',
-    lastname: user.lastname || '',
+    firstname: user.firstName || '',
+    lastname: user.lastName || '',
     initials: user.initials || '',
-    usdBalance: user.usdBalance || 0,
+    usdBalance: user.balance || 0,
     currency: user.currency || 'USD',
-    phoneNumber: user.phoneNumber || '',
+    phoneNumber: user.phone || '',
     country: user.country || '',
-    photoURL: user.photoURL || '',
+    photoURL: user.profileImage || '',
     displayName: user.displayName || '',
     verified: user.verified || false,
     wallets: user.wallets as any || [],
     assets: user.assets as any || [],
     role: user.role as any || 'user',
-    password_hash: user.password_hash,
-    created_at: user.created_at,
+    password_hash: user.passwordHash,
+    created_at: user.createdAt,
   };
 }
 
@@ -112,15 +125,16 @@ export async function getUserById(id: string): Promise<User | null> {
 }
 
 export async function getAdminByEmail(email: string): Promise<Admin | null> {
+  console.log('Looking for admin:', email);
   const admin = await prisma.admin.findUnique({
     where: { email },
   });
-  if (!admin) return null;
+  console.log('Admin found:', !!admin);  if (admin) console.log('admin.passwordHash:', admin.passwordHash);  if (!admin) return null;
   return {
     id: admin.id,
     email: admin.email,
-    password_hash: admin.password_hash,
-    created_at: admin.created_at,
+    password_hash: admin.passwordHash,
+    created_at: admin.createdAt,
   };
 }
 
@@ -132,8 +146,8 @@ export async function getAdminById(id: string): Promise<Admin | null> {
   return {
     id: admin.id,
     email: admin.email,
-    password_hash: admin.password_hash,
-    created_at: admin.created_at,
+    password_hash: admin.passwordHash,
+    created_at: admin.createdAt,
   };
 }
 
@@ -142,14 +156,14 @@ export async function createAdmin(email: string, password: string): Promise<Admi
   const admin = await prisma.admin.create({
     data: {
       email,
-      password_hash,
+      passwordHash,
     },
   });
   return {
     id: admin.id,
     email: admin.email,
-    password_hash: admin.password_hash,
-    created_at: admin.created_at,
+    password_hash: admin.passwordHash,
+    created_at: admin.createdAt,
   };
 }
 

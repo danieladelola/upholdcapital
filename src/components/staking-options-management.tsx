@@ -4,106 +4,140 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { addPool, updatePool, deletePool } from "../actions/staking-actions"
-import { db } from "@/lib/firebase"
+import { Switch } from "@/components/ui/switch"
 
-export type Pool = {
+export type AssetStaking = {
   id: string
-  name: string
   symbol: string
-  icon: string
-  minimum: number
-  maximum: number
-  cycle: string
-  roi:number
+  name: string
+  logoUrl?: string
+  stakingEnabled: boolean
+  stakeMin?: number
+  stakeMax?: number
+  stakeRoi?: number
+  stakeCycleDays?: number
 }
 
 export default function StakingOptionsManagement() {
-  const [pools, setPools] = useState<Pool[]>([])
-  const [newPool, setNewPool] = useState<Omit<Pool, "id">>({
-    name: "",
-    symbol: "",
-    icon: "",
-    minimum: 0,
-    maximum: 0,
-    cycle: "",
-    roi:0
-  })
+  const [assets, setAssets] = useState<AssetStaking[]>([])
+  const [editing, setEditing] = useState<string | null>(null)
+  const [editData, setEditData] = useState<Partial<AssetStaking>>({})
 
   useEffect(() => {
-    const unsubscribe = db.collection("stakingPools").onSnapshot((snapshot) => {
-      const newPools = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Pool[]
-      setPools(newPools)
-    })
-
-    return () => unsubscribe()
+    fetchAssets()
   }, [])
 
-  const handleAddPool = async () => {
-    await addPool(newPool)
-    setNewPool({
-      name: "",
-      symbol: "",
-      icon: "",
-      minimum: 0,
-      maximum: 0,
-      cycle: "",
-      roi:0
+  const fetchAssets = async () => {
+    const res = await fetch('/api/admin/staking-options')
+    if (res.ok) {
+      const data = await res.json()
+      setAssets(data)
+    }
+  }
+
+  const handleEdit = (asset: AssetStaking) => {
+    setEditing(asset.id)
+    setEditData({
+      stakingEnabled: asset.stakingEnabled,
+      stakeMin: asset.stakeMin,
+      stakeMax: asset.stakeMax,
+      stakeRoi: asset.stakeRoi,
+      stakeCycleDays: asset.stakeCycleDays,
     })
   }
 
-  const handleUpdatePool = async (id: string, updatedData: Partial<Pool>) => {
-    await updatePool(id, updatedData)
+  const handleSave = async (assetId: string) => {
+    const res = await fetch(`/api/admin/staking-options/${assetId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(editData),
+    })
+    if (res.ok) {
+      await fetchAssets()
+      setEditing(null)
+    }
   }
 
-  const handleDeletePool = async (id: string) => {
-    await deletePool(id)
+  const handleCancel = () => {
+    setEditing(null)
+    setEditData({})
   }
 
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Manage Staking Options</h2>
       
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        <Input placeholder="Name" value={newPool.name} onChange={(e) => setNewPool({...newPool, name: e.target.value})} />
-        <Input placeholder="Symbol" value={newPool.symbol} onChange={(e) => setNewPool({...newPool, symbol: e.target.value})} />
-        <Input placeholder="Just use token symbol EG USDT" value={newPool.icon} onChange={(e) => setNewPool({...newPool, icon: e.target.value})} />
-        <Input type="number" placeholder="Minimum" value={newPool.minimum} onChange={(e) => setNewPool({...newPool, minimum: parseFloat(e.target.value)})} />
-        <Input type="number" placeholder="Maximum" value={newPool.maximum} onChange={(e) => setNewPool({...newPool, maximum: parseFloat(e.target.value)})} />
-        <Input placeholder="Cycle" value={newPool.cycle} onChange={(e) => setNewPool({...newPool, cycle: e.target.value})} />
-        <Input type="number" placeholder="ROI" value={newPool.roi} onChange={(e) => setNewPool({...newPool, roi: parseFloat(e.target.value)})} />
-      </div>
-      <Button onClick={handleAddPool} className="mb-4">Add Staking Option</Button>
-      
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
             <TableHead>Symbol</TableHead>
-            <TableHead>Minimum</TableHead>
-            <TableHead>Maximum</TableHead>
-            <TableHead>Cycle</TableHead>
-            <TableHead>ROI</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Enabled</TableHead>
+            <TableHead>Min Stake</TableHead>
+            <TableHead>Max Stake</TableHead>
+            <TableHead>ROI %</TableHead>
+            <TableHead>Cycle Days</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {pools.map((pool) => (
-            <TableRow key={pool.id}>
-              <TableCell>{pool.name}</TableCell>
-              <TableCell>{pool.symbol}</TableCell>
-              <TableCell>{pool.minimum}</TableCell>
-              <TableCell>{pool.maximum}</TableCell>
-              <TableCell>{pool.cycle}</TableCell>
-              <TableCell>{pool.roi}</TableCell>
-              <TableCell>
-                
-                <Button onClick={() => handleUpdatePool(pool.id, { /* updated fields */ })} className="mr-2">Edit</Button>
-                <Button onClick={() => handleDeletePool(pool.id)} variant="destructive">Delete</Button>
-              </TableCell>
+          {assets.map((asset) => (
+            <TableRow key={asset.id}>
+              <TableCell>{asset.symbol}</TableCell>
+              <TableCell>{asset.name}</TableCell>
+              {editing === asset.id ? (
+                <>
+                  <TableCell>
+                    <Switch
+                      checked={editData.stakingEnabled || false}
+                      onCheckedChange={(checked) => setEditData({ ...editData, stakingEnabled: checked })}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      value={editData.stakeMin || ''}
+                      onChange={(e) => setEditData({ ...editData, stakeMin: parseFloat(e.target.value) || undefined })}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      value={editData.stakeMax || ''}
+                      onChange={(e) => setEditData({ ...editData, stakeMax: parseFloat(e.target.value) || undefined })}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      value={editData.stakeRoi || ''}
+                      onChange={(e) => setEditData({ ...editData, stakeRoi: parseFloat(e.target.value) || undefined })}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      value={editData.stakeCycleDays || ''}
+                      onChange={(e) => setEditData({ ...editData, stakeCycleDays: parseInt(e.target.value) || undefined })}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Button onClick={() => handleSave(asset.id)} className="mr-2">Save</Button>
+                    <Button onClick={handleCancel} variant="outline">Cancel</Button>
+                  </TableCell>
+                </>
+              ) : (
+                <>
+                  <TableCell>{asset.stakingEnabled ? 'Yes' : 'No'}</TableCell>
+                  <TableCell>{asset.stakeMin || '-'}</TableCell>
+                  <TableCell>{asset.stakeMax || '-'}</TableCell>
+                  <TableCell>{asset.stakeRoi || '-'}</TableCell>
+                  <TableCell>{asset.stakeCycleDays || '-'}</TableCell>
+                  <TableCell>
+                    <Button onClick={() => handleEdit(asset)}>Edit</Button>
+                  </TableCell>
+                </>
+              )}
             </TableRow>
           ))}
         </TableBody>

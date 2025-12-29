@@ -8,9 +8,9 @@ export async function createWithdrawal(userId: string, amountUsd: number) {
     // Check user balance
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { usdBalance: true },
+      select: { balance: true },
     });
-    if (!user || (user.usdBalance || 0) < amountUsd) {
+    if (!user || (user.balance || 0) < amountUsd) {
       throw new Error("Insufficient balance");
     }
 
@@ -44,9 +44,9 @@ export async function approveWithdrawal(withdrawalId: string) {
     // Check balance again
     const user = await prisma.user.findUnique({
       where: { id: withdrawal.userId },
-      select: { usdBalance: true },
+      select: { balance: true },
     });
-    if (!user || (user.usdBalance || 0) < withdrawal.amountUsd) {
+    if (!user || (user.balance || 0) < withdrawal.amountUsd) {
       throw new Error("Insufficient balance");
     }
 
@@ -60,7 +60,7 @@ export async function approveWithdrawal(withdrawalId: string) {
     await prisma.user.update({
       where: { id: withdrawal.userId },
       data: {
-        usdBalance: {
+        balance: {
           decrement: withdrawal.amountUsd,
         },
       },

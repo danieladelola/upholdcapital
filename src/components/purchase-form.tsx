@@ -1,6 +1,10 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useAuth } from "@/components/AuthProvider"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface Plan {
   name: string
@@ -21,6 +25,8 @@ export function PurchaseForm({ plans }: PurchaseFormProps) {
   const [balanceLoading, setBalanceLoading] = useState(true)
 
   const { user } = useAuth()
+
+  useEffect(() => {
     if (!user?.id) {
       setBalance(0)
       setBalanceLoading(false)

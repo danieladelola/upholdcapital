@@ -12,7 +12,6 @@ import { AssetsPage } from "@/components/assets-page";
 import { TradingPage } from "@/components/trading-page";
 import MarketsPage from "@/components/market";
 import PostTrade from "@/components/post-trade";
-import { db } from "@/lib/firebase";
 import { useAuth } from "@/components/AuthProvider";
 import { useState, useEffect } from "react";
 import type { JSX } from "react";
@@ -43,36 +42,36 @@ export default function Page() {
   const [balance, setBalance] = useState(0);
 
   // Ensure user exists in Firestore
-  useEffect(() => {
-    if (uid && !loading) {
-      db.collection("users")
-        .doc(uid)
-        .get()
-        .then((doc) => {
-          if (doc.exists) {
-            const data = doc.data();
-            if (!data?.name) {
-              db.collection("users")
-                .doc(uid)
-                .set(
-                  {
-                    displayName:
-                      user?.displayName || `${user?.firstname} ${user?.lastname}` || "Unknown User",
-                    email:
-                      user?.email || "Unknown Email",
-                  },
-                  { merge: true }
-                );
-            }
-          } else {
-            db.collection("users").doc(uid).set({
-              displayName: user?.displayName || `${user?.firstname} ${user?.lastname}` || "Unknown User",
-              email: user?.email || "Unknown Email",
-            });
-          }
-        });
-    }
-  }, [uid, user]);
+  // useEffect(() => {
+  //   if (uid && !loading) {
+  //     db.collection("users")
+  //       .doc(uid)
+  //       .get()
+  //       .then((doc) => {
+  //         if (doc.exists) {
+  //           const data = doc.data();
+  //           if (!data?.name) {
+  //             db.collection("users")
+  //               .doc(uid)
+  //               .set(
+  //                 {
+  //                   displayName:
+  //                     user?.displayName || `${user?.firstname} ${user?.lastname}` || "Unknown User",
+  //                   email:
+  //                     user?.email || "Unknown Email",
+  //                 },
+  //                 { merge: true }
+  //               );
+  //           }
+  //         } else {
+  //           db.collection("users").doc(uid).set({
+  //             displayName: user?.displayName || `${user?.firstname} ${user?.lastname}` || "Unknown User",
+  //             email: user?.email || "Unknown Email",
+  //           });
+  //         }
+  //       });
+  //   }
+  // }, [uid, user]);
 
   // Fetch assets and merge with user assets
   useEffect(() => {

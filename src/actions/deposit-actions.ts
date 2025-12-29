@@ -43,7 +43,7 @@ export async function approveDeposit(depositId: string) {
     await prisma.user.update({
       where: { id: deposit.userId },
       data: {
-        usdBalance: {
+        balance: {
           increment: deposit.amount,
         },
       },

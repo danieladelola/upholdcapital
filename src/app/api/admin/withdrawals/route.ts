@@ -14,8 +14,8 @@ export async function GET(req: NextRequest) {
         user: {
           select: {
             email: true,
-            firstname: true,
-            lastname: true,
+            firstName: true,
+            lastName: true,
           },
         },
       },
@@ -24,7 +24,17 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(withdrawals);
+    // Transform user fields to match frontend
+    const transformedWithdrawals = withdrawals.map(withdrawal => ({
+      ...withdrawal,
+      user: {
+        ...withdrawal.user,
+        firstname: withdrawal.user.firstName,
+        lastname: withdrawal.user.lastName,
+      },
+    }));
+
+    return NextResponse.json(transformedWithdrawals);
   } catch (error) {
     console.error("Error fetching withdrawals:", error);
     return new NextResponse("Internal Server Error", { status: 500 });

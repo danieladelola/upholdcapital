@@ -7,11 +7,21 @@ export async function GET() {
   try {
     const assets = await prisma.asset.findMany({
       orderBy: {
-        created_at: 'desc',
+        createdAt: 'desc',
       },
     });
 
-    return NextResponse.json(assets);
+    // Transform to match frontend interface
+    const transformedAssets = assets.map(asset => ({
+      id: asset.id,
+      symbol: asset.symbol,
+      name: asset.name,
+      price_usd: asset.priceUsd,
+      logo_url: asset.logoUrl,
+      created_at: asset.createdAt,
+    }));
+
+    return NextResponse.json(transformedAssets);
   } catch (error) {
     console.error('Error fetching assets:', error);
     return NextResponse.json(
@@ -31,8 +41,8 @@ export async function POST(request: NextRequest) {
       data: {
         symbol,
         name,
-        price_usd,
-        logo_url,
+        priceUsd,
+        logoUrl,
       },
     });
 

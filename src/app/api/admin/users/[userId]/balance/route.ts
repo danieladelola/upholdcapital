@@ -24,11 +24,11 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ userI
       return new NextResponse("User not found", { status: 404 });
     }
 
-    const newBalance = (user.usdBalance || 0) + amount;
+    const newBalance = (user.balance || 0) + amount;
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: { usdBalance: newBalance },
+      data: { balance: newBalance },
     });
 
     return NextResponse.json(updatedUser);

@@ -15,16 +15,28 @@ export async function GET(req: NextRequest) {
       select: {
         id: true,
         email: true,
-        firstname: true,
-        lastname: true,
-        usdBalance: true,
+        firstName: true,
+        lastName: true,
+        balance: true,
         role: true,
         verified: true,
-        created_at: true,
+        createdAt: true,
       },
     });
 
-    return NextResponse.json(users);
+    // Transform to match frontend interface
+    const transformedUsers = users.map(user => ({
+      id: user.id,
+      email: user.email,
+      firstname: user.firstName,
+      lastname: user.lastName,
+      usdBalance: user.balance,
+      role: user.role,
+      verified: user.verified,
+      created_at: user.createdAt,
+    }));
+
+    return NextResponse.json(transformedUsers);
   } catch (error) {
     console.error("Error fetching users:", error);
     return new NextResponse("Internal Server Error", { status: 500 });

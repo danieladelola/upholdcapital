@@ -25,8 +25,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { SettingsSheet } from "./settings-sheet"
-import { ConnectWalletSheet } from "./connect-wallet-sheet"
 
 export function NavProjects({
   projects,
@@ -52,10 +50,6 @@ export function NavProjects({
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
-        <SidebarMenuItem>
-          <ConnectWalletSheet/>
-          <SettingsSheet/>
-        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>
   )

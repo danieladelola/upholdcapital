@@ -25,14 +25,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Check balance
-    if ((user.usdBalance || 0) < plan.price) {
+    if ((user.balance || 0) < plan.price) {
       return NextResponse.json({ error: 'Insufficient balance' }, { status: 400 });
     }
 
     // Deduct balance
     await prisma.user.update({
       where: { id: userId },
-      data: { usdBalance: (user.usdBalance || 0) - plan.price },
+      data: { balance: (user.balance || 0) - plan.price },
     });
 
     // Calculate end date based on duration

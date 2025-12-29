@@ -3,32 +3,36 @@ import { prisma } from '../src/lib/db';
 import bcrypt from 'bcryptjs';
 
 async function main() {
-  const email = 'admin@vura.pro';
+  const email = 'user@vura.pro';
   const password = '12345678';
+  const firstName = 'Test';
+  const lastName = 'User';
 
-  // Check if admin already exists
-  const existingAdmin = await prisma.admin.findUnique({
+  // Check if user already exists
+  const existingUser = await prisma.user.findUnique({
     where: { email },
   });
 
-  if (existingAdmin) {
-    await prisma.admin.delete({
+  if (existingUser) {
+    await prisma.user.delete({
       where: { email },
     });
-    console.log('Existing admin deleted');
+    console.log('Existing user deleted');
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
 
-  const admin = await prisma.admin.create({
+  const user = await prisma.user.create({
     data: {
       email,
       passwordHash,
+      firstName,
+      lastName,
+      role: 'USER',
     },
   });
 
-  console.log('Admin created:', admin);
-  console.log('Password hash length:', passwordHash.length);
+  console.log('User created:', user.email);
 }
 
 main()

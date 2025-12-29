@@ -293,19 +293,19 @@ function ConvertForm({ assets,uid }: ConvertFormProps) {
         const convertedValue = usdValue / toAssetData.price
 
         // decrement fromAsset
-        await db.collection('users').doc(uid).collection('assets').doc(fromAsset).update({
-          amount: fire.firestore.FieldValue.increment(-amount)
-        })
+        // await db.collection('users').doc(uid).collection('assets').doc(fromAsset).update({
+        //   amount: fire.firestore.FieldValue.increment(-amount)
+        // })
 
         // increment or create toAsset document
-        const toRef = db.collection('users').doc(uid).collection('assets').doc(toAsset)
-        const toDoc = await toRef.get()
-        if (toDoc.exists) {
-          await toRef.update({ amount: fire.firestore.FieldValue.increment(convertedValue) })
-        } else {
-          // create the asset document with the converted amount and a best-effort name
-          await toRef.set({ name: toAssetData.name ?? toAssetData.symbol, amount: convertedValue })
-        }
+        // const toRef = db.collection('users').doc(uid).collection('assets').doc(toAsset)
+        // const toDoc = await toRef.get()
+        // if (toDoc.exists) {
+        //   await toRef.update({ amount: fire.firestore.FieldValue.increment(convertedValue) })
+        // } else {
+        //   // create the asset document with the converted amount and a best-effort name
+        //   await toRef.set({ name: toAssetData.name ?? toAssetData.symbol, amount: convertedValue })
+        // }
 
         setConvertedAmount(convertedValue.toFixed(3))
         toast({ title: 'Conversion successful', description: `${amount} ${fromAsset} → ${Number(convertedValue.toFixed(3))} ${toAsset}` })
