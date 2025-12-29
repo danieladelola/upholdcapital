@@ -21,19 +21,32 @@ export async function GET(req: NextRequest) {
         role: true,
         verified: true,
         createdAt: true,
+        updatedAt: true,
+        lastLogin: true,
+        status: true,
+        phone: true,
+        address: true,
+        profileImage: true,
       },
+      orderBy: { createdAt: 'desc' },
     });
 
     // Transform to match frontend interface
     const transformedUsers = users.map(user => ({
       id: user.id,
       email: user.email,
-      firstname: user.firstName,
-      lastname: user.lastName,
-      usdBalance: user.balance,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      balance: user.balance,
       role: user.role,
       verified: user.verified,
-      created_at: user.createdAt,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      lastLogin: user.lastLogin,
+      status: user.status,
+      phone: user.phone,
+      address: user.address,
+      profileImage: user.profileImage,
     }));
 
     return NextResponse.json(transformedUsers);

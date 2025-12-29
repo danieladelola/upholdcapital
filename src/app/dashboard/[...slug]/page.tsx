@@ -18,6 +18,7 @@ import type { JSX } from "react";
 import { Asset, UserAsset } from "../../../../types";
 import { fetchAssets } from "./utils";
 import { Loader2 } from "lucide-react";
+import SettingsPage from "@/components/settings-page";
 
 function LoadingSpinner() {
   return (
@@ -188,6 +189,7 @@ export default function Page() {
       ) : (
         <LoadingSpinner />
       ),
+    settings: () => <SettingsPage />,
     default: () => <div>Page not found</div>,
   };
 
