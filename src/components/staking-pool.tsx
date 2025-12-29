@@ -6,7 +6,7 @@ interface StakingPoolProps {
     id: string
     name: string
     symbol: string
-    logo?: string
+    logoUrl?: string
     stakeRoi?: number
     stakeMin?: number
     stakeMax?: number
@@ -21,10 +21,12 @@ export function StakingPool({ asset, onStake }: StakingPoolProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
-          {asset.logo ? (
-            <img src={asset.logo} alt={asset.symbol} className="h-6 w-6" />
+          {asset.logoUrl ? (
+            <img src={asset.logoUrl} alt={`${asset.name} logo`} className="h-6 w-6" />
           ) : (
-            <div className="h-6 w-6 bg-gray-200 rounded"></div>
+            <div className="h-6 w-6 bg-gray-200 rounded-full flex items-center justify-center">
+              <span className="text-xs font-bold">{asset.symbol.charAt(0)}</span>
+            </div>
           )}
           <span>{asset.name}</span>
         </CardTitle>

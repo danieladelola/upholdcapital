@@ -25,7 +25,7 @@ type AssetStaking = {
   id: string
   name: string
   symbol: string
-  logo?: string
+  logoUrl?: string
   stakingEnabled: boolean
   stakeMin?: number
   stakeMax?: number

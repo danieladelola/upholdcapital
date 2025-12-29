@@ -10,37 +10,33 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userAssets = await prisma.userAssetBalance.findMany({
+    const assets = await prisma.asset.findMany({
       where: {
-        userId: currentUser.id,
+        stakingEnabled: true,
       },
       include: {
-        asset: {
+        userAssetBalances: {
+          where: {
+            userId: currentUser.id,
+          },
           select: {
-            name: true,
-            symbol: true,
-            logoUrl: true,
-            stakingEnabled: true,
-            stakeMin: true,
-            stakeMax: true,
-            stakeRoi: true,
-            stakeCycleDays: true,
+            balance: true,
           },
         },
       },
     });
 
-    const result = userAssets.map(ua => ({
-      id: ua.asset.id,
-      name: ua.asset.name,
-      symbol: ua.asset.symbol,
-      logo: ua.asset.logoUrl,
-      stakingEnabled: ua.asset.stakingEnabled,
-      stakeMin: ua.asset.stakeMin,
-      stakeMax: ua.asset.stakeMax,
-      stakeRoi: ua.asset.stakeRoi,
-      stakeCycleDays: ua.asset.stakeCycleDays,
-      userBalance: ua.balance,
+    const result = assets.map(asset => ({
+      id: asset.id,
+      name: asset.name,
+      symbol: asset.symbol,
+      logoUrl: asset.logoUrl,
+      stakingEnabled: asset.stakingEnabled,
+      stakeMin: asset.stakeMin,
+      stakeMax: asset.stakeMax,
+      stakeRoi: asset.stakeRoi,
+      stakeCycleDays: asset.stakeCycleDays,
+      userBalance: asset.userAssetBalances[0]?.balance || 0,
     }));
 
     return NextResponse.json(result);

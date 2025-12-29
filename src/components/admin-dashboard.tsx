@@ -93,6 +93,25 @@ export default function AdminDashboardPage() {
             </Button>
           </CardContent>
         </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Settings className="h-5 w-5" />
+              <span>Staking Management</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Manage staking options, rates, and cycles.
+            </p>
+            <Link href="/admin/staking">
+              <Button className="w-full">
+                Manage Staking
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
