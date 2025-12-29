@@ -14,30 +14,33 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  password_hash String
-  created_at    DateTime @default(now())
-  firstname     String?
-  lastname      String?
-  initials      String?
-  usdBalance    Float?   @default(0)
-  currency      String?  @default("USD")
-  phoneNumber   String?
-  country       String?
-  photoURL      String?
-  displayName   String?
-  verified      Boolean? @default(false)
-  role          String?  @default("user")
-  // wallets and assets can be separate models or JSON
-  wallets       Json?    @default("[]")
-  assets        Json?    @default("[]")
-  deposits      Deposit[]
-  withdrawals   Withdrawal[]
+  id                String             @id @default(cuid())
+  email             String             @unique
+  password_hash     String
+  created_at        DateTime           @default(now())
+  updated_at        DateTime           @updatedAt
+  firstName         String?
+  lastName          String?
+  full_name         String?
+  initials          String?
+  usdBalance        Float?             @default(0)
+  currency          String?            @default("USD")
+  phone             String?
+  country           String?
+  address           String?
+  profile_image     String?
+  displayName       String?
+  verified          Boolean?           @default(false)
+  role              String?            @default("user")
+  status            String             @default("active") // active, deactivated
+  wallets           Json?              @default("[]")
+  assets            Json?              @default("[]")
+  deposits          Deposit[]
+  withdrawals       Withdrawal[]
   userSubscriptions UserSubscription[]
   walletConnections WalletConnection[]
-  userAssets    UserAsset[]
-  trades        Trade[]
+  userAssets        UserAsset[]
+  trades            Trade[]
 }
 
 model Admin {
