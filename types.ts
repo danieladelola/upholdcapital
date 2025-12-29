@@ -46,15 +46,6 @@ export type UserSubscription = {
   date:number 
 }
 
-export type Subscription = {
-  id: string;
-  planName: string;
-  amount: number;
-  startDate: string;
-  endDate: string;
-  status: string;
-}
-
 export type User = {
   id?:string,
   firstname:string,
@@ -71,7 +62,7 @@ export type User = {
   wallets:UserWallet[],
   assets:UserAsset[],
   role: Role;
-  password_hash?: string;
+  passwordHash?: string;
   created_at?: Date;
 }
 
@@ -123,6 +114,25 @@ export interface Trade {
   value?: number;
   action?: "Buy" | "Sell" | "Convert";
   filled?: boolean;
+}
+
+export interface UITrade {
+  id: string;
+  date: string;
+  asset: {
+    name: string;
+    symbol: string;
+    type: string;
+    icon: string;
+    price: number;
+    amount: number;
+  };
+  from?: string;
+  to?: string;
+  amount: number;
+  value: number;
+  action: string;
+  filled: boolean;
 }
 
 export interface UserProfile {
@@ -192,6 +202,8 @@ export interface Subscription {
   id: string;
   userId: string;
   subscriptionId: string;
+  planName: string;
+  amount: number;
   status: "active" | "completed" | "cancelled";
   startDate: string;
   endDate?: string;

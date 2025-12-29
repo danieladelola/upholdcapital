@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await createUser(email, password, firstname, lastname);
-    const { password_hash, ...userWithoutPassword } = user;
+    const { passwordHash, ...userWithoutPassword } = user;
 
     return NextResponse.json({ user: userWithoutPassword }, { status: 201 });
   } catch (error) {

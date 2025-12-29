@@ -73,11 +73,11 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 }
 
 export async function createUser(email: string, password: string, firstname: string, lastname: string): Promise<User> {
-  const password_hash = await hashPassword(password);
+  const passwordHash = await hashPassword(password);
   const user = await prisma.user.create({
     data: {
       email,
-      passwordHash,
+      passwordHash: passwordHash,
       firstName: firstname,
       lastName: lastname,
       initials: `${firstname[0]}${lastname[0]}`.toUpperCase(),
@@ -111,7 +111,7 @@ export async function createUser(email: string, password: string, firstname: str
     wallets: user.wallets as any || [],
     assets: user.assets as any || [],
     role: user.role as any || 'user',
-    password_hash: user.passwordHash,
+    passwordHash: user.passwordHash,
     created_at: user.createdAt,
   };
 }
@@ -133,7 +133,7 @@ export async function getAdminByEmail(email: string): Promise<Admin | null> {
   return {
     id: admin.id,
     email: admin.email,
-    password_hash: admin.passwordHash,
+    passwordHash: admin.passwordHash,
     created_at: admin.createdAt,
   };
 }
@@ -146,13 +146,13 @@ export async function getAdminById(id: string): Promise<Admin | null> {
   return {
     id: admin.id,
     email: admin.email,
-    password_hash: admin.passwordHash,
+    passwordHash: admin.passwordHash,
     created_at: admin.createdAt,
   };
 }
 
 export async function createAdmin(email: string, password: string): Promise<Admin> {
-  const password_hash = await hashPassword(password);
+  const passwordHash = await hashPassword(password);
   const admin = await prisma.admin.create({
     data: {
       email,
@@ -162,7 +162,7 @@ export async function createAdmin(email: string, password: string): Promise<Admi
   return {
     id: admin.id,
     email: admin.email,
-    password_hash: admin.passwordHash,
+    passwordHash: admin.passwordHash,
     created_at: admin.createdAt,
   };
 }

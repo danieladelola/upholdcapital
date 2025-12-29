@@ -50,3 +50,22 @@ export type UserAsset = {
   amount: number;
   name?: string;
 };
+
+export type Trade = {
+  id: string;
+  date: string;
+  asset: {
+    name: string;
+    symbol: string;
+    type: string;
+    icon: string;
+    price: number;
+    amount: number;
+  };
+  from?: string;
+  to?: string;
+  amount: number;
+  value: number;
+  action: string;
+  filled: boolean;
+};

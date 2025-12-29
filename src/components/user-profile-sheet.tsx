@@ -27,7 +27,23 @@ const dummyUser = {
 };
 
 export function UserProfileSheet() {
-  const [user, setUser] = useState(dummyUser);
+  const [user, setUser] = useState<{
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    email: string;
+    phone: string | null;
+    address: string | null;
+    profileImage: string | null;
+  }>({
+    id: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    address: "",
+    profileImage: "",
+  });
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -87,7 +103,7 @@ export function UserProfileSheet() {
             <h2 className="text-xl font-semibold mb-4">Profile Picture</h2>
             <div className="flex flex-col items-center">
               <img
-                src={user.profileImage}
+                src={user.profileImage || ""}
                 alt="Profile"
                 className="w-32 h-32 rounded-full mb-4 object-cover"
               />

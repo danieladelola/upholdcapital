@@ -6,14 +6,14 @@ import { TradesTable } from "./trades-table"
 import TradingviewWidget from "./TradingviewWidget"
 import { useEffect } from "react"
 import { FetchedAsset as Asset } from "@/types/index"
-import type { Trade, User} from "../../types"
+import type { UITrade, User} from "../../types"
 import { getUserTrades } from "@/actions/trading-actions"
 import { ResponsiveContainer } from 'recharts'
 import { SingleTicker } from 'react-ts-tradingview-widgets'
 
 export function TradingPage({assets,user,balance}:{assets:Asset[],user:User,balance:number}) {
   const [activeTab, setActiveTab] = useState<"open" | "filled">("open")
-  const [tradeHistory, setTradeHistory] = useState<Trade[]>([]);
+  const [tradeHistory, setTradeHistory] = useState<UITrade[]>([]);
 
   const uid = user.id;
   useEffect(() => {
@@ -32,11 +32,11 @@ export function TradingPage({assets,user,balance}:{assets:Asset[],user:User,bala
             price: trade.priceUsd,
             amount: trade.amount
           },
-          from: trade.trade_type === 'sell' ? trade.asset.symbol : undefined,
-          to: trade.trade_type === 'buy' ? trade.asset.symbol : undefined,
+          from: trade.tradeType === 'sell' ? trade.asset.symbol : undefined,
+          to: trade.tradeType === 'buy' ? trade.asset.symbol : undefined,
           amount: trade.amount,
-          value: trade.amount * trade.price_usd,
-          action: trade.trade_type === 'buy' ? 'Buy' : 'Sell',
+          value: trade.amount * trade.priceUsd,
+          action: trade.tradeType === 'buy' ? 'Buy' : 'Sell',
           filled: true
         }))
         setTradeHistory(formattedTrades)

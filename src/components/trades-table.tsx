@@ -3,12 +3,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import type { Trade } from "../../types"
+import type { UITrade } from "../../types"
 
 interface TradesTableProps {
   activeTab: "open" | "filled"
   setActiveTab: (tab: "open" | "filled") => void
-  trades: Trade[]
+  trades: UITrade[]
 }
 
 export function TradesTable({ activeTab, setActiveTab, trades }: TradesTableProps) {
@@ -39,7 +39,7 @@ export function TradesTable({ activeTab, setActiveTab, trades }: TradesTableProp
 }
 
 interface TradeListProps {
-  trades: Trade[]
+  trades: UITrade[]
 }
 
 function TradeList({ trades }: TradeListProps) {

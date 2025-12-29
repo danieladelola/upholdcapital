@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     if (!user) {
       return NextResponse.json({ user: null }, { status: 401 });
     }
-    const { password_hash, ...userWithoutPassword } = user;
+    const { passwordHash, ...userWithoutPassword } = user;
     user = userWithoutPassword;
   }
 
