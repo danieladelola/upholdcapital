@@ -14,6 +14,7 @@ import { SingleTicker } from 'react-ts-tradingview-widgets'
 export function TradingPage({assets,user,balance}:{assets:Asset[],user:User,balance:number}) {
   const [activeTab, setActiveTab] = useState<"open" | "filled">("open")
   const [tradeHistory, setTradeHistory] = useState<UITrade[]>([]);
+  const [selectedSymbol, setSelectedSymbol] = useState<string>("NASDAQ:TSLA");
 
   const uid = user.id;
   useEffect(() => {
@@ -52,11 +53,11 @@ export function TradingPage({assets,user,balance}:{assets:Asset[],user:User,bala
       <h1 className="text-3xl font-bold">Trade</h1>
       <div className="container flex md:flex-row  max-md:flex-wrap min-h-[500px] h-full" >
         <ResponsiveContainer  height={'500px'}>
-          <TradingviewWidget />
+          <TradingviewWidget symbol={selectedSymbol} />
         </ResponsiveContainer>
 
 
-        <TradingControls user={user} userBalance={balance} assets={assets} />
+        <TradingControls user={user} userBalance={balance} assets={assets} onAssetSelect={setSelectedSymbol} />
       </div>
       <SingleTicker/>
       <TradesTable activeTab={activeTab} trades={tradeHistory} setActiveTab={setActiveTab} />

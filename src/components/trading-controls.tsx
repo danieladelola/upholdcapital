@@ -31,7 +31,7 @@ import type { User } from '../../types';
 
 
 
-export function TradingControls({assets,userBalance,user}: {assets: Asset[],userBalance:number,user:User}) {
+export function TradingControls({assets,userBalance,user, onAssetSelect}: {assets: Asset[],userBalance:number,user:User, onAssetSelect?: (symbol: string) => void}) {
   const [tradeType, setTradeType] = useState<TradeType>("Buy")
   const [amount, setAmount] = useState("")
   const [targetasset, setTargetAsset] = useState("")
@@ -41,6 +41,10 @@ export function TradingControls({assets,userBalance,user}: {assets: Asset[],user
     if(targetasset){
       const asset = assets.find(a => a.symbol === targetasset)
       setAsset(asset)
+      if (asset && onAssetSelect) {
+        const tvSymbol = asset.type === 'crypto' ? `BINANCE:${asset.symbol}USDT` : `NASDAQ:${asset.symbol}`;
+        onAssetSelect(tvSymbol)
+      }
     }
   },[targetasset])
 

@@ -1,11 +1,14 @@
 // TradingViewWidget.jsx
 import React, { useEffect, useRef, memo } from 'react';
 //take assetSymbol as props
-function TradingViewWidget() {
+function TradingViewWidget({ symbol = "NASDAQ:TSLA" }) {
   const container = useRef();
 
   useEffect(() => {
     const currentContainer = container.current;
+
+    // Clear previous content
+    currentContainer.innerHTML = '<div class="tradingview-widget-container__widget" style="height: calc(100% - 32px); width: 100%;"></div>';
 
     // Create the script element
     const script = document.createElement("script");
@@ -15,7 +18,7 @@ function TradingViewWidget() {
     script.innerHTML = `
       {
         "autosize": true,
-        "symbol": "NASDAQ:TSLA",
+        "symbol": "${symbol}",
         "interval": "D",
         "timezone": "Etc/UTC",
         "theme": "light",
@@ -35,7 +38,7 @@ function TradingViewWidget() {
         currentContainer.removeChild(script);
       }
     };
-  }, []); // Empty dependency array ensures this runs only once
+  }, [symbol]); // Depend on symbol to re-render when it changes
 
   return (
 

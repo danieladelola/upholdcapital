@@ -25,6 +25,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkAuth = async () => {
     try {
       const res = await fetch('/api/auth/me');
+      if (!res.ok) {
+        setUser(null);
+        return;
+      }
       const data = await res.json();
       setUser(data.user);
     } catch (error) {
@@ -40,8 +44,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(errorText || 'Login failed');
+    }
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
     setUser(data.user);
   };
 
