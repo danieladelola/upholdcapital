@@ -14,12 +14,12 @@ export async function POST(request: NextRequest) {
     const { email, password } = loginSchema.parse(body);
 
     const admin = await getAdminByEmail(email);
-    if (!admin || !admin.password_hash) {
+    if (!admin || !admin.passwordHash) {
       console.log('Admin not found or no password for:', email);
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    const isValid = await verifyPassword(password, admin.password_hash);
+    const isValid = await verifyPassword(password, admin.passwordHash);
     console.log('Password valid for admin', email, ':', isValid);
     if (!isValid) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });

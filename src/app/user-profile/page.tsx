@@ -27,13 +27,13 @@ export default function UserProfilePage() {
     if (authUser) {
       setUser(authUser);
       setFormData({
-        firstName: authUser.firstName || "",
-        lastName: authUser.lastName || "",
+        firstName: authUser.firstname || "",
+        lastName: authUser.lastname || "",
         email: authUser.email || "",
-        phone: authUser.phone || "",
-        address: authUser.address || "",
+        phone: authUser.phoneNumber || "",
+        address: authUser.country || "",
       });
-      setImagePreview(authUser.profileImage || null);
+      setImagePreview(authUser.photoURL || null);
     }
   }, [authUser]);
 

@@ -28,13 +28,13 @@ interface StakingModalProps {
 
 export function StakingModal({ isOpen, onClose, asset, onStake }: StakingModalProps) {
   const [amount, setAmount] = useState((asset.stakeMin || 0).toString())
-  const sasset = assets.find(value=>value.symbol == asset.symbol)
+  // const sasset = assets.find(value=>value.symbol == asset.symbol)
   const { user } = useAuth()
   // Prefer a provided userId prop (server/parent), fallback to client useUser()
-  const uid = userId ?? user?.id
+  const uid = user?.id
   const [liveBalance, setLiveBalance] = useState<number | null>(asset.userBalance)
   // Internal total balance (USD) fetched from user's document when totalBalance prop isn't provided
-  const [internalTotalBalance, setInternalTotalBalance] = useState<number | null>(totalBalance ?? null)
+  const [internalTotalBalance, setInternalTotalBalance] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const { toast } = useToast()
 
@@ -92,8 +92,8 @@ export function StakingModal({ isOpen, onClose, asset, onStake }: StakingModalPr
   // }, [uid, totalBalance])
 
   // Calculate token USD value if price is available
-  const tokenAmount = liveBalance ?? (sasset?.amount ?? 0)
-  const tokenUSDValue = sasset?.price ? tokenAmount * (sasset?.price || 0) : null
+  const tokenAmount = liveBalance ?? 0
+  const tokenUSDValue = null // TODO: Add price
 
   const handleStake = async () => {
     const stakeAmount = parseFloat(amount)
@@ -134,7 +134,7 @@ export function StakingModal({ isOpen, onClose, asset, onStake }: StakingModalPr
 
   // Format total balance the same way as StatCard in dashboard
   // Prefer live internalTotalBalance from Firestore (if subscribed), otherwise use prop
-  const effectiveTotalBalance = (internalTotalBalance !== null ? internalTotalBalance : (totalBalance ?? 0))
+  const effectiveTotalBalance = (internalTotalBalance !== null ? internalTotalBalance : 0)
   const formattedTotalBalance = `$${Number(effectiveTotalBalance).toLocaleString('en-US')}`
 
   // Display token-level balances (prefers liveBalance subscription, falls back to passed asset amount)

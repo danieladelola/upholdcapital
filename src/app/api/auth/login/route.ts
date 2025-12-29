@@ -14,12 +14,12 @@ export async function POST(request: NextRequest) {
     const { email, password } = loginSchema.parse(body);
 
     const user = await getUserByEmail(email);
-    if (!user || !user.passwordHash) {
+    if (!user || !user.password_hash) {
       console.log('User not found or no password for:', email);
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    const isValid = await verifyPassword(password, user.passwordHash);
+    const isValid = await verifyPassword(password, user.password_hash);
     console.log('Password valid for', email, ':', isValid);
     if (!isValid) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7 days
     });
 
-    const { passwordHash, ...userWithoutPassword } = user;
+    const { password_hash, ...userWithoutPassword } = user;
 
     return NextResponse.json({ user: userWithoutPassword });
   } catch (error) {

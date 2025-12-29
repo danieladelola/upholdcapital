@@ -45,7 +45,7 @@ export function PlanCard({ plan, onSubscribe }: PlanCardProps) {
 
           {plan.name} 
             <Avatar className="inline-block">
-              <AvatarImage src={plan.img}/>
+              <AvatarImage src="/placeholder.png"/>
             </Avatar>
           </div>
            </CardTitle>

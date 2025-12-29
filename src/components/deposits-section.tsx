@@ -15,6 +15,7 @@ export function DepositsSection() {
   const [deposits, setDeposits] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState("all")
+  const [expandedRow, setExpandedRow] = useState<string | null>(null)
   const { user } = useAuth()
   const {toast} = useToast()
   useEffect(() => {

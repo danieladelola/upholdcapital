@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { getServerSession } from 'next-auth';
 
 // GET /api/admin/assets - Get all assets
 export async function GET() {
@@ -35,7 +34,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { symbol, name, price_usd, logo_url } = body;
+    const { symbol, name, priceUsd, logoUrl } = body;
 
     const asset = await prisma.asset.create({
       data: {

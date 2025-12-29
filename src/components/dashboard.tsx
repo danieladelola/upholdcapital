@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import type { Asset } from "../../types"
+import type { FetchedAsset as Asset } from "@/types/index"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -58,7 +58,7 @@ export default function PortfolioDashboard({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        Welcome, {user?.firstName || "Investor"}!
+        Welcome, {user?.firstname || "Investor"}!
       </motion.h1>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">

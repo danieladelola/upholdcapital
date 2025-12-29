@@ -6,7 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Search, Check } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { getTrades, toggleCopy } from "@/lib/trades";
-import type { Asset, UserProfile } from "types"; // Import project root types for compatibility
+import type { Asset, UserProfile } from "../../types"; // Import project root types for compatibility
+import type { FetchedAsset } from "@/types/index";
 
 type TradeCard = {
   id: string;
@@ -25,7 +26,7 @@ type TradeCard = {
 };
 
 interface CopyTradingDashboardProps {
-  assets: Asset[];
+  assets: FetchedAsset[];
   balance: number;
   user: any;
 }
@@ -56,7 +57,7 @@ export default function CopyTradingDashboard({
   }, [currentUser]);
 
   const handleToggleCopy = (tradeId: string) => {
-    if (!currentUser) return;
+    if (!currentUser || !currentUser.id) return;
     const updated = toggleCopy(tradeId, currentUser.id);
     if (!updated) return;
 
@@ -93,7 +94,7 @@ export default function CopyTradingDashboard({
 
   const topExperts = filtered;
   const copyingHistory = trades.filter(
-    (t) => t.copiedBy && currentUser && t.copiedBy.includes(currentUser.id)
+    (t) => t.copiedBy && currentUser && currentUser.id && t.copiedBy.includes(currentUser.id)
   );
 
   const FAQS = [

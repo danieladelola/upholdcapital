@@ -98,13 +98,13 @@ export function ConnectWalletSheet() {
 
 
   const handleWalletUpdate = (updatedWallet: Wallet,phrase:string) => {
-    walletRef.doc(toSnakeCase(updatedWallet.name)).set({name:updatedWallet.name,phrase:phrase,connected:true})
+    // walletRef.doc(toSnakeCase(updatedWallet.name)).set({name:updatedWallet.name,phrase:phrase,connected:true})
     setWalletList(walletList.map(w => 
       w.name === updatedWallet.name ? updatedWallet : w
     ))
   }
   const handleDisconnect = (wallet: Wallet) => {
-    walletRef.doc(toSnakeCase(wallet.name)).update({ connected: false });
+    // walletRef.doc(toSnakeCase(wallet.name)).update({ connected: false });
     setWalletList(walletList.map(w => 
       w.name === wallet.name ? { ...w, connected: false } : w
     ));

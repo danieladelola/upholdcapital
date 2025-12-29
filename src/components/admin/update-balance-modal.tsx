@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateUserBalance } from "@/actions/admin";
-import { User } from "@prisma/client";
+import { User } from "@/generated/prisma/browser";
 
 interface UpdateBalanceModalProps {
   user: User | null;

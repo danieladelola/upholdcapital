@@ -5,11 +5,11 @@ import { TradingControls } from "./trading-controls"
 import { TradesTable } from "./trades-table"
 import TradingviewWidget from "./TradingviewWidget"
 import { useEffect } from "react"
-import { Asset,Trade } from "../../types"
-import { ResponsiveContainer } from "recharts"
-import TradingViewTickerTape from "./TickerWidget"
-import type { User} from "../../types"
+import { FetchedAsset as Asset } from "@/types/index"
+import type { Trade, User} from "../../types"
 import { getUserTrades } from "@/actions/trading-actions"
+import { ResponsiveContainer } from 'recharts'
+import { SingleTicker } from 'react-ts-tradingview-widgets'
 
 export function TradingPage({assets,user,balance}:{assets:Asset[],user:User,balance:number}) {
   const [activeTab, setActiveTab] = useState<"open" | "filled">("open")
@@ -23,13 +23,13 @@ export function TradingPage({assets,user,balance}:{assets:Asset[],user:User,bala
         // Convert to the expected format for TradesTable
         const formattedTrades = trades.map(trade => ({
           id: trade.id,
-          date: trade.created_at.toISOString(),
+          date: trade.createdAt.toISOString(),
           asset: {
             name: trade.asset.name,
             symbol: trade.asset.symbol,
             type: 'crypto', // Default type
-            icon: trade.asset.logo_url || '',
-            price: trade.price_usd,
+            icon: trade.asset.logoUrl || '',
+            price: trade.priceUsd,
             amount: trade.amount
           },
           from: trade.trade_type === 'sell' ? trade.asset.symbol : undefined,
@@ -58,7 +58,7 @@ export function TradingPage({assets,user,balance}:{assets:Asset[],user:User,bala
 
         <TradingControls user={user} userBalance={balance} assets={assets} />
       </div>
-      <TradingViewTickerTape/>
+      <SingleTicker/>
       <TradesTable activeTab={activeTab} trades={tradeHistory} setActiveTab={setActiveTab} />
     </div>
 

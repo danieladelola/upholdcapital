@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { updateUserRole } from "@/actions/admin";
-import { User, UserRole } from "@prisma/client";
+import { User, UserRole } from "@/generated/prisma/browser";
 
 interface ChangeRoleModalProps {
   user: User | null;
@@ -50,7 +50,7 @@ export function ChangeRoleModal({
     setLoading(true);
     setError(null);
 
-    const result = await updateUserRole(adminId, user.id, { role });
+    const result = await updateUserRole(adminId, user.id, role);
 
     if (result.success) {
       onUserUpdate();

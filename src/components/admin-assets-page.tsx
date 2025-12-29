@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import type { Asset } from "../../../types";
+import type { Asset } from "@/generated/prisma/browser";
 
 export default function AdminAssetsPage() {
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -85,8 +85,8 @@ export default function AdminAssetsPage() {
     setFormData({
       symbol: asset.symbol,
       name: asset.name,
-      price_usd: asset.price_usd.toString(),
-      logo_url: asset.logo_url || '',
+      price_usd: asset.priceUsd ? asset.priceUsd.toString() : '',
+      logo_url: asset.logoUrl || '',
     });
     setIsDialogOpen(true);
   };
@@ -204,10 +204,10 @@ export default function AdminAssetsPage() {
                 <TableRow key={asset.id}>
                   <TableCell className="font-medium">{asset.symbol}</TableCell>
                   <TableCell>{asset.name}</TableCell>
-                  <TableCell>${asset.price_usd.toFixed(2)}</TableCell>
+                  <TableCell>${asset.priceUsd ? asset.priceUsd.toFixed(2) : '0.00'}</TableCell>
                   <TableCell>
-                    {asset.logo_url && (
-                      <img src={asset.logo_url} alt={asset.name} className="w-6 h-6" />
+                    {asset.logoUrl && (
+                      <img src={asset.logoUrl} alt={asset.name} className="w-6 h-6" />
                     )}
                   </TableCell>
                   <TableCell>

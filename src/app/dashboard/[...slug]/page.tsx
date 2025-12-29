@@ -15,7 +15,7 @@ import PostTrade from "@/components/post-trade";
 import { useAuth } from "@/components/AuthProvider";
 import { useState, useEffect } from "react";
 import type { JSX } from "react";
-import { Asset, UserAsset } from "../../../../types";
+import { Asset, UserAsset, FetchedAsset } from "@/types/index";
 import { fetchAssets } from "./utils";
 import { Loader2 } from "lucide-react";
 import SettingsPage from "@/components/settings-page";
@@ -38,7 +38,7 @@ export default function Page() {
   const uid = user?.id;
 
   const [userAssets, setUserAssets] = useState<UserAsset[]>([]);
-  const [assets, setAssets] = useState<Asset[]>([]);
+  const [assets, setAssets] = useState<FetchedAsset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [balance, setBalance] = useState(0);
 
@@ -132,7 +132,7 @@ export default function Page() {
           const response = await fetch(`/api/user/assets?userId=${uid}`);
           if (response.ok) {
             const userAssetsData = await response.json();
-            setUserAssets(userAssetsData.map((ua: any) => ({
+            setUserAssets(userAssetsData.filter((ua: any) => ua.asset).map((ua: any) => ({
               name: ua.asset.name,
               symbol: ua.asset.symbol,
               amount: ua.balance,

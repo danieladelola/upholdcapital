@@ -24,11 +24,11 @@ export default function PostTrade() {
     setCanPost(user.role === 'trader' || user.role === 'admin');
   }, [user]);
 
-  const traderName = user?.fullName || user?.firstName || user?.emailAddresses?.[0]?.emailAddress || "Unknown";
+  const traderName = user?.displayName || user?.firstname || user?.email || "Unknown";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return alert("Please sign in to post trades.");
+    if (!user || !user.id) return alert("Please sign in to post trades.");
     if (!canPost) return alert("You do not have permission to post trades.");
     setSubmitting(true);
     try {

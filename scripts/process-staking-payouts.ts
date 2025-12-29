@@ -1,6 +1,14 @@
-import { PrismaClient } from '../src/generated/prisma/client';
+import "dotenv/config"
+import { PrismaClient } from '../src/generated/prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { Pool } from 'pg'
 
-const prisma = new PrismaClient();
+const connectionString = process.env.DATABASE_URL
+
+const pool = new Pool({ connectionString })
+const adapter = new PrismaPg(pool)
+
+const prisma = new PrismaClient({ adapter })
 
 async function processStakingPayouts() {
   const today = new Date();

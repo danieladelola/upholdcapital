@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Search } from 'lucide-react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/components/AuthProvider";
-import type { UserAsset, Asset } from "../../types";
+import type { UserAsset, FetchedAsset as Asset } from "@/types/index";
 import { getUserAssets, getUserTrades } from "@/actions/trading-actions";
 
 type Activity = {
@@ -35,13 +35,17 @@ export function AssetsPage({assets: apiAssets}:{assets:Asset[]}) {
           getUserTrades(user.id)
         ])
         
-        setUserAssets(userAssetsData)
+        setUserAssets(userAssetsData.map(ua => ({
+          id: ua.id,
+          symbol: ua.asset?.symbol || '',
+          amount: ua.balance
+        })))
         
         // Format recent trades for activity display
         const activities = userTradesData.slice(0, 5).map(trade => ({
-          description: `${trade.trade_type.toUpperCase()} ${trade.amount} ${trade.asset.symbol}`,
-          date: new Date(trade.created_at).toLocaleDateString(),
-          type: trade.trade_type as 'buy' | 'sell',
+          description: `${trade.tradeType.toUpperCase()} ${trade.amount} ${trade.asset.symbol}`,
+          date: new Date(trade.createdAt).toLocaleDateString(),
+          type: trade.tradeType as 'buy' | 'sell',
           amount: trade.amount,
           asset: trade.asset.symbol
         }))
@@ -56,25 +60,26 @@ export function AssetsPage({assets: apiAssets}:{assets:Asset[]}) {
   const balance = useMemo(() => {
     // Calculate total portfolio value in USD
     return userAssets.reduce((acc, userAsset) => {
-      if (!userAsset.asset) return acc
-      return acc + (userAsset.balance * (userAsset.asset.price_usd || 0))
+      const asset = apiAssets.find(a => a.symbol === userAsset.symbol)
+      if (!asset) return acc
+      return acc + (userAsset.amount * (asset.price || 0))
     }, 0)
-  }, [userAssets])
+  }, [userAssets, apiAssets])
 
   const mergedAssets = useMemo(() => {
     return userAssets.map(userAsset => {
-      const asset = userAsset.asset
+      const asset = apiAssets.find(a => a.symbol === userAsset.symbol)
       if (!asset) return null
       
       return {
         ...asset,
-        amount: userAsset.balance,
-        icon: asset.logo_url || `/asseticons/${asset.symbol}.svg`, // Fallback to default icon path
-        price: asset.price_usd,
-        type: 'crypto' // Default type, could be enhanced
+        amount: userAsset.amount,
+        icon: asset.icon || `/asseticons/${asset.symbol}.svg`, // Fallback to default icon path
+        price: asset.price,
+        type: asset.type // Default type, could be enhanced
       }
     }).filter(Boolean) as Asset[]
-  }, [userAssets])
+  }, [userAssets, apiAssets])
 
   const filteredAssets = useMemo(
     () =>

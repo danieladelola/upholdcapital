@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import type { Asset } from "../../types"
+import type { FetchedAsset as Asset } from "@/types/index"
 import { executeTrade } from "@/actions/trading-actions"
 
 import {
@@ -61,7 +61,7 @@ export function TradingControls({assets,userBalance,user}: {assets: Asset[],user
 
     const result = await executeTrade(
       user.id,
-      asset.id || asset.symbol, // Use id if available, otherwise symbol (need to fix this)
+      asset.symbol, // Use symbol
       tradeTypeLower as "buy" | "sell",
       parseFloat(amount),
       asset.price

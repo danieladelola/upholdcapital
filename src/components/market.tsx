@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, Fragment } from "react"
 import { Star, Search, ChevronDown, ChevronUp } from "lucide-react"
 import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import type { Asset} from "../../types"
+import type { FetchedAsset as Asset} from "@/types/index"
 import Link from "next/link"
 
 export default function MarketsPage({assets}:{assets:Asset[]}) {
@@ -94,9 +94,8 @@ export default function MarketsPage({assets}:{assets:Asset[]}) {
               </TableHeader>
               <TableBody>
                 {filteredAssets.map((asset) => (
-                  <>
+                  <Fragment key={asset.symbol}>
                     <TableRow
-                      key={asset.symbol}
                       className="cursor-pointer"
                       onClick={() => toggleRowExpansion(asset.symbol)}
                     >
@@ -172,7 +171,7 @@ export default function MarketsPage({assets}:{assets:Asset[]}) {
                         </TableCell>
                       </TableRow>
                     )}
-                  </>
+                  </Fragment>
                 ))}
               </TableBody>
             </Table>

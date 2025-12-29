@@ -27,12 +27,8 @@ export function SecuritySettingsSheet() {
     }
 
     try {
-      user?.updatePassword({
-        currentPassword,
-        newPassword,
-      }).then(()=>{
-        toast({title:"Password changed", description:"Your password has been changed succesfully"})
-      })
+      // TODO: Implement password update via API
+      toast({title:"Password change not implemented", description:"This feature is not yet available"})
       setOpen(false)
       setError("")
       setCurrentPassword("")

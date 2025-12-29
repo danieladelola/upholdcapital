@@ -46,6 +46,15 @@ export type UserSubscription = {
   date:number 
 }
 
+export type Subscription = {
+  id: string;
+  planName: string;
+  amount: number;
+  startDate: string;
+  endDate: string;
+  status: string;
+}
+
 export type User = {
   id?:string,
   firstname:string,

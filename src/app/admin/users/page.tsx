@@ -21,6 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/components/AuthProvider";
+import { EditUserModal } from "@/components/admin/edit-user-modal";
+import { UpdateBalanceModal } from "@/components/admin/update-balance-modal";
+import { ChangeRoleModal } from "@/components/admin/change-role-modal";
 
 const ADMIN_ID = "admin_placeholder_id"; // Replace with actual admin ID from session
 

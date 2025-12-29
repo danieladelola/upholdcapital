@@ -65,7 +65,15 @@ export function PersonalSettingsContent() {
       setSuccess("Profile updated successfully!");
       // Optionally, update the user state with the new data
       if (result.user) {
-        setUser((prevUser) => ({ ...prevUser, ...result.user }));
+        setUser((prevUser) => ({
+          ...prevUser,
+          firstName: result.user.firstName || prevUser.firstName,
+          lastName: result.user.lastName || prevUser.lastName,
+          email: result.user.email,
+          phone: result.user.phone || prevUser.phone,
+          address: result.user.address || prevUser.address,
+          profileImage: result.user.profileImage || prevUser.profileImage,
+        }));
       }
     } else {
       // setError(result.error);

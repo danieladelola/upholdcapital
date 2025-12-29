@@ -63,9 +63,9 @@ function TradeList({ trades }: TradeListProps) {
           {trades.map((trade) => (
             <TableRow key={trade.id}>
               <TableCell className="hidden md:table-cell">{trade.date}</TableCell>
-              <TableCell>{trade.asset.symbol}</TableCell>
+              <TableCell>{trade.asset?.symbol || 'Unknown'}</TableCell>
               <TableCell>{trade.amount}</TableCell>
-              <TableCell>${trade.value.toFixed(2)}</TableCell>
+              <TableCell>${trade.value?.toFixed(2) || '0.00'}</TableCell>
               <TableCell>{trade.action}</TableCell>
             </TableRow>
           ))}

@@ -20,6 +20,9 @@ async function fetchAssets() {
   try {
     // Fetch crypto assets
     const cryptoResponse = await fetch(cryptoUrl, { headers });
+    if (!cryptoResponse) {
+      throw new Error('Failed to fetch crypto data');
+    }
     const cryptoData = await cryptoResponse.json();
     const cassets = Object.entries(cryptoData).map(([symbol, assetData]) => ({
       name: assetNames[symbol] || symbol,

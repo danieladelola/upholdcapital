@@ -17,6 +17,8 @@ export type SubscriptionPlan = {
   updatedAt: string;
 }
 
+export type Subscription = SubscriptionPlan;
+
 export default function SubscriptionsManagement() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([])
   const [editing, setEditing] = useState<string | null>(null)

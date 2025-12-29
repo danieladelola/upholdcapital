@@ -3,11 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { Trade } from "../../../types";
+import type { Trade, Asset, User } from "@/generated/prisma/browser";
+
+type TradeWithIncludes = Trade & { asset: Asset; user: User };
 
 export default function AdminTradesPage() {
-  const [trades, setTrades] = useState<Trade[]>([]);
-  const [filteredTrades, setFilteredTrades] = useState<Trade[]>([]);
+  const [trades, setTrades] = useState<TradeWithIncludes[]>([]);
+  const [filteredTrades, setFilteredTrades] = useState<TradeWithIncludes[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [tradeTypeFilter, setTradeTypeFilter] = useState<string>('all');
 
@@ -23,13 +25,13 @@ export default function AdminTradesPage() {
       filtered = filtered.filter(trade =>
         trade.asset?.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
         trade.asset?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        trade.user_id.toLowerCase().includes(searchTerm.toLowerCase())
+        trade.userId.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Filter by trade type
     if (tradeTypeFilter !== 'all') {
-      filtered = filtered.filter(trade => trade.trade_type === tradeTypeFilter);
+      filtered = filtered.filter(trade => trade.tradeType === tradeTypeFilter);
     }
 
     setFilteredTrades(filtered);
@@ -40,7 +42,7 @@ export default function AdminTradesPage() {
       const response = await fetch('/api/admin/trades');
       if (response.ok) {
         const data = await response.json();
-        setTrades(data);
+        setTrades(data as TradeWithIncludes[]);
       }
     } catch (error) {
       console.error('Error fetching trades:', error);
@@ -90,13 +92,13 @@ export default function AdminTradesPage() {
             <TableBody>
               {filteredTrades.map((trade) => (
                 <TableRow key={trade.id}>
-                  <TableCell>{new Date(trade.created_at).toLocaleString()}</TableCell>
-                  <TableCell className="font-mono text-sm">{trade.user_id}</TableCell>
+                  <TableCell>{new Date(trade.createdAt).toLocaleString()}</TableCell>
+                  <TableCell className="font-mono text-sm">{trade.userId}</TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      {trade.asset?.logo_url && (
+                      {trade.asset?.logoUrl && (
                         <img
-                          src={trade.asset.logo_url}
+                          src={trade.asset.logoUrl}
                           alt={trade.asset.name}
                           className="w-6 h-6"
                         />
@@ -109,16 +111,16 @@ export default function AdminTradesPage() {
                   </TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded text-xs ${
-                      trade.trade_type === 'buy'
+                      trade.tradeType === 'buy'
                         ? 'bg-green-100 text-green-800'
                         : 'bg-red-100 text-red-800'
                     }`}>
-                      {trade.trade_type.toUpperCase()}
+                      {trade.tradeType.toUpperCase()}
                     </span>
                   </TableCell>
                   <TableCell>{trade.amount}</TableCell>
-                  <TableCell>${trade.price_usd.toFixed(2)}</TableCell>
-                  <TableCell>${(trade.amount * trade.price_usd).toFixed(2)}</TableCell>
+                  <TableCell>${trade.priceUsd.toFixed(2)}</TableCell>
+                  <TableCell>${(trade.amount * trade.priceUsd).toFixed(2)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

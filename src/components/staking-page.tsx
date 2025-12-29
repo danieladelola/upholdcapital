@@ -11,7 +11,7 @@ import { StakeCard } from "./stake-card"
 import { UserAsset } from "../../types"
 import { useToast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import type { Asset } from "../../types"
+import type { FetchedAsset as Asset } from "@/types/index"
 import type { User } from '../../types';
 import { useUserAssets } from "@/hooks/use-user-assets"
 

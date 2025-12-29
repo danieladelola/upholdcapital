@@ -19,6 +19,8 @@ export type AssetStaking = {
   stakeCycleDays?: number
 }
 
+export type Pool = AssetStaking;
+
 export default function StakingOptionsManagement() {
   const [assets, setAssets] = useState<AssetStaking[]>([])
   const [editing, setEditing] = useState<string | null>(null)

@@ -9,7 +9,7 @@ export async function PUT(
   const { id } = await params;
   try {
     const body = await request.json();
-    const { symbol, name, price_usd, logo_url } = body;
+    const { symbol, name, priceUsd, logoUrl } = body;
 
     const asset = await prisma.asset.update({
       where: {
