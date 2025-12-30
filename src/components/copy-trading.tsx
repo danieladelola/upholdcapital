@@ -1,32 +1,43 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import Link from 'next/link';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Search, Check } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
-import { getTrades, toggleCopy } from "@/lib/trades";
-import type { Asset, UserProfile } from "../../types"; // Import project root types for compatibility
-import type { FetchedAsset } from "@/types/index";
+import { PriceService } from "@/lib/price-service";
 
-type TradeCard = {
+interface PostedTrade {
   id: string;
-  title: string;
-  name?: string;
-  traderName: string;
-  avatarUrl?: string;
-  isTrader: boolean;
-  winRate?: number;
-  tradesCount?: number;
-  wins?: number;
-  losses?: number;
-  profitShare?: string;
-  minStartup?: string;
-  copiedBy?: string[];
-};
+  trader: {
+    id: string;
+    displayName?: string;
+    profileImage?: string;
+    firstName?: string;
+    lastName?: string;
+  };
+  asset: {
+    id: string;
+    name: string;
+    symbol: string;
+    logoUrl?: string;
+    priceUsd: number;
+  };
+  tradeType: string;
+  amount: number;
+  entryPrice: number;
+  profitShare: number;
+  notes?: string;
+  duration: number;
+  status: string;
+  createdAt: string;
+}
 
 interface CopyTradingDashboardProps {
-  assets: FetchedAsset[];
+  assets: any[];
   balance: number;
   user: any;
 }
@@ -36,66 +47,162 @@ export default function CopyTradingDashboard({
   balance,
   user,
 }: CopyTradingDashboardProps) {
-  const [selectedTrader, setSelectedTrader] = useState<TradeCard | null>(null);
-  const [modalTab, setModalTab] = useState<"stats" | "trades">("stats");
+  const [selectedTrade, setSelectedTrade] = useState<PostedTrade | null>(null);
+  const [copyAmount, setCopyAmount] = useState("");
+  const [copying, setCopying] = useState(false);
   const { toast } = useToast();
   const { user: currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] =
-    useState<"top-experts" | "copying" | "how-it-works">("top-experts");
+  const [activeTab, setActiveTab] = useState<"top-experts" | "copying" | "how-it-works">("top-experts");
   const [searchTerm, setSearchTerm] = useState("");
-  const [trades, setTrades] = useState<TradeCard[]>([]);
+  const [postedTrades, setPostedTrades] = useState<PostedTrade[]>([]);
   const [openFAQ, setOpenFAQ] = useState<number | null>(0);
   const VISIBLE_COUNT = 60;
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
-    if (!currentUser) return;
-    const items = getTrades();
-    setTrades(items);
-    setLoading(false);
-  }, [currentUser]);
+    fetchPostedTrades();
+  }, []);
 
-  const handleToggleCopy = (tradeId: string) => {
-    if (!currentUser || !currentUser.id) return;
-    const updated = toggleCopy(tradeId, currentUser.id);
-    if (!updated) return;
-
-    setTrades((prev) =>
-      prev.map((t) => (t.id === updated.id ? updated : t))
-    );
-
-    if (updated.copiedBy?.includes(currentUser.id)) {
-      toast({
-        title: "Expert copied successfully",
-        description: "",
-        duration: 3000,
-        style: { background: "#22c55e", color: "white" },
-      });
-    } else {
-      toast({
-        title: "Copying cancelled successfully",
-        description: "",
-        duration: 3000,
-        style: { background: "#ef4444", color: "white" },
-      });
+  const fetchPostedTrades = async () => {
+    try {
+      const res = await fetch('/api/trades/posted');
+      if (res.ok) {
+        const data = await res.json();
+        setPostedTrades(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch posted trades:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const filtered = trades.filter((t) => {
-    const q = searchTerm.trim().toLowerCase();
-    if (!q) return true;
-    return (
-      t.title?.toLowerCase().includes(q) ||
-      t.traderName?.toLowerCase().includes(q) ||
-      t.id?.toLowerCase().includes(q)
-    );
-  });
+  const [livePrices, setLivePrices] = useState<{ [key: string]: number }>({});
+
+  const fetchLivePrices = async (trades: PostedTrade[]) => {
+    try {
+      const symbols = [...new Set(trades.map(t => t.asset.symbol))];
+      const coinGeckoIds = symbols.map(symbol => PriceService.mapSymbolToCoinGeckoId(symbol));
+      
+      if (coinGeckoIds.length > 0) {
+        const prices = await PriceService.fetchPrices(coinGeckoIds);
+        const priceMap: { [key: string]: number } = {};
+        
+        symbols.forEach((symbol, index) => {
+          const coinGeckoId = coinGeckoIds[index];
+          priceMap[symbol] = prices[coinGeckoId]?.usd || trades.find(t => t.asset.symbol === symbol)?.asset.priceUsd || 0;
+        });
+        
+        setLivePrices(priceMap);
+      }
+    } catch (error) {
+      console.error('Failed to fetch live prices:', error);
+      // Fallback to database prices
+      const fallbackPrices: { [key: string]: number } = {};
+      trades.forEach(trade => {
+        fallbackPrices[trade.asset.symbol] = trade.asset.priceUsd;
+      });
+      setLivePrices(fallbackPrices);
+    }
+  };
+
+  useEffect(() => {
+    if (postedTrades.length > 0) {
+      fetchLivePrices(postedTrades);
+      
+      // Update prices every 30 seconds
+      const interval = setInterval(() => {
+        fetchLivePrices(postedTrades);
+      }, 30000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [postedTrades]);
+
+  const calculatePnL = (trade: PostedTrade) => {
+    const currentPrice = livePrices[trade.asset.symbol] || trade.asset.priceUsd;
+    const entryPrice = trade.entryPrice;
+    if (trade.tradeType === 'buy') {
+      return ((currentPrice - entryPrice) / entryPrice) * 100;
+    } else {
+      return ((entryPrice - currentPrice) / entryPrice) * 100;
+    }
+  };
+
+  const isTradeActive = (trade: PostedTrade) => {
+    if (trade.status !== 'open') return false;
+    const createdAt = new Date(trade.createdAt);
+    const expiryTime = new Date(createdAt.getTime() + trade.duration * 60 * 60 * 1000);
+    return expiryTime > new Date();
+  };
+
+  const handleCopyTrade = async () => {
+    if (!selectedTrade || !copyAmount) return;
+    if (currentUser?.role?.toLowerCase() === 'admin') {
+      toast({
+        title: "Admins cannot copy trades",
+        variant: "destructive",
+      });
+      return;
+    }
+    setCopying(true);
+    try {
+      const res = await fetch('/api/trades/copy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          postedTradeId: selectedTrade.id,
+          amount: copyAmount,
+        }),
+      });
+      if (res.ok) {
+        const { adjustment } = await res.json();
+        toast({
+          title: "Trade copied successfully",
+          description: `Balance adjusted by $${adjustment.toFixed(2)}`,
+        });
+        setSelectedTrade(null);
+        setCopyAmount("");
+      } else {
+        const error = await res.json();
+        toast({
+          title: "Failed to copy trade",
+          description: error.error,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Failed to copy trade:', error);
+      toast({
+        title: "Failed to copy trade",
+        variant: "destructive",
+      });
+    } finally {
+      setCopying(false);
+    }
+  };
+
+  const filtered = postedTrades
+    .filter((t) => {
+      const q = searchTerm.trim().toLowerCase();
+      if (!q) return true;
+      return (
+        t.trader.displayName?.toLowerCase().includes(q) ||
+        t.asset.name.toLowerCase().includes(q) ||
+        t.asset.symbol.toLowerCase().includes(q)
+      );
+    })
+    .sort((a, b) => {
+      const aActive = isTradeActive(a);
+      const bActive = isTradeActive(b);
+      if (aActive && !bActive) return -1;
+      if (!aActive && bActive) return 1;
+      // If both active or both inactive, sort by createdAt desc
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
 
   const topExperts = filtered;
-  const copyingHistory = trades.filter(
-    (t) => t.copiedBy && currentUser && currentUser.id && t.copiedBy.includes(currentUser.id)
-  );
 
   const FAQS = [
     { q: "What is Copy Trading?", a: "Copy Trading allows you to follow expert traders." },
@@ -121,9 +228,16 @@ export default function CopyTradingDashboard({
           </p>
         </div>
         {/* Display balance if needed */}
-        <div className="text-right">
-          <p className="text-sm text-gray-600">Your Balance</p>
-          <p className="text-2xl font-semibold">${balance.toFixed(2)}</p>
+        <div className="flex items-center gap-4">
+          <div className="text-right">
+            <p className="text-sm text-gray-600">Your Balance</p>
+            <p className="text-2xl font-semibold">${balance.toFixed(2)}</p>
+          </div>
+          {(currentUser?.role?.toLowerCase() === 'admin' || currentUser?.role?.toLowerCase() === 'trader') && (
+            <Link href="/dashboard/post-trade">
+              <button className="px-4 py-2 bg-black text-white rounded">Post Trade</button>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -191,102 +305,101 @@ export default function CopyTradingDashboard({
               .map((t) => (
                 <div
                   key={t.id}
-                  className="bg-white border shadow-lg flex flex-col rounded-[2rem] p-6"
-                  style={{ height: "338px" }}
+                  className={`bg-white border border-gray-200 shadow-sm hover:shadow-lg hover:border-gray-300 transition-all duration-300 flex flex-col rounded-xl p-6 overflow-hidden cursor-pointer ${!isTradeActive(t) ? 'border-gray-300' : ''}`}
+                  onClick={() => isTradeActive(t) ? setSelectedTrade(t) : undefined}
                 >
-                  {/* AVATAR */}
-                  <div className="flex flex-col items-center mb-6">
-                    <div className="relative mb-2">
-                      {t.avatarUrl ? (
+                  {/* TRADER INFO */}
+                  <div className="flex items-center mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div className="relative mr-3">
+                      {t.trader.profileImage ? (
                         <img
-                          src={t.avatarUrl}
+                          src={t.trader.profileImage}
                           alt="avatar"
-                          className="w-16 h-16 rounded-full object-cover border-4 border-blue-100"
+                          className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
                         />
                       ) : (
-                        <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-lg font-semibold text-gray-700 border-4 border-blue-100">
-                          {(t.name || t.traderName)?.split(" ")[0][0]}
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold shadow-sm">
+                          {(t.trader.displayName || t.trader.firstName || 'U')[0].toUpperCase()}
                         </div>
                       )}
                     </div>
-
-                    <div className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                      {(t.name || t.traderName || t.title)?.split(" ")[0]}
-                      {t.isTrader && (
-                        <span className="text-blue-500">
-                          <Check size={18} />
-                        </span>
-                      )}
+                    <div>
+                      <div className="font-semibold text-gray-900 text-sm">
+                        {t.trader.displayName || t.trader.firstName || 'Unknown'}
+                      </div>
+                      <div className="text-xs text-gray-500">Expert Trader</div>
                     </div>
                   </div>
 
-                  {/* STATS */}
-                  <div className="flex justify-between gap-4 mb-6 text-sm">
-                    <div className="space-y-1 text-gray-600">
-                      <div>
-                        Win rate:
-                        <span className="font-semibold text-gray-900">
-                          {t.winRate ?? 0}%
-                        </span>
+                  {/* ASSET INFO */}
+                  <div className="flex items-center justify-center mb-4 p-3 bg-blue-50 rounded-lg">
+                    {t.asset.logoUrl && (
+                      <img
+                        src={t.asset.logoUrl}
+                        alt={t.asset.name}
+                        className="w-8 h-8 mr-3"
+                      />
+                    )}
+                    <div className="text-center">
+                      <div className="font-bold text-gray-900">{t.asset.name}</div>
+                      <div className="text-sm text-gray-600">{t.asset.symbol}</div>
+                    </div>
+                  </div>
+
+                  {/* TRADE DETAILS */}
+                  <div className="space-y-3 mb-6 flex-1">
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="bg-gray-50 p-2 rounded">
+                        <div className="text-gray-500 text-xs">Trade Type</div>
+                        <div className="font-semibold capitalize text-gray-900">{t.tradeType}</div>
                       </div>
-                      <div>
-                        Losses:
-                        <span className="font-semibold text-gray-900">
-                          {t.losses ?? 0}
-                        </span>
+                      <div className="bg-gray-50 p-2 rounded">
+                        <div className="text-gray-500 text-xs">Profit Share</div>
+                        <div className="font-semibold text-gray-900">{t.profitShare}%</div>
                       </div>
-                      <div>
-                        Trades:
-                        <span className="font-semibold text-gray-900">
-                          {t.tradesCount ?? 0}
-                        </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="bg-green-50 p-2 rounded">
+                        <div className="text-gray-500 text-xs">Entry Price</div>
+                        <div className="font-semibold text-green-700">${t.entryPrice.toFixed(2)}</div>
+                      </div>
+                      <div className="bg-blue-50 p-2 rounded">
+                        <div className="text-gray-500 text-xs">Current Price</div>
+                        <div className="font-semibold text-blue-700">${(livePrices[t.asset.symbol] || t.asset.priceUsd).toFixed(2)}</div>
                       </div>
                     </div>
 
-                    <div className="space-y-1 text-gray-600">
-                      <div>
-                        Profit share:
-                        <span className="font-semibold text-gray-900">
-                          {t.profitShare ?? "—"}
+                    <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-3 rounded-lg">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-gray-700">P/L</span>
+                        <span className={`font-bold text-sm ${calculatePnL(t) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {calculatePnL(t) >= 0 ? '+' : ''}{calculatePnL(t).toFixed(2)}%
                         </span>
                       </div>
-                      <div>
-                        Wins:
-                        <span className="font-semibold text-gray-900">
-                          {t.wins ?? 0}
-                        </span>
-                      </div>
-                      <div>
-                        Min. startup:
-                        <span className="font-semibold text-gray-900">
-                          {t.minStartup ?? "—"}
-                        </span>
+                      <div className="text-xs text-gray-500 mt-1">
+                        Status: {t.status} | Duration: {t.duration}h | Posted {new Date(t.createdAt).toLocaleDateString()}
                       </div>
                     </div>
                   </div>
 
-                  {/* BUTTONS */}
-                  <div className="flex justify-center items-center gap-4 mt-auto">
+                  {/* BUTTON */}
+                  <div className="mt-auto pt-4 border-t border-gray-100">
                     <button
-                      className="px-7 py-3 rounded-xl border-2 border-white bg-gray-900 text-white font-semibold"
-                      onClick={() => {
-                        setSelectedTrader(t);
-                        setModalTab("stats");
+                      className={`w-full py-3 px-4 font-semibold rounded-lg transition-all duration-200 transform shadow-sm hover:shadow-md ${
+                        isTradeActive(t)
+                          ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white hover:scale-[1.02]'
+                          : 'bg-gray-400 text-gray-700 cursor-not-allowed'
+                      }`}
+                      disabled={!isTradeActive(t)}
+                      onClick={(e) => {
+                        if (isTradeActive(t)) {
+                          e.stopPropagation();
+                          setSelectedTrade(t);
+                        }
                       }}
                     >
-                      View
-                    </button>
-                    <button
-                      className={`px-8 py-3 rounded-xl text-white font-semibold ${
-                        t.copiedBy?.includes(currentUser?.id || "")
-                          ? "bg-red-500 hover:bg-red-600"
-                          : "bg-blue-600 hover:bg-blue-700"
-                      }`}
-                      onClick={() => handleToggleCopy(t.id)}
-                    >
-                      {t.copiedBy?.includes(currentUser?.id || "")
-                        ? "Cancel"
-                        : "Copy"}
+                      {isTradeActive(t) ? 'Copy Trade' : 'Closed trade'}
                     </button>
                   </div>
                 </div>
@@ -310,39 +423,8 @@ export default function CopyTradingDashboard({
 
       {/* COPYING HISTORY */}
       {activeTab === "copying" && (
-        <div className="grid gap-4">
-          {copyingHistory.length === 0 && (
-            <div className="text-gray-600">You are not copying anyone.</div>
-          )}
-
-          {copyingHistory.map((t) => (
-            <div
-              key={t.id}
-              className="p-4 bg-white border rounded shadow-sm flex items-center justify-between"
-            >
-              <div>
-                <div className="text-sm text-gray-500">{t.title}</div>
-                <div className="text-lg font-medium">
-                  {t.traderName?.split(" ")[0]}{" "}
-                  {t.isTrader && (
-                    <span className="text-blue-500 inline-block ml-1">✔</span>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button className="px-3 py-1 border rounded text-sm">
-                  View
-                </button>
-                <button
-                  className="px-3 py-1 rounded text-sm bg-red-100 border-red-300"
-                  onClick={() => handleToggleCopy(t.id)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          ))}
+        <div className="text-gray-600">
+          Copying history not implemented yet.
         </div>
       )}
 
@@ -369,137 +451,66 @@ export default function CopyTradingDashboard({
         </div>
       )}
 
-      {/* MODAL */}
+      {/* COPY TRADE DIALOG */}
       <Dialog
-        open={!!selectedTrader}
+        open={!!selectedTrade}
         onOpenChange={(open) => {
-          if (!open) setSelectedTrader(null);
+          if (!open) {
+            setSelectedTrade(null);
+            setCopyAmount("");
+          }
         }}
       >
-        <DialogContent className="max-w-full w-full p-0 bg-white rounded-none shadow-2xl">
-          {selectedTrader && (
-            <div className="w-full h-full flex flex-col">
-              {/* MODAL HEADER */}
-              <div className="flex items-center justify-between px-8 py-6 border-b bg-gray-50">
-                <div className="flex items-center gap-4">
-                  <button
-                    className="text-gray-600 hover:text-gray-900 flex items-center gap-2"
-                    onClick={() => setSelectedTrader(null)}
-                  >
-                    <span style={{ fontSize: "1.5em" }}>&larr;</span>
-                    <span>Go back</span>
-                  </button>
-
-                  <div className="relative">
-                    {selectedTrader.avatarUrl ? (
-                      <img
-                        src={selectedTrader.avatarUrl}
-                        alt="avatar"
-                        className="w-16 h-16 rounded-full object-cover border-4 border-blue-100"
-                      />
-                    ) : (
-                      <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-700 border-4 border-blue-100">
-                        {(selectedTrader.name || selectedTrader.traderName)
-                          ?.split(" ")[0][0]}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col">
-                    <span className="text-xl font-bold text-gray-900">
-                      {(selectedTrader.name || selectedTrader.traderName)?.split(
-                        " "
-                      )[0]}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      @{selectedTrader.traderName}
-                    </span>
-                  </div>
-
-                  {selectedTrader.isTrader && (
-                    <span className="ml-2 text-blue-500">
-                      <Check size={22} />
-                    </span>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Copy Trade</DialogTitle>
+          </DialogHeader>
+          {selectedTrade && (
+            <div className="space-y-4">
+              <div className="text-sm text-gray-600">
+                <div className="flex items-center mb-2">
+                  {selectedTrade.asset.logoUrl && (
+                    <img
+                      src={selectedTrade.asset.logoUrl}
+                      alt={selectedTrade.asset.name}
+                      className="w-6 h-6 mr-2"
+                    />
                   )}
+                  <span className="font-semibold">{selectedTrade.asset.name} ({selectedTrade.asset.symbol})</span>
                 </div>
-
-                <button
-                  className="text-gray-400 hover:text-gray-700 text-2xl"
-                  onClick={() => setSelectedTrader(null)}
-                >
-                  &times;
-                </button>
+                <div>Trader: {selectedTrade.trader.displayName || selectedTrade.trader.firstName}</div>
+                <div>Trade Type: {selectedTrade.tradeType.toUpperCase()}</div>
+                <div>Entry Price: ${selectedTrade.entryPrice.toFixed(2)}</div>
+                <div>Current Price: ${(livePrices[selectedTrade.asset.symbol] || selectedTrade.asset.priceUsd).toFixed(2)}</div>
+                <div>Profit Share: {selectedTrade.profitShare}%</div>
+                <div>Notes: {selectedTrade.notes || 'None'}</div>
               </div>
 
-              {/* COPY BUTTON */}
-              <div className="px-8 py-4 border-b">
-                <button
-                  className="w-full px-8 py-4 rounded-xl text-lg font-bold bg-blue-600 text-white"
-                  onClick={() => handleToggleCopy(selectedTrader.id)}
-                >
-                  {selectedTrader.copiedBy?.includes(currentUser?.id || "")
-                    ? "Cancel"
-                    : "Copy"}
-                </button>
+              <div>
+                <label className="block text-sm font-medium mb-1">Your Trade Amount</label>
+                <Input
+                  type="number"
+                  value={copyAmount}
+                  onChange={(e) => setCopyAmount(e.target.value)}
+                  placeholder="Enter amount"
+                />
               </div>
 
-              {/* MODAL TABS */}
-              <div className="px-8 pt-6 flex gap-6 border-b">
-                <button
-                  className={`pb-2 text-lg font-semibold ${
-                    modalTab === "stats"
-                      ? "border-b-2 border-blue-600 text-blue-700"
-                      : "text-gray-500"
-                  }`}
-                  onClick={() => setModalTab("stats")}
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setSelectedTrade(null)}
+                  variant="outline"
+                  className="flex-1"
                 >
-                  Stats
-                </button>
-                <button
-                  className={`pb-2 text-lg font-semibold ${
-                    modalTab === "trades"
-                      ? "border-b-2 border-blue-600 text-blue-700"
-                      : "text-gray-500"
-                  }`}
-                  onClick={() => setModalTab("trades")}
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleCopyTrade}
+                  disabled={copying || !copyAmount}
+                  className="flex-1"
                 >
-                  Trades
-                </button>
-              </div>
-
-              {/* TAB CONTENT */}
-              <div className="flex-1 px-8 py-8 overflow-y-auto">
-                {modalTab === "stats" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="flex items-center gap-4 p-4 bg-gray-100 rounded-xl">
-                      <span style={{ fontSize: "1.5em" }}>📈</span>
-                      <div>
-                        <div className="text-sm text-gray-500">Win rate</div>
-                        <div className="text-xl font-bold">
-                          {selectedTrader.winRate ?? 0}%
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 p-4 bg-gray-100 rounded-xl">
-                      <span style={{ fontSize: "1.5em" }}>💰</span>
-                      <div>
-                        <div className="text-sm text-gray-500">
-                          Profit share
-                        </div>
-                        <div className="text-xl font-bold">
-                          {selectedTrader.profitShare ?? "—"}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {modalTab === "trades" && (
-                  <div className="text-gray-600">
-                    No trade history available.
-                  </div>
-                )}
+                  {copying ? "Copying..." : "Confirm Copy"}
+                </Button>
               </div>
             </div>
           )}

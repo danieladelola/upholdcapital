@@ -14,10 +14,14 @@ async function main() {
   });
 
   if (existingUser) {
-    await prisma.user.delete({
+    await prisma.user.update({
       where: { email },
+      data: {
+        role: 'TRADER',
+      },
     });
-    console.log('Existing user deleted');
+    console.log('Existing user updated to TRADER');
+    return;
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
@@ -28,7 +32,7 @@ async function main() {
       passwordHash,
       firstName,
       lastName,
-      role: 'USER',
+      role: 'TRADER',
     },
   });
 

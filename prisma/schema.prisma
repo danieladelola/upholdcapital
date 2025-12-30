@@ -51,6 +51,8 @@ model User {
   userStakes        UserStake[]
   trades            Trade[]
   adminAuditLogs    AdminAuditLog[]
+  postedTrades      PostedTrade[]
+  copyTrades        CopyTrade[]
 }
 
 model Admin {
@@ -157,6 +159,7 @@ model Asset {
   userAssetBalances UserAssetBalance[]
   userStakes UserStake[]
   trades    Trade[]
+  postedTrades PostedTrade[]
 }
 
 model UserAsset {
@@ -216,4 +219,31 @@ model AdminAuditLog {
   action    String
   details   Json
   createdAt DateTime @default(now())
+}
+
+model PostedTrade {
+  id          String     @id @default(cuid())
+  traderId    String
+  trader      User       @relation(fields: [traderId], references: [id], onDelete: Cascade)
+  assetId     String
+  asset       Asset      @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  tradeType   String // "buy" or "sell"
+  amount      Float
+  entryPrice  Float
+  profitShare Float // percent, e.g. 20
+  notes       String?
+  duration    Int        @default(24) // duration in hours
+  status      String     @default("open") // open, closed
+  createdAt   DateTime   @default(now())
+  copyTrades  CopyTrade[]
+}
+
+model CopyTrade {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postedTradeId String
+  postedTrade   PostedTrade @relation(fields: [postedTradeId], references: [id], onDelete: Cascade)
+  amount        Float
+  createdAt     DateTime    @default(now())
 }

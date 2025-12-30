@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster"
 import "./globals.css";
 
 const inter = Inter({
-  variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
 });
@@ -22,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.variable + " antialiased"}>
+      <body className="antialiased">
         <AuthProvider>
           <Toaster />
           {children}
