@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  output   = "../src/lib/prisma"
 }
 
 datasource db {
@@ -22,6 +22,7 @@ enum UserRole {
 model User {
   id                String             @id @default(cuid())
   email             String             @unique
+  username          String             @unique
   passwordHash      String
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
@@ -40,6 +41,13 @@ model User {
   verified          Boolean?           @default(false)
   role              UserRole           @default(USER)
   status            String             @default("active") // active, deactivated
+  // Trader specific fields
+  followers         Int?
+  winRate           Float?
+  wins              Int?
+  losses            Int?
+  traderTrades      Int?
+  minStartup        Float?
   wallets           Json?              @default("[]")
   assets            Json?              @default("[]")
   deposits          Deposit[]
@@ -52,7 +60,9 @@ model User {
   trades            Trade[]
   adminAuditLogs    AdminAuditLog[]
   postedTrades      PostedTrade[]
-  copyTrades        CopyTrade[]
+  executedTrades    TraderTrade[]
+  copiedTrades      CopiedTrade[]    @relation("CopiedTradesUser")
+  copiedTradesAsTrader CopiedTrade[] @relation("CopiedTradesTrader")
 }
 
 model Admin {
@@ -160,6 +170,7 @@ model Asset {
   userStakes UserStake[]
   trades    Trade[]
   postedTrades PostedTrade[]
+  traderTrades TraderTrade[]
 }
 
 model UserAsset {
@@ -222,28 +233,44 @@ model AdminAuditLog {
 }
 
 model PostedTrade {
-  id          String     @id @default(cuid())
-  traderId    String
-  trader      User       @relation(fields: [traderId], references: [id], onDelete: Cascade)
-  assetId     String
-  asset       Asset      @relation(fields: [assetId], references: [id], onDelete: Cascade)
-  tradeType   String // "buy" or "sell"
-  amount      Float
-  entryPrice  Float
-  profitShare Float // percent, e.g. 20
-  notes       String?
-  duration    Int        @default(24) // duration in hours
-  status      String     @default("open") // open, closed
-  createdAt   DateTime   @default(now())
-  copyTrades  CopyTrade[]
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assetId    String?
+  asset      Asset?   @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  name       String
+  username   String
+  followers  Int
+  winRate    Float
+  wins       Int
+  losses     Int
+  trades     Int
+  minStartup Float
+  createdAt  DateTime @default(now())
 }
 
-model CopyTrade {
-  id            String      @id @default(cuid())
-  userId        String
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  postedTradeId String
-  postedTrade   PostedTrade @relation(fields: [postedTradeId], references: [id], onDelete: Cascade)
-  amount        Float
-  createdAt     DateTime    @default(now())
+model TraderTrade {
+  id        String   @id @default(cuid())
+  traderId  String
+  trader    User     @relation(fields: [traderId], references: [id], onDelete: Cascade)
+  assetId   String
+  asset     Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  date      DateTime
+  size      Float
+  profit    Float
+  createdAt DateTime @default(now())
+  copiedTrades CopiedTrade[]
+}
+
+model CopiedTrade {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade, name: "CopiedTradesUser")
+  traderId String
+  trader   User   @relation(fields: [traderId], references: [id], onDelete: Cascade, name: "CopiedTradesTrader")
+  tradeId  String?
+  trade    TraderTrade?  @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, traderId])
 }

@@ -7,7 +7,7 @@ export function Header() {
     <header className="w-full">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-primary">
-        <Image src={'/logo.png'}  width={100} height={100} alt='Xfoundation'/>
+        <Image src={'/logo.svg'}  width={100} height={100} alt='Uphold'/>
         </h1>
         <Link href="/" >
           <Button variant="link" >Back to Homepage</Button>

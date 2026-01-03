@@ -72,11 +72,40 @@ export async function getUserByEmail(email: string): Promise<User | null> {
   };
 }
 
-export async function createUser(email: string, password: string, firstname: string, lastname: string): Promise<User> {
+export async function getUserByUsername(username: string): Promise<User | null> {
+  console.log('Looking for user by username:', username);
+  const user = await prisma.user.findUnique({
+    where: { username },
+  });
+  console.log('User found:', !!user);
+  if (!user) return null;
+  return {
+    id: user.id,
+    email: user.email,
+    firstname: user.firstName || '',
+    lastname: user.lastName || '',
+    initials: user.initials || '',
+    usdBalance: user.balance || 0,
+    currency: user.currency || 'USD',
+    phoneNumber: user.phone || '',
+    country: user.country || '',
+    photoURL: user.profileImage || '',
+    displayName: user.displayName || '',
+    verified: user.verified || false,
+    wallets: user.wallets as any || [],
+    assets: user.assets as any || [],
+    role: user.role as any || 'user',
+    passwordHash: user.passwordHash,
+    created_at: user.createdAt,
+  };
+}
+
+export async function createUser(email: string, password: string, firstname: string, lastname: string, username: string): Promise<User> {
   const passwordHash = await hashPassword(password);
   const user = await prisma.user.create({
     data: {
       email,
+      username,
       passwordHash: passwordHash,
       firstName: firstname,
       lastName: lastname,

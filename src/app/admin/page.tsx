@@ -15,10 +15,12 @@ import WalletConnections from "@/components/wallet-connections";
 import WithdrawalsManagement from "@/components/withdrawals-management";
 import AdminAssetsPage from "@/components/admin-assets-page";
 import AdminTradesPage from "@/components/admin-trades-page";
+import PostTrade from "@/components/post-trade";
 
 const menuItems = [
   { id: 'assets', label: 'Asset Management', icon: Coins, component: AdminAssetsPage },
   { id: 'trades', label: 'Trade History', icon: CandlestickChartIcon, component: AdminTradesPage },
+  { id: 'post-trade', label: 'Post Trade', icon: CandlestickChartIcon, component: PostTrade },
   { id: 'deposits', label: 'Deposits', icon: CreditCard, component: DepositsManagement },
   { id: 'withdrawals', label: 'Withdrawals', icon: ArrowDown, component: WithdrawalsManagement },
   { id: 'users', label: 'Users', icon: Users, component: UsersManagement },

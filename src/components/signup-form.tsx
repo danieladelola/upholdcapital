@@ -17,6 +17,7 @@ export function SignupForm({
   const [password, setPassword] = useState("")
   const [firstname, setFirstname] = useState("")
   const [lastname, setLastname] = useState("")
+  const [username, setUsername] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
@@ -26,7 +27,7 @@ export function SignupForm({
     setLoading(true)
     setError("")
     try {
-      await signup(email, password, firstname, lastname)
+      await signup(email, password, firstname, lastname, username)
       router.push("/dashboard")
     } catch (err: any) {
       setError(err.message)
@@ -36,7 +37,7 @@ export function SignupForm({
   }
 
   return (
-    <form className={cn("flex flex-col gap-6", className)} onSubmit={handleSubmit} {...props}>
+    <form className={cn("flex flex-col gap-6 bg-card p-6 rounded-lg soft-shadow", className)} onSubmit={handleSubmit} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Create an account</h1>
         <p className="text-balance text-sm text-muted-foreground">
@@ -65,6 +66,17 @@ export function SignupForm({
             required
             value={lastname}
             onChange={(e) => setLastname(e.target.value)}
+          />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="username">Username</Label>
+          <Input
+            id="username"
+            type="text"
+            placeholder="johndoe"
+            required
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
         </div>
         <div className="grid gap-2">

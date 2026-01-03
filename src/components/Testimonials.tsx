@@ -21,7 +21,7 @@ export default function Testimonials() {
     {
       name: "Agata Vincent",
       role: "Trader",
-      content: "Xfoundation has everything you can ask for, I'm super happy it has been recommended to me as my first broker"
+      content: "Uphold has everything you can ask for, I'm super happy it has been recommended to me as my first broker"
     },
     {
       name: "Jakub Szulc",
@@ -39,7 +39,7 @@ export default function Testimonials() {
     <section className="py-20 px-6 bg-background">
       <div className="container mx-auto">
         <h2 className="text-3xl font-bold text-center mb-12">Built for today's ambitious earners</h2>
-        <p className="text-center mb-12">Thousands of forward-thinking users rely on Xfoundation everyday to turbo-charge their financial operations</p>
+        <p className="text-center mb-12">Thousands of forward-thinking users rely on Uphold everyday to turbo-charge their financial operations</p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
             <Card key={index}>

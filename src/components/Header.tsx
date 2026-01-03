@@ -10,7 +10,7 @@ export default function Header() {
     <header className="py-4 px-6 bg-background border-b">
       <div className="container mx-auto flex justify-between items-center">
         <nav className="flex space-x-4">
-          <Image src={'/logo.png'}  width={100} height={100} alt='Xfoundation'/>
+          <Image src={'/logo.svg'}  width={100} height={100} alt='Uphold'/>
      </nav>
         <div className="flex space-x-4">
           {!user ? (

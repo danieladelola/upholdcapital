@@ -14,7 +14,7 @@ import TradingViewTickerTape from "./TickerWidget"
 
 const LandingPage = () => { 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-white">
+    <div className="min-h-screen bg-background">
       <Header />
       <Hero />
       <TradingViewTickerTape/>
@@ -32,7 +32,7 @@ const Header = () => {
   return (
     <header className="container mx-auto p-6">
       <nav className="flex justify-between items-center">
-         <Image src={'/logo.png'}  width={100} height={100} alt='Xfoundation'/>
+         <Image src={'/logo.svg'}  width={100} height={100} alt='Uphold'/>
 
          {user ? (
            <Button asChild>
@@ -51,34 +51,36 @@ const Header = () => {
 const Hero = () => {
   const [ref, isInView] = useInView()
   return (
-    <section ref={ref as unknown as Ref<HTMLElement>} className="container mx-auto px-6 py-20 text-center">
-      <motion.h2
-        initial={{ opacity: 0, y: 20 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-        transition={{ duration: 0.8 }}
-        className="text-4xl font-bold mb-4"
-      >
-        Revolutionizing your digital trading experience
-      </motion.h2>
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        className="text-xl mb-8"
-      >
-        Seamlessly merging complexity with ease, Xfoundation offers top-notch security, 24/7 support, and an intuitive
-        platform for your trading needs.
-      </motion.p>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-        transition={{ duration: 0.8, delay: 0.4 }}
-      >
-        <Button size="lg">
-          Get started
-          <ArrowRight className="ml-2" />
-        </Button>
-      </motion.div>
+    <section ref={ref as unknown as Ref<HTMLElement>} className="relative overflow-hidden bg-gradient-to-br from-background to-card py-32">
+      <div className="container mx-auto px-6 text-center">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.8 }}
+          className="text-4xl font-bold mb-4"
+        >
+          Revolutionizing your digital trading experience
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="text-xl mb-8"
+        >
+          Seamlessly merging complexity with ease, Uphold offers top-notch security, 24/7 support, and an intuitive
+          platform for your trading needs.
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+        >
+          <Button size="lg">
+            Get started
+            <ArrowRight className="ml-2" />
+          </Button>
+        </motion.div>
+      </div>
     </section>
   )
 }
@@ -190,7 +192,7 @@ const Testimonials = () => {
             name: "Agata Vincent",
             role: "Trader",
             quote:
-              "Xfoundation has everything you can ask for, I'm super happy it has been recommended to me as my first broker",
+              "Uphold has everything you can ask for, I'm super happy it has been recommended to me as my first broker",
           },
           {
             name: "Jakub Szulc",
@@ -239,14 +241,14 @@ const CTA = () => (
 )
 
 const Footer = () => (
-  <footer className="bg-gray-100 py-12">
+  <footer className="bg-muted py-12">
     <div className="container mx-auto px-6">
       <div className="grid md:grid-cols-4 gap-8">
         <div>
           <h4 className="font-semibold mb-4">About</h4>
           <ul className="space-y-2">
             <li>About us</li>
-            <li>Why Xfoundation</li>
+            <li>Why Uphold</li>
           </ul>
         </div>
         <div>
@@ -274,7 +276,7 @@ const Footer = () => (
           </ul>
         </div>
       </div>
-      <div className="mt-12 text-sm text-gray-600">
+      <div className="mt-12 text-sm text-muted-foreground">
         <p>
           The risk of loss in online trading of stocks, options, futures, currencies, foreign equities, and fixed Income
           can be substantial.
@@ -291,7 +293,7 @@ const Footer = () => (
           fixed income products such as bonds are complex products that are more risky and are not suitable for all
           investors. Before trading, please read the Risk Warning and Disclosure Statement.
         </p>
-        <p className="mt-4">&copy; 2016 - 2024 Xfoundation, Inc. All rights reserved.</p>
+        <p className="mt-4">&copy; 2016 - 2024 Uphold, Inc. All rights reserved.</p>
       </div>
     </div>
   </footer>

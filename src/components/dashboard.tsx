@@ -51,9 +51,9 @@ export default function PortfolioDashboard({
   const totalPortfolioValue = assets.reduce((total, asset) => total + asset.amount * asset.price, 0)
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 bg-background min-h-screen">
       <motion.h1
-        className="text-3xl md:text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-pink-200"
+        className="text-3xl md:text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -66,20 +66,20 @@ export default function PortfolioDashboard({
   title="Total Balance"
   value={`$${Number(balance || 0).toLocaleString('en-US')}`}
   icon={<DollarSign className="h-6 w-6" />}
-  gradient="from-red-500 to-red-500"
+  gradient="from-primary to-secondary"
 />
 
         <StatCard
           title="Portfolio Value"
           value={`$${totalPortfolioValue.toLocaleString('en-US')}`}
           icon={<Briefcase className="h-6 w-6" />}
-          gradient="from-red-500 to-red-500"
+          gradient="from-primary to-secondary"
         />
         <StatCard
           title="Asset Diversity"
           value={`${assets.filter((a) => a.amount > 0).length} assets`}
           icon={<PieChart className="h-6 w-6" />}
-          gradient="from-red-500 to-red-500"
+          gradient="from-primary to-secondary"
         />
       </div>
 

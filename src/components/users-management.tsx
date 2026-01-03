@@ -68,6 +68,7 @@ import {
 interface User {
   id: string;
   email: string;
+  username: string;
   firstName: string | null;
   lastName: string | null;
   balance: number | null;
@@ -80,11 +81,18 @@ interface User {
   phone: string | null;
   address: string | null;
   profileImage: string | null;
+  followers: number | null;
+  winRate: number | null;
+  wins: number | null;
+  losses: number | null;
+  traderTrades: number | null;
+  minStartup: number | null;
 }
 
 interface UserFormData {
   firstName: string;
   lastName: string;
+  username: string;
   email: string;
   phone: string;
   address: string;
@@ -92,6 +100,13 @@ interface UserFormData {
   role: string;
   status: string;
   password: string;
+  balance: number;
+  followers: number;
+  winRate: number;
+  wins: number;
+  losses: number;
+  traderTrades: number;
+  minStartup: number;
 }
 
 export default function UsersManagement() {
@@ -108,6 +123,7 @@ export default function UsersManagement() {
   const [editFormData, setEditFormData] = useState<UserFormData>({
     firstName: "",
     lastName: "",
+    username: "",
     email: "",
     phone: "",
     address: "",
@@ -115,15 +131,43 @@ export default function UsersManagement() {
     role: "USER",
     status: "active",
     password: "",
+    balance: 0,
+    followers: 0,
+    winRate: 0,
+    wins: 0,
+    losses: 0,
+    traderTrades: 0,
+    minStartup: 0,
   });
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [addFormData, setAddFormData] = useState<UserFormData>({
+    firstName: "",
+    lastName: "",
+    username: "",
+    email: "",
+    phone: "",
+    address: "",
+    profileImage: "",
+    role: "USER",
+    status: "active",
+    password: "",
+    balance: 0,
+    followers: 0,
+    winRate: 0,
+    wins: 0,
+    losses: 0,
+    traderTrades: 0,
+    minStartup: 0,
+  });
+  const { toast } = useToast();
+
+  const usersPerPage = 10;
+
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [showBulkDialog, setShowBulkDialog] = useState(false);
   const [bulkAction, setBulkAction] = useState<string>("");
-  const { toast } = useToast();
-
-  const usersPerPage = 10;
 
   useEffect(() => {
     fetchUsers();
@@ -207,6 +251,7 @@ export default function UsersManagement() {
     setEditFormData({
       firstName: user.firstName || "",
       lastName: user.lastName || "",
+      username: user.username || "",
       email: user.email,
       phone: user.phone || "",
       address: user.address || "",
@@ -214,8 +259,90 @@ export default function UsersManagement() {
       role: user.role,
       status: user.status,
       password: "",
+      balance: user.balance || 0,
+      followers: user.followers || 0,
+      winRate: user.winRate || 0,
+      wins: user.wins || 0,
+      losses: user.losses || 0,
+      traderTrades: user.traderTrades || 0,
+      minStartup: user.minStartup || 0,
     });
     setShowEditDialog(true);
+  };
+
+  const handleAddUser = async () => {
+    try {
+      const createData: any = {
+        firstName: addFormData.firstName,
+        lastName: addFormData.lastName,
+        username: addFormData.username,
+        email: addFormData.email,
+        phone: addFormData.phone,
+        address: addFormData.address,
+        profileImage: addFormData.profileImage,
+        role: addFormData.role,
+        status: addFormData.status,
+        password: addFormData.password,
+        balance: addFormData.balance,
+      };
+
+      // Add trader fields if role is TRADER
+      if (addFormData.role === "TRADER") {
+        createData.followers = addFormData.followers;
+        createData.winRate = addFormData.winRate;
+        createData.wins = addFormData.wins;
+        createData.losses = addFormData.losses;
+        createData.traderTrades = addFormData.traderTrades;
+        createData.minStartup = addFormData.minStartup;
+      }
+
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(createData),
+      });
+
+      if (res.ok) {
+        toast({
+          title: "Success",
+          description: "User created successfully.",
+        });
+        fetchUsers();
+        setShowAddDialog(false);
+        setAddFormData({
+          firstName: "",
+          lastName: "",
+          username: "",
+          email: "",
+          phone: "",
+          address: "",
+          profileImage: "",
+          role: "USER",
+          status: "active",
+          password: "",
+          balance: 0,
+          followers: 0,
+          winRate: 0,
+          wins: 0,
+          losses: 0,
+          traderTrades: 0,
+          minStartup: 0,
+        });
+      } else {
+        const error = await res.json();
+        toast({
+          title: "Error",
+          description: error.message || "Failed to create user.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create user.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSaveEdit = async () => {
@@ -225,13 +352,25 @@ export default function UsersManagement() {
       const updateData: any = {
         firstName: editFormData.firstName,
         lastName: editFormData.lastName,
+        username: editFormData.username,
         email: editFormData.email,
         phone: editFormData.phone,
         address: editFormData.address,
         profileImage: editFormData.profileImage,
         role: editFormData.role,
         status: editFormData.status,
+        balance: editFormData.balance,
       };
+
+      // Add trader fields if role is TRADER
+      if (editFormData.role === "TRADER") {
+        updateData.followers = editFormData.followers;
+        updateData.winRate = editFormData.winRate;
+        updateData.wins = editFormData.wins;
+        updateData.losses = editFormData.losses;
+        updateData.traderTrades = editFormData.traderTrades;
+        updateData.minStartup = editFormData.minStartup;
+      }
 
       if (editFormData.password) {
         updateData.password = editFormData.password;
@@ -361,40 +500,46 @@ export default function UsersManagement() {
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">User Management</h1>
-        {selectedUsers.length > 0 && (
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setBulkAction("activate");
-                setShowBulkDialog(true);
-              }}
-            >
-              <UserCheck className="w-4 h-4 mr-2" />
-              Activate ({selectedUsers.length})
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setBulkAction("deactivate");
-                setShowBulkDialog(true);
-              }}
-            >
-              <UserX className="w-4 h-4 mr-2" />
-              Deactivate ({selectedUsers.length})
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setBulkAction("reset_passwords");
-                setShowBulkDialog(true);
-              }}
-            >
-              <Key className="w-4 h-4 mr-2" />
-              Reset Passwords ({selectedUsers.length})
-            </Button>
-          </div>
-        )}
+        <div className="flex gap-2">
+          <Button onClick={() => setShowAddDialog(true)}>
+            <UserCheck className="w-4 h-4 mr-2" />
+            Add User
+          </Button>
+          {selectedUsers.length > 0 && (
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setBulkAction("activate");
+                  setShowBulkDialog(true);
+                }}
+              >
+                <UserCheck className="w-4 h-4 mr-2" />
+                Activate ({selectedUsers.length})
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setBulkAction("deactivate");
+                  setShowBulkDialog(true);
+                }}
+              >
+                <UserX className="w-4 h-4 mr-2" />
+                Deactivate ({selectedUsers.length})
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setBulkAction("reset_passwords");
+                  setShowBulkDialog(true);
+                }}
+              >
+                <Key className="w-4 h-4 mr-2" />
+                Reset Passwords ({selectedUsers.length})
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
@@ -457,9 +602,11 @@ export default function UsersManagement() {
                   />
                 </TableHead>
                 <TableHead>User</TableHead>
+                <TableHead>Username</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Balance</TableHead>
                 <TableHead>Last Login</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead>Actions</TableHead>
@@ -486,12 +633,10 @@ export default function UsersManagement() {
                         <div className="font-medium">
                           {user.firstName} {user.lastName}
                         </div>
-                        <div className="text-sm text-gray-500">
-                          ${user.balance?.toFixed(2) || "0.00"}
-                        </div>
                       </div>
                     </div>
                   </TableCell>
+                  <TableCell>{user.username}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
                     <RoleBadge role={user.role} />
@@ -501,6 +646,7 @@ export default function UsersManagement() {
                       {user.status}
                     </Badge>
                   </TableCell>
+                  <TableCell>${user.balance?.toFixed(2) || "0.00"}</TableCell>
                   <TableCell>{formatDate(user.lastLogin)}</TableCell>
                   <TableCell>{formatDate(user.createdAt)}</TableCell>
                   <TableCell>
@@ -593,6 +739,14 @@ export default function UsersManagement() {
               </div>
             </div>
             <div className="space-y-2">
+              <Label htmlFor="edit-username">Username</Label>
+              <Input
+                id="edit-username"
+                value={editFormData.username}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, username: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="edit-email">Email</Label>
               <Input
                 id="edit-email"
@@ -636,7 +790,7 @@ export default function UsersManagement() {
                 rows={3}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="edit-status">Status</Label>
                 <Select
@@ -653,6 +807,16 @@ export default function UsersManagement() {
                 </Select>
               </div>
               <div className="space-y-2">
+                <Label htmlFor="edit-balance">Balance</Label>
+                <Input
+                  id="edit-balance"
+                  type="number"
+                  step="0.01"
+                  value={editFormData.balance}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, balance: parseFloat(e.target.value) || 0 }))}
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="edit-password">New Password (optional)</Label>
                 <Input
                   id="edit-password"
@@ -663,12 +827,268 @@ export default function UsersManagement() {
                 />
               </div>
             </div>
+            {editFormData.role === "TRADER" && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-followers">Followers</Label>
+                    <Input
+                      id="edit-followers"
+                      type="number"
+                      value={editFormData.followers}
+                      onChange={(e) => setEditFormData(prev => ({ ...prev, followers: parseInt(e.target.value) || 0 }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-winRate">Win Rate (%)</Label>
+                    <Input
+                      id="edit-winRate"
+                      type="number"
+                      step="0.1"
+                      value={editFormData.winRate}
+                      onChange={(e) => setEditFormData(prev => ({ ...prev, winRate: parseFloat(e.target.value) || 0 }))}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-wins">Wins</Label>
+                    <Input
+                      id="edit-wins"
+                      type="number"
+                      value={editFormData.wins}
+                      onChange={(e) => setEditFormData(prev => ({ ...prev, wins: parseInt(e.target.value) || 0 }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-losses">Losses</Label>
+                    <Input
+                      id="edit-losses"
+                      type="number"
+                      value={editFormData.losses}
+                      onChange={(e) => setEditFormData(prev => ({ ...prev, losses: parseInt(e.target.value) || 0 }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-traderTrades">Trades</Label>
+                    <Input
+                      id="edit-traderTrades"
+                      type="number"
+                      value={editFormData.traderTrades}
+                      onChange={(e) => setEditFormData(prev => ({ ...prev, traderTrades: parseInt(e.target.value) || 0 }))}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-minStartup">Min Startup</Label>
+                  <Input
+                    id="edit-minStartup"
+                    type="number"
+                    step="0.01"
+                    value={editFormData.minStartup}
+                    onChange={(e) => setEditFormData(prev => ({ ...prev, minStartup: parseFloat(e.target.value) || 0 }))}
+                  />
+                </div>
+              </>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>
               Cancel
             </Button>
             <Button onClick={handleSaveEdit}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add User Dialog */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add New User</DialogTitle>
+            <DialogDescription>
+              Create a new user account. All fields are required.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-firstName">First Name</Label>
+                <Input
+                  id="add-firstName"
+                  value={addFormData.firstName}
+                  onChange={(e) => setAddFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="add-lastName">Last Name</Label>
+                <Input
+                  id="add-lastName"
+                  value={addFormData.lastName}
+                  onChange={(e) => setAddFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="add-username">Username</Label>
+              <Input
+                id="add-username"
+                value={addFormData.username}
+                onChange={(e) => setAddFormData(prev => ({ ...prev, username: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="add-email">Email</Label>
+              <Input
+                id="add-email"
+                type="email"
+                value={addFormData.email}
+                onChange={(e) => setAddFormData(prev => ({ ...prev, email: e.target.value }))}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-phone">Phone</Label>
+                <Input
+                  id="add-phone"
+                  value={addFormData.phone}
+                  onChange={(e) => setAddFormData(prev => ({ ...prev, phone: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="add-role">Role</Label>
+                <Select
+                  value={addFormData.role}
+                  onValueChange={(value) => setAddFormData(prev => ({ ...prev, role: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USER">User</SelectItem>
+                    <SelectItem value="TRADER">Trader</SelectItem>
+                    <SelectItem value="ADMIN">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="add-address">Address</Label>
+              <Textarea
+                id="add-address"
+                value={addFormData.address}
+                onChange={(e) => setAddFormData(prev => ({ ...prev, address: e.target.value }))}
+                rows={3}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-status">Status</Label>
+                <Select
+                  value={addFormData.status}
+                  onValueChange={(value) => setAddFormData(prev => ({ ...prev, status: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="deactivated">Deactivated</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="add-password">Password</Label>
+                <Input
+                  id="add-password"
+                  type="password"
+                  value={addFormData.password}
+                  onChange={(e) => setAddFormData(prev => ({ ...prev, password: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-balance">Balance</Label>
+                <Input
+                  id="add-balance"
+                  type="number"
+                  step="0.01"
+                  value={addFormData.balance}
+                  onChange={(e) => setAddFormData(prev => ({ ...prev, balance: parseFloat(e.target.value) || 0 }))}
+                />
+              </div>
+            </div>
+            {addFormData.role === "TRADER" && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="add-followers">Followers</Label>
+                    <Input
+                      id="add-followers"
+                      type="number"
+                      value={addFormData.followers}
+                      onChange={(e) => setAddFormData(prev => ({ ...prev, followers: parseInt(e.target.value) || 0 }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="add-winRate">Win Rate (%)</Label>
+                    <Input
+                      id="add-winRate"
+                      type="number"
+                      step="0.1"
+                      value={addFormData.winRate}
+                      onChange={(e) => setAddFormData(prev => ({ ...prev, winRate: parseFloat(e.target.value) || 0 }))}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="add-wins">Wins</Label>
+                    <Input
+                      id="add-wins"
+                      type="number"
+                      value={addFormData.wins}
+                      onChange={(e) => setAddFormData(prev => ({ ...prev, wins: parseInt(e.target.value) || 0 }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="add-losses">Losses</Label>
+                    <Input
+                      id="add-losses"
+                      type="number"
+                      value={addFormData.losses}
+                      onChange={(e) => setAddFormData(prev => ({ ...prev, losses: parseInt(e.target.value) || 0 }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="add-traderTrades">Trades</Label>
+                    <Input
+                      id="add-traderTrades"
+                      type="number"
+                      value={addFormData.traderTrades}
+                      onChange={(e) => setAddFormData(prev => ({ ...prev, traderTrades: parseInt(e.target.value) || 0 }))}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="add-minStartup">Min Startup</Label>
+                  <Input
+                    id="add-minStartup"
+                    type="number"
+                    step="0.01"
+                    value={addFormData.minStartup}
+                    onChange={(e) => setAddFormData(prev => ({ ...prev, minStartup: parseFloat(e.target.value) || 0 }))}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddUser}>Create User</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -10,7 +10,8 @@ export async function GET(request: NextRequest) {
     }
 
     const postedTrades = await prisma.postedTrade.findMany({
-      include: {
+      select: {
+        id: true,
         trader: {
           select: {
             id: true,
@@ -21,6 +22,23 @@ export async function GET(request: NextRequest) {
           },
         },
         asset: true,
+        tradeType: true,
+        amount: true,
+        entryPrice: true,
+        profitShare: true,
+        notes: true,
+        duration: true,
+        status: true,
+        createdAt: true,
+        name: true,
+        username: true,
+        followers: true,
+        winRate: true,
+        wins: true,
+        losses: true,
+        trades: true,
+        minStartup: true,
+        isAdminPosted: true,
       },
       orderBy: { createdAt: 'desc' },
     });

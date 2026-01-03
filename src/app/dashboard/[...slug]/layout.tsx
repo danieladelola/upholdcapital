@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 
 export const metadata: Metadata = {
-  title: "Xfoundation",
+  title: "Uphold",
   description: "Expert portfolio management",
 };
 
@@ -24,7 +24,7 @@ export default async function DashboardLayout({
 
   return (
     <ProtectedLayout breadcrumbLabel={breadcrumbLabel}>
-      <div className="p-5 redgradient h-full">
+      <div className="p-5 bg-background h-full">
         {children}
       </div>
     </ProtectedLayout>

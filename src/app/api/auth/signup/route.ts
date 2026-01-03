@@ -7,19 +7,25 @@ const signupSchema = z.object({
   password: z.string().min(6),
   firstname: z.string().min(1),
   lastname: z.string().min(1),
+  username: z.string().min(1),
 });
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, firstname, lastname } = signupSchema.parse(body);
+    const { email, password, firstname, lastname, username } = signupSchema.parse(body);
 
     const existingUser = await import('@/lib/auth').then(m => m.getUserByEmail(email));
     if (existingUser) {
       return NextResponse.json({ error: 'User already exists' }, { status: 400 });
     }
 
-    const user = await createUser(email, password, firstname, lastname);
+    const existingUsername = await import('@/lib/auth').then(m => m.getUserByUsername(username));
+    if (existingUsername) {
+      return NextResponse.json({ error: 'Username already taken' }, { status: 400 });
+    }
+
+    const user = await createUser(email, password, firstname, lastname, username);
     const { passwordHash, ...userWithoutPassword } = user;
 
     return NextResponse.json({ user: userWithoutPassword }, { status: 201 });

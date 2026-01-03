@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { prisma } from '../src/lib/db';
+import { prisma } from '../src/lib/db.js';
 import bcrypt from 'bcryptjs';
 
 async function main() {
@@ -7,6 +7,9 @@ async function main() {
   const password = '12345678';
   const firstName = 'Test';
   const lastName = 'User';
+  const username = 'user_vura';
+  const fullName = `${firstName} ${lastName}`;
+  const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 
   // Check if user already exists
   const existingUser = await prisma.user.findUnique({
@@ -18,9 +21,24 @@ async function main() {
       where: { email },
       data: {
         role: 'TRADER',
+        username,
+        fullName,
+        initials,
+        balance: 0,
+        currency: 'USD',
+        verified: false,
+        status: 'active',
+        followers: 0,
+        winRate: 0,
+        wins: 0,
+        losses: 0,
+        traderTrades: 0,
+        minStartup: 1000,
+        wallets: [],
+        assets: [],
       },
     });
-    console.log('Existing user updated to TRADER');
+    console.log('Existing user updated to TRADER with all fields');
     return;
   }
 
@@ -29,10 +47,25 @@ async function main() {
   const user = await prisma.user.create({
     data: {
       email,
+      username,
       passwordHash,
       firstName,
       lastName,
+      fullName,
+      initials,
+      balance: 0,
+      currency: 'USD',
+      verified: false,
       role: 'TRADER',
+      status: 'active',
+      followers: 0,
+      winRate: 0,
+      wins: 0,
+      losses: 0,
+      traderTrades: 0,
+      minStartup: 1000,
+      wallets: [],
+      assets: [],
     },
   });
 

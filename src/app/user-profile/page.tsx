@@ -96,12 +96,12 @@ export default function UserProfilePage() {
   if (!user) return <div>Loading...</div>;
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10 bg-background min-h-screen">
       <h1 className="text-3xl font-bold mb-6">User Profile</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-1">
           <h2 className="text-2xl font-semibold mb-4">Profile Picture</h2>
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center bg-card p-6 rounded-lg soft-shadow">
             <img
               src={imagePreview || "/default-avatar.png"}
               alt="Profile"
@@ -120,7 +120,7 @@ export default function UserProfilePage() {
         </div>
         <div className="md:col-span-2">
           <h2 className="text-2xl font-semibold mb-4">Personal Information</h2>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6 bg-card p-6 rounded-lg soft-shadow">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>

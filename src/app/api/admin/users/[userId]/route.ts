@@ -7,6 +7,7 @@ import { z } from "zod";
 const updateUserSchema = z.object({
   firstName: z.string().min(1, "First name is required").optional(),
   lastName: z.string().min(1, "Last name is required").optional(),
+  username: z.string().min(1, "Username is required").optional(),
   email: z.string().email("Invalid email address").optional(),
   phone: z.string().optional(),
   address: z.string().optional(),
@@ -14,6 +15,14 @@ const updateUserSchema = z.object({
   role: z.enum(["USER", "TRADER", "ADMIN"]).optional(),
   status: z.enum(["active", "deactivated"]).optional(),
   password: z.string().min(8, "Password must be at least 8 characters").optional(),
+  balance: z.number().optional(),
+  // Trader fields
+  followers: z.number().optional(),
+  winRate: z.number().optional(),
+  wins: z.number().optional(),
+  losses: z.number().optional(),
+  traderTrades: z.number().optional(),
+  minStartup: z.number().optional(),
 });
 
 export async function GET(req: NextRequest, context: { params: Promise<{ userId: string }> }) {
@@ -30,6 +39,7 @@ export async function GET(req: NextRequest, context: { params: Promise<{ userId:
       select: {
         id: true,
         email: true,
+        username: true,
         firstName: true,
         lastName: true,
         balance: true,
@@ -42,6 +52,12 @@ export async function GET(req: NextRequest, context: { params: Promise<{ userId:
         phone: true,
         address: true,
         profileImage: true,
+        followers: true,
+        winRate: true,
+        wins: true,
+        losses: true,
+        traderTrades: true,
+        minStartup: true,
       },
     });
 
@@ -74,7 +90,7 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ userI
       );
     }
 
-    // Check if email is already taken by another user
+    // Check if email or username is already taken by another user
     if (validatedData.data.email) {
       const existingUser = await prisma.user.findFirst({
         where: { email: validatedData.data.email, id: { not: userId } },
@@ -82,6 +98,32 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ userI
       if (existingUser) {
         return NextResponse.json(
           { message: "Email already in use" },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (validatedData.data.username) {
+      const existingUser = await prisma.user.findFirst({
+        where: { username: validatedData.data.username, id: { not: userId } },
+      });
+      if (existingUser) {
+        return NextResponse.json(
+          { message: "Username already in use" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // If role is being changed to TRADER, ensure all trader fields are provided
+    if (validatedData.data.role === "TRADER") {
+      const requiredTraderFields = ['followers', 'winRate', 'wins', 'losses', 'traderTrades', 'minStartup'];
+      const missingFields = requiredTraderFields.filter(field => 
+        validatedData.data[field as keyof typeof validatedData.data] === undefined
+      );
+      if (missingFields.length > 0) {
+        return NextResponse.json(
+          { message: `Missing required trader fields: ${missingFields.join(', ')}` },
           { status: 400 }
         );
       }
@@ -101,6 +143,7 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ userI
       select: {
         id: true,
         email: true,
+        username: true,
         firstName: true,
         lastName: true,
         balance: true,
@@ -113,6 +156,12 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ userI
         phone: true,
         address: true,
         profileImage: true,
+        followers: true,
+        winRate: true,
+        wins: true,
+        losses: true,
+        traderTrades: true,
+        minStartup: true,
       },
     });
 

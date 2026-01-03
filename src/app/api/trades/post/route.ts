@@ -15,9 +15,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { assetId, tradeType, amount, profitShare, notes, entryPrice, duration } = await request.json();
+    const { assetId, tradeType, amount, profitShare, notes, entryPrice, duration, name, username, followers, winRate, wins, losses, trades: tradeCount, minStartup } = await request.json();
 
-    console.log('Received data:', { assetId, tradeType, amount, profitShare, notes, entryPrice, duration });
+    console.log('Received data:', { assetId, tradeType, amount, profitShare, notes, entryPrice, duration, name, username, followers, winRate, wins, losses, tradeCount, minStartup });
 
     if (!assetId || !tradeType || !amount || !profitShare) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -45,6 +45,15 @@ export async function POST(request: NextRequest) {
       profitShare: parseFloat(profitShare),
       notes,
       duration: duration || 24,
+      name,
+      username,
+      followers: followers ? parseInt(followers) : null,
+      winRate: winRate ? parseFloat(winRate) : null,
+      wins: wins ? parseInt(wins) : null,
+      losses: losses ? parseInt(losses) : null,
+      trades: tradeCount ? parseInt(tradeCount) : null,
+      minStartup: minStartup ? parseFloat(minStartup) : null,
+      isAdminPosted: currentUser.role === 'ADMIN',
     });
 
     const postedTrade = await prisma.postedTrade.create({
@@ -57,6 +66,15 @@ export async function POST(request: NextRequest) {
         profitShare: parseFloat(profitShare),
         notes,
         duration: duration || 24,
+        name,
+        username,
+        followers: followers ? parseInt(followers) : null,
+        winRate: winRate ? parseFloat(winRate) : null,
+        wins: wins ? parseInt(wins) : null,
+        losses: losses ? parseInt(losses) : null,
+        trades: tradeCount ? parseInt(tradeCount) : null,
+        minStartup: minStartup ? parseFloat(minStartup) : null,
+        isAdminPosted: currentUser.role === 'ADMIN',
       },
     });
 
