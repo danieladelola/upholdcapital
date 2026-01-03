@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
     const postedTrade = await prisma.postedTrade.create({
       data: {
-        traderId: currentUser.id,
+        userId: currentUser.id,
         assetId,
         tradeType,
         amount: parseFloat(amount),
@@ -68,12 +68,12 @@ export async function POST(request: NextRequest) {
         duration: duration || 24,
         name,
         username,
-        followers: followers ? parseInt(followers) : null,
-        winRate: winRate ? parseFloat(winRate) : null,
-        wins: wins ? parseInt(wins) : null,
-        losses: losses ? parseInt(losses) : null,
-        trades: tradeCount ? parseInt(tradeCount) : null,
-        minStartup: minStartup ? parseFloat(minStartup) : null,
+        followers: followers ? parseInt(followers) : 0,
+        winRate: winRate ? parseFloat(winRate) : 0,
+        wins: wins ? parseInt(wins) : 0,
+        losses: losses ? parseInt(losses) : 0,
+        trades: tradeCount ? parseInt(tradeCount) : 0,
+        minStartup: minStartup ? parseFloat(minStartup) : 0,
         isAdminPosted: currentUser.role === 'ADMIN',
       },
     });

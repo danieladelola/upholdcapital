@@ -246,6 +246,14 @@ model PostedTrade {
   losses     Int
   trades     Int
   minStartup Float
+  status     String   @default("open")
+  duration   Int      @default(24)
+  entryPrice Float?
+  tradeType  String?
+  profitShare Float?
+  amount     Float?
+  notes      String?
+  isAdminPosted Boolean @default(false)
   createdAt  DateTime @default(now())
 }
 

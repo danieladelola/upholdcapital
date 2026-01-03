@@ -65,13 +65,8 @@ async function main() {
   for (const t of traders) {
     await prisma.postedTrade.create({
       data: {
-        traderId: trader.id,
+        userId: trader.id,
         assetId: asset.id,
-        tradeType: 'buy', // dummy
-        amount: 1000, // dummy
-        entryPrice: 50000, // dummy
-        profitShare: t.profitShare,
-        duration: 24,
         name: t.name,
         username: t.username,
         followers: t.followers,
@@ -80,7 +75,6 @@ async function main() {
         losses: t.losses,
         trades: t.trades,
         minStartup: t.minStartup,
-        isAdminPosted: t.isAdminPosted,
       },
     });
   }

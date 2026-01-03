@@ -316,6 +316,14 @@ export const PostedTradeScalarFieldEnum = {
   losses: 'losses',
   trades: 'trades',
   minStartup: 'minStartup',
+  status: 'status',
+  duration: 'duration',
+  entryPrice: 'entryPrice',
+  tradeType: 'tradeType',
+  profitShare: 'profitShare',
+  amount: 'amount',
+  notes: 'notes',
+  isAdminPosted: 'isAdminPosted',
   createdAt: 'createdAt'
 } as const
 

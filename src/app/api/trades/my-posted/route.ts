@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
     const trades = await prisma.postedTrade.findMany({
       where: {
-        traderId: currentUser.id,
+        userId: currentUser.id,
       },
       include: {
         asset: true,

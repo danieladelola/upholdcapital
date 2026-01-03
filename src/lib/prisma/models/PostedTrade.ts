@@ -33,6 +33,10 @@ export type PostedTradeAvgAggregateOutputType = {
   losses: number | null
   trades: number | null
   minStartup: number | null
+  duration: number | null
+  entryPrice: number | null
+  profitShare: number | null
+  amount: number | null
 }
 
 export type PostedTradeSumAggregateOutputType = {
@@ -42,6 +46,10 @@ export type PostedTradeSumAggregateOutputType = {
   losses: number | null
   trades: number | null
   minStartup: number | null
+  duration: number | null
+  entryPrice: number | null
+  profitShare: number | null
+  amount: number | null
 }
 
 export type PostedTradeMinAggregateOutputType = {
@@ -56,6 +64,14 @@ export type PostedTradeMinAggregateOutputType = {
   losses: number | null
   trades: number | null
   minStartup: number | null
+  status: string | null
+  duration: number | null
+  entryPrice: number | null
+  tradeType: string | null
+  profitShare: number | null
+  amount: number | null
+  notes: string | null
+  isAdminPosted: boolean | null
   createdAt: Date | null
 }
 
@@ -71,6 +87,14 @@ export type PostedTradeMaxAggregateOutputType = {
   losses: number | null
   trades: number | null
   minStartup: number | null
+  status: string | null
+  duration: number | null
+  entryPrice: number | null
+  tradeType: string | null
+  profitShare: number | null
+  amount: number | null
+  notes: string | null
+  isAdminPosted: boolean | null
   createdAt: Date | null
 }
 
@@ -86,6 +110,14 @@ export type PostedTradeCountAggregateOutputType = {
   losses: number
   trades: number
   minStartup: number
+  status: number
+  duration: number
+  entryPrice: number
+  tradeType: number
+  profitShare: number
+  amount: number
+  notes: number
+  isAdminPosted: number
   createdAt: number
   _all: number
 }
@@ -98,6 +130,10 @@ export type PostedTradeAvgAggregateInputType = {
   losses?: true
   trades?: true
   minStartup?: true
+  duration?: true
+  entryPrice?: true
+  profitShare?: true
+  amount?: true
 }
 
 export type PostedTradeSumAggregateInputType = {
@@ -107,6 +143,10 @@ export type PostedTradeSumAggregateInputType = {
   losses?: true
   trades?: true
   minStartup?: true
+  duration?: true
+  entryPrice?: true
+  profitShare?: true
+  amount?: true
 }
 
 export type PostedTradeMinAggregateInputType = {
@@ -121,6 +161,14 @@ export type PostedTradeMinAggregateInputType = {
   losses?: true
   trades?: true
   minStartup?: true
+  status?: true
+  duration?: true
+  entryPrice?: true
+  tradeType?: true
+  profitShare?: true
+  amount?: true
+  notes?: true
+  isAdminPosted?: true
   createdAt?: true
 }
 
@@ -136,6 +184,14 @@ export type PostedTradeMaxAggregateInputType = {
   losses?: true
   trades?: true
   minStartup?: true
+  status?: true
+  duration?: true
+  entryPrice?: true
+  tradeType?: true
+  profitShare?: true
+  amount?: true
+  notes?: true
+  isAdminPosted?: true
   createdAt?: true
 }
 
@@ -151,6 +207,14 @@ export type PostedTradeCountAggregateInputType = {
   losses?: true
   trades?: true
   minStartup?: true
+  status?: true
+  duration?: true
+  entryPrice?: true
+  tradeType?: true
+  profitShare?: true
+  amount?: true
+  notes?: true
+  isAdminPosted?: true
   createdAt?: true
   _all?: true
 }
@@ -253,6 +317,14 @@ export type PostedTradeGroupByOutputType = {
   losses: number
   trades: number
   minStartup: number
+  status: string
+  duration: number
+  entryPrice: number | null
+  tradeType: string | null
+  profitShare: number | null
+  amount: number | null
+  notes: string | null
+  isAdminPosted: boolean
   createdAt: Date
   _count: PostedTradeCountAggregateOutputType | null
   _avg: PostedTradeAvgAggregateOutputType | null
@@ -291,6 +363,14 @@ export type PostedTradeWhereInput = {
   losses?: Prisma.IntFilter<"PostedTrade"> | number
   trades?: Prisma.IntFilter<"PostedTrade"> | number
   minStartup?: Prisma.FloatFilter<"PostedTrade"> | number
+  status?: Prisma.StringFilter<"PostedTrade"> | string
+  duration?: Prisma.IntFilter<"PostedTrade"> | number
+  entryPrice?: Prisma.FloatNullableFilter<"PostedTrade"> | number | null
+  tradeType?: Prisma.StringNullableFilter<"PostedTrade"> | string | null
+  profitShare?: Prisma.FloatNullableFilter<"PostedTrade"> | number | null
+  amount?: Prisma.FloatNullableFilter<"PostedTrade"> | number | null
+  notes?: Prisma.StringNullableFilter<"PostedTrade"> | string | null
+  isAdminPosted?: Prisma.BoolFilter<"PostedTrade"> | boolean
   createdAt?: Prisma.DateTimeFilter<"PostedTrade"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   asset?: Prisma.XOR<Prisma.AssetNullableScalarRelationFilter, Prisma.AssetWhereInput> | null
@@ -308,6 +388,14 @@ export type PostedTradeOrderByWithRelationInput = {
   losses?: Prisma.SortOrder
   trades?: Prisma.SortOrder
   minStartup?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  duration?: Prisma.SortOrder
+  entryPrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  tradeType?: Prisma.SortOrderInput | Prisma.SortOrder
+  profitShare?: Prisma.SortOrderInput | Prisma.SortOrder
+  amount?: Prisma.SortOrderInput | Prisma.SortOrder
+  notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  isAdminPosted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   asset?: Prisma.AssetOrderByWithRelationInput
@@ -328,6 +416,14 @@ export type PostedTradeWhereUniqueInput = Prisma.AtLeast<{
   losses?: Prisma.IntFilter<"PostedTrade"> | number
   trades?: Prisma.IntFilter<"PostedTrade"> | number
   minStartup?: Prisma.FloatFilter<"PostedTrade"> | number
+  status?: Prisma.StringFilter<"PostedTrade"> | string
+  duration?: Prisma.IntFilter<"PostedTrade"> | number
+  entryPrice?: Prisma.FloatNullableFilter<"PostedTrade"> | number | null
+  tradeType?: Prisma.StringNullableFilter<"PostedTrade"> | string | null
+  profitShare?: Prisma.FloatNullableFilter<"PostedTrade"> | number | null
+  amount?: Prisma.FloatNullableFilter<"PostedTrade"> | number | null
+  notes?: Prisma.StringNullableFilter<"PostedTrade"> | string | null
+  isAdminPosted?: Prisma.BoolFilter<"PostedTrade"> | boolean
   createdAt?: Prisma.DateTimeFilter<"PostedTrade"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   asset?: Prisma.XOR<Prisma.AssetNullableScalarRelationFilter, Prisma.AssetWhereInput> | null
@@ -345,6 +441,14 @@ export type PostedTradeOrderByWithAggregationInput = {
   losses?: Prisma.SortOrder
   trades?: Prisma.SortOrder
   minStartup?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  duration?: Prisma.SortOrder
+  entryPrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  tradeType?: Prisma.SortOrderInput | Prisma.SortOrder
+  profitShare?: Prisma.SortOrderInput | Prisma.SortOrder
+  amount?: Prisma.SortOrderInput | Prisma.SortOrder
+  notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  isAdminPosted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.PostedTradeCountOrderByAggregateInput
   _avg?: Prisma.PostedTradeAvgOrderByAggregateInput
@@ -368,6 +472,14 @@ export type PostedTradeScalarWhereWithAggregatesInput = {
   losses?: Prisma.IntWithAggregatesFilter<"PostedTrade"> | number
   trades?: Prisma.IntWithAggregatesFilter<"PostedTrade"> | number
   minStartup?: Prisma.FloatWithAggregatesFilter<"PostedTrade"> | number
+  status?: Prisma.StringWithAggregatesFilter<"PostedTrade"> | string
+  duration?: Prisma.IntWithAggregatesFilter<"PostedTrade"> | number
+  entryPrice?: Prisma.FloatNullableWithAggregatesFilter<"PostedTrade"> | number | null
+  tradeType?: Prisma.StringNullableWithAggregatesFilter<"PostedTrade"> | string | null
+  profitShare?: Prisma.FloatNullableWithAggregatesFilter<"PostedTrade"> | number | null
+  amount?: Prisma.FloatNullableWithAggregatesFilter<"PostedTrade"> | number | null
+  notes?: Prisma.StringNullableWithAggregatesFilter<"PostedTrade"> | string | null
+  isAdminPosted?: Prisma.BoolWithAggregatesFilter<"PostedTrade"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PostedTrade"> | Date | string
 }
 
@@ -381,6 +493,14 @@ export type PostedTradeCreateInput = {
   losses: number
   trades: number
   minStartup: number
+  status?: string
+  duration?: number
+  entryPrice?: number | null
+  tradeType?: string | null
+  profitShare?: number | null
+  amount?: number | null
+  notes?: string | null
+  isAdminPosted?: boolean
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPostedTradesInput
   asset?: Prisma.AssetCreateNestedOneWithoutPostedTradesInput
@@ -398,6 +518,14 @@ export type PostedTradeUncheckedCreateInput = {
   losses: number
   trades: number
   minStartup: number
+  status?: string
+  duration?: number
+  entryPrice?: number | null
+  tradeType?: string | null
+  profitShare?: number | null
+  amount?: number | null
+  notes?: string | null
+  isAdminPosted?: boolean
   createdAt?: Date | string
 }
 
@@ -411,6 +539,14 @@ export type PostedTradeUpdateInput = {
   losses?: Prisma.IntFieldUpdateOperationsInput | number
   trades?: Prisma.IntFieldUpdateOperationsInput | number
   minStartup?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  entryPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  tradeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdminPosted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPostedTradesNestedInput
   asset?: Prisma.AssetUpdateOneWithoutPostedTradesNestedInput
@@ -428,6 +564,14 @@ export type PostedTradeUncheckedUpdateInput = {
   losses?: Prisma.IntFieldUpdateOperationsInput | number
   trades?: Prisma.IntFieldUpdateOperationsInput | number
   minStartup?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  entryPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  tradeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdminPosted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -443,6 +587,14 @@ export type PostedTradeCreateManyInput = {
   losses: number
   trades: number
   minStartup: number
+  status?: string
+  duration?: number
+  entryPrice?: number | null
+  tradeType?: string | null
+  profitShare?: number | null
+  amount?: number | null
+  notes?: string | null
+  isAdminPosted?: boolean
   createdAt?: Date | string
 }
 
@@ -456,6 +608,14 @@ export type PostedTradeUpdateManyMutationInput = {
   losses?: Prisma.IntFieldUpdateOperationsInput | number
   trades?: Prisma.IntFieldUpdateOperationsInput | number
   minStartup?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  entryPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  tradeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdminPosted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -471,6 +631,14 @@ export type PostedTradeUncheckedUpdateManyInput = {
   losses?: Prisma.IntFieldUpdateOperationsInput | number
   trades?: Prisma.IntFieldUpdateOperationsInput | number
   minStartup?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  entryPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  tradeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdminPosted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -496,6 +664,14 @@ export type PostedTradeCountOrderByAggregateInput = {
   losses?: Prisma.SortOrder
   trades?: Prisma.SortOrder
   minStartup?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  duration?: Prisma.SortOrder
+  entryPrice?: Prisma.SortOrder
+  tradeType?: Prisma.SortOrder
+  profitShare?: Prisma.SortOrder
+  amount?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
+  isAdminPosted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -506,6 +682,10 @@ export type PostedTradeAvgOrderByAggregateInput = {
   losses?: Prisma.SortOrder
   trades?: Prisma.SortOrder
   minStartup?: Prisma.SortOrder
+  duration?: Prisma.SortOrder
+  entryPrice?: Prisma.SortOrder
+  profitShare?: Prisma.SortOrder
+  amount?: Prisma.SortOrder
 }
 
 export type PostedTradeMaxOrderByAggregateInput = {
@@ -520,6 +700,14 @@ export type PostedTradeMaxOrderByAggregateInput = {
   losses?: Prisma.SortOrder
   trades?: Prisma.SortOrder
   minStartup?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  duration?: Prisma.SortOrder
+  entryPrice?: Prisma.SortOrder
+  tradeType?: Prisma.SortOrder
+  profitShare?: Prisma.SortOrder
+  amount?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
+  isAdminPosted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -535,6 +723,14 @@ export type PostedTradeMinOrderByAggregateInput = {
   losses?: Prisma.SortOrder
   trades?: Prisma.SortOrder
   minStartup?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  duration?: Prisma.SortOrder
+  entryPrice?: Prisma.SortOrder
+  tradeType?: Prisma.SortOrder
+  profitShare?: Prisma.SortOrder
+  amount?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
+  isAdminPosted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -545,6 +741,10 @@ export type PostedTradeSumOrderByAggregateInput = {
   losses?: Prisma.SortOrder
   trades?: Prisma.SortOrder
   minStartup?: Prisma.SortOrder
+  duration?: Prisma.SortOrder
+  entryPrice?: Prisma.SortOrder
+  profitShare?: Prisma.SortOrder
+  amount?: Prisma.SortOrder
 }
 
 export type PostedTradeCreateNestedManyWithoutUserInput = {
@@ -641,6 +841,14 @@ export type PostedTradeCreateWithoutUserInput = {
   losses: number
   trades: number
   minStartup: number
+  status?: string
+  duration?: number
+  entryPrice?: number | null
+  tradeType?: string | null
+  profitShare?: number | null
+  amount?: number | null
+  notes?: string | null
+  isAdminPosted?: boolean
   createdAt?: Date | string
   asset?: Prisma.AssetCreateNestedOneWithoutPostedTradesInput
 }
@@ -656,6 +864,14 @@ export type PostedTradeUncheckedCreateWithoutUserInput = {
   losses: number
   trades: number
   minStartup: number
+  status?: string
+  duration?: number
+  entryPrice?: number | null
+  tradeType?: string | null
+  profitShare?: number | null
+  amount?: number | null
+  notes?: string | null
+  isAdminPosted?: boolean
   createdAt?: Date | string
 }
 
@@ -700,6 +916,14 @@ export type PostedTradeScalarWhereInput = {
   losses?: Prisma.IntFilter<"PostedTrade"> | number
   trades?: Prisma.IntFilter<"PostedTrade"> | number
   minStartup?: Prisma.FloatFilter<"PostedTrade"> | number
+  status?: Prisma.StringFilter<"PostedTrade"> | string
+  duration?: Prisma.IntFilter<"PostedTrade"> | number
+  entryPrice?: Prisma.FloatNullableFilter<"PostedTrade"> | number | null
+  tradeType?: Prisma.StringNullableFilter<"PostedTrade"> | string | null
+  profitShare?: Prisma.FloatNullableFilter<"PostedTrade"> | number | null
+  amount?: Prisma.FloatNullableFilter<"PostedTrade"> | number | null
+  notes?: Prisma.StringNullableFilter<"PostedTrade"> | string | null
+  isAdminPosted?: Prisma.BoolFilter<"PostedTrade"> | boolean
   createdAt?: Prisma.DateTimeFilter<"PostedTrade"> | Date | string
 }
 
@@ -713,6 +937,14 @@ export type PostedTradeCreateWithoutAssetInput = {
   losses: number
   trades: number
   minStartup: number
+  status?: string
+  duration?: number
+  entryPrice?: number | null
+  tradeType?: string | null
+  profitShare?: number | null
+  amount?: number | null
+  notes?: string | null
+  isAdminPosted?: boolean
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPostedTradesInput
 }
@@ -728,6 +960,14 @@ export type PostedTradeUncheckedCreateWithoutAssetInput = {
   losses: number
   trades: number
   minStartup: number
+  status?: string
+  duration?: number
+  entryPrice?: number | null
+  tradeType?: string | null
+  profitShare?: number | null
+  amount?: number | null
+  notes?: string | null
+  isAdminPosted?: boolean
   createdAt?: Date | string
 }
 
@@ -768,6 +1008,14 @@ export type PostedTradeCreateManyUserInput = {
   losses: number
   trades: number
   minStartup: number
+  status?: string
+  duration?: number
+  entryPrice?: number | null
+  tradeType?: string | null
+  profitShare?: number | null
+  amount?: number | null
+  notes?: string | null
+  isAdminPosted?: boolean
   createdAt?: Date | string
 }
 
@@ -781,6 +1029,14 @@ export type PostedTradeUpdateWithoutUserInput = {
   losses?: Prisma.IntFieldUpdateOperationsInput | number
   trades?: Prisma.IntFieldUpdateOperationsInput | number
   minStartup?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  entryPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  tradeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdminPosted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   asset?: Prisma.AssetUpdateOneWithoutPostedTradesNestedInput
 }
@@ -796,6 +1052,14 @@ export type PostedTradeUncheckedUpdateWithoutUserInput = {
   losses?: Prisma.IntFieldUpdateOperationsInput | number
   trades?: Prisma.IntFieldUpdateOperationsInput | number
   minStartup?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  entryPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  tradeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdminPosted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -810,6 +1074,14 @@ export type PostedTradeUncheckedUpdateManyWithoutUserInput = {
   losses?: Prisma.IntFieldUpdateOperationsInput | number
   trades?: Prisma.IntFieldUpdateOperationsInput | number
   minStartup?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  entryPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  tradeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdminPosted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -824,6 +1096,14 @@ export type PostedTradeCreateManyAssetInput = {
   losses: number
   trades: number
   minStartup: number
+  status?: string
+  duration?: number
+  entryPrice?: number | null
+  tradeType?: string | null
+  profitShare?: number | null
+  amount?: number | null
+  notes?: string | null
+  isAdminPosted?: boolean
   createdAt?: Date | string
 }
 
@@ -837,6 +1117,14 @@ export type PostedTradeUpdateWithoutAssetInput = {
   losses?: Prisma.IntFieldUpdateOperationsInput | number
   trades?: Prisma.IntFieldUpdateOperationsInput | number
   minStartup?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  entryPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  tradeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdminPosted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPostedTradesNestedInput
 }
@@ -852,6 +1140,14 @@ export type PostedTradeUncheckedUpdateWithoutAssetInput = {
   losses?: Prisma.IntFieldUpdateOperationsInput | number
   trades?: Prisma.IntFieldUpdateOperationsInput | number
   minStartup?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  entryPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  tradeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdminPosted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -866,6 +1162,14 @@ export type PostedTradeUncheckedUpdateManyWithoutAssetInput = {
   losses?: Prisma.IntFieldUpdateOperationsInput | number
   trades?: Prisma.IntFieldUpdateOperationsInput | number
   minStartup?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  entryPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  tradeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdminPosted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -883,6 +1187,14 @@ export type PostedTradeSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   losses?: boolean
   trades?: boolean
   minStartup?: boolean
+  status?: boolean
+  duration?: boolean
+  entryPrice?: boolean
+  tradeType?: boolean
+  profitShare?: boolean
+  amount?: boolean
+  notes?: boolean
+  isAdminPosted?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   asset?: boolean | Prisma.PostedTrade$assetArgs<ExtArgs>
@@ -900,6 +1212,14 @@ export type PostedTradeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   losses?: boolean
   trades?: boolean
   minStartup?: boolean
+  status?: boolean
+  duration?: boolean
+  entryPrice?: boolean
+  tradeType?: boolean
+  profitShare?: boolean
+  amount?: boolean
+  notes?: boolean
+  isAdminPosted?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   asset?: boolean | Prisma.PostedTrade$assetArgs<ExtArgs>
@@ -917,6 +1237,14 @@ export type PostedTradeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   losses?: boolean
   trades?: boolean
   minStartup?: boolean
+  status?: boolean
+  duration?: boolean
+  entryPrice?: boolean
+  tradeType?: boolean
+  profitShare?: boolean
+  amount?: boolean
+  notes?: boolean
+  isAdminPosted?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   asset?: boolean | Prisma.PostedTrade$assetArgs<ExtArgs>
@@ -934,10 +1262,18 @@ export type PostedTradeSelectScalar = {
   losses?: boolean
   trades?: boolean
   minStartup?: boolean
+  status?: boolean
+  duration?: boolean
+  entryPrice?: boolean
+  tradeType?: boolean
+  profitShare?: boolean
+  amount?: boolean
+  notes?: boolean
+  isAdminPosted?: boolean
   createdAt?: boolean
 }
 
-export type PostedTradeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "assetId" | "name" | "username" | "followers" | "winRate" | "wins" | "losses" | "trades" | "minStartup" | "createdAt", ExtArgs["result"]["postedTrade"]>
+export type PostedTradeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "assetId" | "name" | "username" | "followers" | "winRate" | "wins" | "losses" | "trades" | "minStartup" | "status" | "duration" | "entryPrice" | "tradeType" | "profitShare" | "amount" | "notes" | "isAdminPosted" | "createdAt", ExtArgs["result"]["postedTrade"]>
 export type PostedTradeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   asset?: boolean | Prisma.PostedTrade$assetArgs<ExtArgs>
@@ -969,6 +1305,14 @@ export type $PostedTradePayload<ExtArgs extends runtime.Types.Extensions.Interna
     losses: number
     trades: number
     minStartup: number
+    status: string
+    duration: number
+    entryPrice: number | null
+    tradeType: string | null
+    profitShare: number | null
+    amount: number | null
+    notes: string | null
+    isAdminPosted: boolean
     createdAt: Date
   }, ExtArgs["result"]["postedTrade"]>
   composites: {}
@@ -1406,6 +1750,14 @@ export interface PostedTradeFieldRefs {
   readonly losses: Prisma.FieldRef<"PostedTrade", 'Int'>
   readonly trades: Prisma.FieldRef<"PostedTrade", 'Int'>
   readonly minStartup: Prisma.FieldRef<"PostedTrade", 'Float'>
+  readonly status: Prisma.FieldRef<"PostedTrade", 'String'>
+  readonly duration: Prisma.FieldRef<"PostedTrade", 'Int'>
+  readonly entryPrice: Prisma.FieldRef<"PostedTrade", 'Float'>
+  readonly tradeType: Prisma.FieldRef<"PostedTrade", 'String'>
+  readonly profitShare: Prisma.FieldRef<"PostedTrade", 'Float'>
+  readonly amount: Prisma.FieldRef<"PostedTrade", 'Float'>
+  readonly notes: Prisma.FieldRef<"PostedTrade", 'String'>
+  readonly isAdminPosted: Prisma.FieldRef<"PostedTrade", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"PostedTrade", 'DateTime'>
 }
     

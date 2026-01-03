@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const postedTrades = await prisma.postedTrade.findMany({
       select: {
         id: true,
-        trader: {
+        user: {
           select: {
             id: true,
             displayName: true,

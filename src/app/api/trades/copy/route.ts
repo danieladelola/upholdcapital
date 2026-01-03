@@ -40,6 +40,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Trade has expired' }, { status: 400 });
     }
 
+    if (!postedTrade.asset) {
+      return NextResponse.json({ error: 'Trade asset not found' }, { status: 404 });
+    }
+
     // Calculate P/L using live price
     const coinGeckoId = PriceService.mapSymbolToCoinGeckoId(postedTrade.asset.symbol);
     let currentPrice = postedTrade.asset.priceUsd; // fallback
@@ -54,6 +58,10 @@ export async function POST(request: NextRequest) {
     }
 
     const entryPrice = postedTrade.entryPrice;
+    if (!entryPrice || !postedTrade.tradeType || !postedTrade.profitShare) {
+      return NextResponse.json({ error: 'Trade details incomplete' }, { status: 400 });
+    }
+
     const isWin = postedTrade.tradeType === 'buy' ? currentPrice > entryPrice : currentPrice < entryPrice;
     const profitAmount = (postedTrade.profitShare / 100) * parseFloat(amount);
 
@@ -69,11 +77,11 @@ export async function POST(request: NextRequest) {
     });
 
     // Create copy trade record
-    const copyTrade = await prisma.copyTrade.create({
+    const copyTrade = await prisma.copiedTrade.create({
       data: {
         userId: currentUser.id,
-        postedTradeId,
-        amount: parseFloat(amount),
+        traderId: postedTrade.userId,
+        // tradeId: if applicable, but for posted trades, maybe not
       },
     });
 

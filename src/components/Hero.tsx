@@ -2,9 +2,7 @@ import { Button } from '@/components/ui/button'
 
 export default function Hero() {
   return (
-    <section className="py-20 px-6 bg-primary text-primary-foreground ">
-              </br></br></br></br>
-
+    <section className="py-20 px-6 bg-primary text-primary-foreground">
       <div className="container mx-auto text-center">
         <h1 className="text-4xl font-bold mb-4">Get started today</h1>
         <p className="text-xl mb-8">Revolutionizing your digital trading experience</p>
@@ -14,7 +12,6 @@ export default function Hero() {
             <a href="/signup">Get started</a>
           </Button>
         </div>
-        </br></br></br></br>
       </div>
     </section>
   )

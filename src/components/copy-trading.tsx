@@ -7,6 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Search, TrendingUp, DollarSign, CheckCircle, XCircle, BarChart3, Users, BadgeCheck } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import type { FetchedAsset } from "@/types/index";
+import type { User } from '../../types';
 
 interface Trader {
   id: string;
@@ -37,6 +39,8 @@ interface TraderTrade {
 
 interface CopyTradingDashboardProps {
   balance: number;
+  assets: FetchedAsset[];
+  user: User;
 }
 
 const cardBackgrounds = [
@@ -259,7 +263,7 @@ const FAQS = [
   { q: "How to stop copying?", a: "Open the trader card and click the Close button." },
 ];
 
-export default function CopyTradingDashboard({ balance }: CopyTradingDashboardProps) {
+export default function CopyTradingDashboard({ balance, assets, user: currentUser }: CopyTradingDashboardProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [traders, setTraders] = useState<Trader[]>([]);

@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       where: { id: tradeId },
     });
 
-    if (!trade || trade.traderId !== currentUser.id) {
+    if (!trade || trade.userId !== currentUser.id) {
       return NextResponse.json({ error: 'Trade not found or not owned by user' }, { status: 404 });
     }
 
