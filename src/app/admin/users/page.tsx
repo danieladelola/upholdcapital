@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getUsers } from "@/actions/admin";
-import { User, UserRole } from "@/generated/prisma/browser";
+import { User, UserRole } from "@/lib/prisma/browser";
 import {
   Table,
   TableBody,

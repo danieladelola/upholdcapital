@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { updateUserRole } from "@/actions/admin";
-import { User, UserRole } from "@/generated/prisma/browser";
+import { User, UserRole } from "@/lib/prisma/browser";
 
 interface ChangeRoleModalProps {
   user: User | null;

@@ -1,6 +1,6 @@
 "use server";
 
-import { PrismaClient } from '../generated/prisma/client'
+import { PrismaClient } from '../lib/prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { Pool } from 'pg'
 import { z } from "zod";
