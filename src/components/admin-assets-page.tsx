@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import type { Asset } from "@/generated/prisma/browser";
+import type { Asset } from "@/lib/prisma/browser";
 
 export default function AdminAssetsPage() {
   const [assets, setAssets] = useState<Asset[]>([]);
