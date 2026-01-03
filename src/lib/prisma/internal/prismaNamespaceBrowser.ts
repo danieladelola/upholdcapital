@@ -115,6 +115,7 @@ export const UserScalarFieldEnum = {
   losses: 'losses',
   traderTrades: 'traderTrades',
   minStartup: 'minStartup',
+  profitShare: 'profitShare',
   wallets: 'wallets',
   assets: 'assets'
 } as const

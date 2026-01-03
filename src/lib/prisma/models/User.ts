@@ -34,6 +34,7 @@ export type UserAvgAggregateOutputType = {
   losses: number | null
   traderTrades: number | null
   minStartup: number | null
+  profitShare: number | null
 }
 
 export type UserSumAggregateOutputType = {
@@ -44,6 +45,7 @@ export type UserSumAggregateOutputType = {
   losses: number | null
   traderTrades: number | null
   minStartup: number | null
+  profitShare: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -74,6 +76,7 @@ export type UserMinAggregateOutputType = {
   losses: number | null
   traderTrades: number | null
   minStartup: number | null
+  profitShare: number | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -104,6 +107,7 @@ export type UserMaxAggregateOutputType = {
   losses: number | null
   traderTrades: number | null
   minStartup: number | null
+  profitShare: number | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -134,6 +138,7 @@ export type UserCountAggregateOutputType = {
   losses: number
   traderTrades: number
   minStartup: number
+  profitShare: number
   wallets: number
   assets: number
   _all: number
@@ -148,6 +153,7 @@ export type UserAvgAggregateInputType = {
   losses?: true
   traderTrades?: true
   minStartup?: true
+  profitShare?: true
 }
 
 export type UserSumAggregateInputType = {
@@ -158,6 +164,7 @@ export type UserSumAggregateInputType = {
   losses?: true
   traderTrades?: true
   minStartup?: true
+  profitShare?: true
 }
 
 export type UserMinAggregateInputType = {
@@ -188,6 +195,7 @@ export type UserMinAggregateInputType = {
   losses?: true
   traderTrades?: true
   minStartup?: true
+  profitShare?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -218,6 +226,7 @@ export type UserMaxAggregateInputType = {
   losses?: true
   traderTrades?: true
   minStartup?: true
+  profitShare?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -248,6 +257,7 @@ export type UserCountAggregateInputType = {
   losses?: true
   traderTrades?: true
   minStartup?: true
+  profitShare?: true
   wallets?: true
   assets?: true
   _all?: true
@@ -367,6 +377,7 @@ export type UserGroupByOutputType = {
   losses: number | null
   traderTrades: number | null
   minStartup: number | null
+  profitShare: number | null
   wallets: runtime.JsonValue | null
   assets: runtime.JsonValue | null
   _count: UserCountAggregateOutputType | null
@@ -422,6 +433,7 @@ export type UserWhereInput = {
   losses?: Prisma.IntNullableFilter<"User"> | number | null
   traderTrades?: Prisma.IntNullableFilter<"User"> | number | null
   minStartup?: Prisma.FloatNullableFilter<"User"> | number | null
+  profitShare?: Prisma.FloatNullableFilter<"User"> | number | null
   wallets?: Prisma.JsonNullableFilter<"User">
   assets?: Prisma.JsonNullableFilter<"User">
   deposits?: Prisma.DepositListRelationFilter
@@ -467,6 +479,7 @@ export type UserOrderByWithRelationInput = {
   losses?: Prisma.SortOrderInput | Prisma.SortOrder
   traderTrades?: Prisma.SortOrderInput | Prisma.SortOrder
   minStartup?: Prisma.SortOrderInput | Prisma.SortOrder
+  profitShare?: Prisma.SortOrderInput | Prisma.SortOrder
   wallets?: Prisma.SortOrderInput | Prisma.SortOrder
   assets?: Prisma.SortOrderInput | Prisma.SortOrder
   deposits?: Prisma.DepositOrderByRelationAggregateInput
@@ -515,6 +528,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   losses?: Prisma.IntNullableFilter<"User"> | number | null
   traderTrades?: Prisma.IntNullableFilter<"User"> | number | null
   minStartup?: Prisma.FloatNullableFilter<"User"> | number | null
+  profitShare?: Prisma.FloatNullableFilter<"User"> | number | null
   wallets?: Prisma.JsonNullableFilter<"User">
   assets?: Prisma.JsonNullableFilter<"User">
   deposits?: Prisma.DepositListRelationFilter
@@ -560,6 +574,7 @@ export type UserOrderByWithAggregationInput = {
   losses?: Prisma.SortOrderInput | Prisma.SortOrder
   traderTrades?: Prisma.SortOrderInput | Prisma.SortOrder
   minStartup?: Prisma.SortOrderInput | Prisma.SortOrder
+  profitShare?: Prisma.SortOrderInput | Prisma.SortOrder
   wallets?: Prisma.SortOrderInput | Prisma.SortOrder
   assets?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -600,6 +615,7 @@ export type UserScalarWhereWithAggregatesInput = {
   losses?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   traderTrades?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   minStartup?: Prisma.FloatNullableWithAggregatesFilter<"User"> | number | null
+  profitShare?: Prisma.FloatNullableWithAggregatesFilter<"User"> | number | null
   wallets?: Prisma.JsonNullableWithAggregatesFilter<"User">
   assets?: Prisma.JsonNullableWithAggregatesFilter<"User">
 }
@@ -632,6 +648,7 @@ export type UserCreateInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositCreateNestedManyWithoutUserInput
@@ -677,6 +694,7 @@ export type UserUncheckedCreateInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedCreateNestedManyWithoutUserInput
@@ -722,6 +740,7 @@ export type UserUpdateInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUpdateManyWithoutUserNestedInput
@@ -767,6 +786,7 @@ export type UserUncheckedUpdateInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedUpdateManyWithoutUserNestedInput
@@ -812,6 +832,7 @@ export type UserCreateManyInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
@@ -844,6 +865,7 @@ export type UserUpdateManyMutationInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
@@ -876,6 +898,7 @@ export type UserUncheckedUpdateManyInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
@@ -908,6 +931,7 @@ export type UserCountOrderByAggregateInput = {
   losses?: Prisma.SortOrder
   traderTrades?: Prisma.SortOrder
   minStartup?: Prisma.SortOrder
+  profitShare?: Prisma.SortOrder
   wallets?: Prisma.SortOrder
   assets?: Prisma.SortOrder
 }
@@ -920,6 +944,7 @@ export type UserAvgOrderByAggregateInput = {
   losses?: Prisma.SortOrder
   traderTrades?: Prisma.SortOrder
   minStartup?: Prisma.SortOrder
+  profitShare?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -950,6 +975,7 @@ export type UserMaxOrderByAggregateInput = {
   losses?: Prisma.SortOrder
   traderTrades?: Prisma.SortOrder
   minStartup?: Prisma.SortOrder
+  profitShare?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -980,6 +1006,7 @@ export type UserMinOrderByAggregateInput = {
   losses?: Prisma.SortOrder
   traderTrades?: Prisma.SortOrder
   minStartup?: Prisma.SortOrder
+  profitShare?: Prisma.SortOrder
 }
 
 export type UserSumOrderByAggregateInput = {
@@ -990,6 +1017,7 @@ export type UserSumOrderByAggregateInput = {
   losses?: Prisma.SortOrder
   traderTrades?: Prisma.SortOrder
   minStartup?: Prisma.SortOrder
+  profitShare?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -1247,6 +1275,7 @@ export type UserCreateWithoutDepositsInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   withdrawals?: Prisma.WithdrawalCreateNestedManyWithoutUserInput
@@ -1291,6 +1320,7 @@ export type UserUncheckedCreateWithoutDepositsInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   withdrawals?: Prisma.WithdrawalUncheckedCreateNestedManyWithoutUserInput
@@ -1351,6 +1381,7 @@ export type UserUpdateWithoutDepositsInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   withdrawals?: Prisma.WithdrawalUpdateManyWithoutUserNestedInput
@@ -1395,6 +1426,7 @@ export type UserUncheckedUpdateWithoutDepositsInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   withdrawals?: Prisma.WithdrawalUncheckedUpdateManyWithoutUserNestedInput
@@ -1439,6 +1471,7 @@ export type UserCreateWithoutWithdrawalsInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositCreateNestedManyWithoutUserInput
@@ -1483,6 +1516,7 @@ export type UserUncheckedCreateWithoutWithdrawalsInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedCreateNestedManyWithoutUserInput
@@ -1543,6 +1577,7 @@ export type UserUpdateWithoutWithdrawalsInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUpdateManyWithoutUserNestedInput
@@ -1587,6 +1622,7 @@ export type UserUncheckedUpdateWithoutWithdrawalsInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedUpdateManyWithoutUserNestedInput
@@ -1631,6 +1667,7 @@ export type UserCreateWithoutUserSubscriptionsInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositCreateNestedManyWithoutUserInput
@@ -1675,6 +1712,7 @@ export type UserUncheckedCreateWithoutUserSubscriptionsInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedCreateNestedManyWithoutUserInput
@@ -1735,6 +1773,7 @@ export type UserUpdateWithoutUserSubscriptionsInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUpdateManyWithoutUserNestedInput
@@ -1779,6 +1818,7 @@ export type UserUncheckedUpdateWithoutUserSubscriptionsInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedUpdateManyWithoutUserNestedInput
@@ -1823,6 +1863,7 @@ export type UserCreateWithoutWalletConnectionsInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositCreateNestedManyWithoutUserInput
@@ -1867,6 +1908,7 @@ export type UserUncheckedCreateWithoutWalletConnectionsInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedCreateNestedManyWithoutUserInput
@@ -1927,6 +1969,7 @@ export type UserUpdateWithoutWalletConnectionsInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUpdateManyWithoutUserNestedInput
@@ -1971,6 +2014,7 @@ export type UserUncheckedUpdateWithoutWalletConnectionsInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedUpdateManyWithoutUserNestedInput
@@ -2015,6 +2059,7 @@ export type UserCreateWithoutUserAssetsInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositCreateNestedManyWithoutUserInput
@@ -2059,6 +2104,7 @@ export type UserUncheckedCreateWithoutUserAssetsInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedCreateNestedManyWithoutUserInput
@@ -2119,6 +2165,7 @@ export type UserUpdateWithoutUserAssetsInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUpdateManyWithoutUserNestedInput
@@ -2163,6 +2210,7 @@ export type UserUncheckedUpdateWithoutUserAssetsInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedUpdateManyWithoutUserNestedInput
@@ -2207,6 +2255,7 @@ export type UserCreateWithoutUserAssetBalancesInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositCreateNestedManyWithoutUserInput
@@ -2251,6 +2300,7 @@ export type UserUncheckedCreateWithoutUserAssetBalancesInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedCreateNestedManyWithoutUserInput
@@ -2311,6 +2361,7 @@ export type UserUpdateWithoutUserAssetBalancesInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUpdateManyWithoutUserNestedInput
@@ -2355,6 +2406,7 @@ export type UserUncheckedUpdateWithoutUserAssetBalancesInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedUpdateManyWithoutUserNestedInput
@@ -2399,6 +2451,7 @@ export type UserCreateWithoutUserStakesInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositCreateNestedManyWithoutUserInput
@@ -2443,6 +2496,7 @@ export type UserUncheckedCreateWithoutUserStakesInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedCreateNestedManyWithoutUserInput
@@ -2503,6 +2557,7 @@ export type UserUpdateWithoutUserStakesInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUpdateManyWithoutUserNestedInput
@@ -2547,6 +2602,7 @@ export type UserUncheckedUpdateWithoutUserStakesInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedUpdateManyWithoutUserNestedInput
@@ -2591,6 +2647,7 @@ export type UserCreateWithoutTradesInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositCreateNestedManyWithoutUserInput
@@ -2635,6 +2692,7 @@ export type UserUncheckedCreateWithoutTradesInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedCreateNestedManyWithoutUserInput
@@ -2695,6 +2753,7 @@ export type UserUpdateWithoutTradesInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUpdateManyWithoutUserNestedInput
@@ -2739,6 +2798,7 @@ export type UserUncheckedUpdateWithoutTradesInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedUpdateManyWithoutUserNestedInput
@@ -2783,6 +2843,7 @@ export type UserCreateWithoutAdminAuditLogsInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositCreateNestedManyWithoutUserInput
@@ -2827,6 +2888,7 @@ export type UserUncheckedCreateWithoutAdminAuditLogsInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedCreateNestedManyWithoutUserInput
@@ -2887,6 +2949,7 @@ export type UserUpdateWithoutAdminAuditLogsInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUpdateManyWithoutUserNestedInput
@@ -2931,6 +2994,7 @@ export type UserUncheckedUpdateWithoutAdminAuditLogsInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedUpdateManyWithoutUserNestedInput
@@ -2975,6 +3039,7 @@ export type UserCreateWithoutPostedTradesInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositCreateNestedManyWithoutUserInput
@@ -3019,6 +3084,7 @@ export type UserUncheckedCreateWithoutPostedTradesInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedCreateNestedManyWithoutUserInput
@@ -3079,6 +3145,7 @@ export type UserUpdateWithoutPostedTradesInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUpdateManyWithoutUserNestedInput
@@ -3123,6 +3190,7 @@ export type UserUncheckedUpdateWithoutPostedTradesInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedUpdateManyWithoutUserNestedInput
@@ -3167,6 +3235,7 @@ export type UserCreateWithoutExecutedTradesInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositCreateNestedManyWithoutUserInput
@@ -3211,6 +3280,7 @@ export type UserUncheckedCreateWithoutExecutedTradesInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedCreateNestedManyWithoutUserInput
@@ -3271,6 +3341,7 @@ export type UserUpdateWithoutExecutedTradesInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUpdateManyWithoutUserNestedInput
@@ -3315,6 +3386,7 @@ export type UserUncheckedUpdateWithoutExecutedTradesInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedUpdateManyWithoutUserNestedInput
@@ -3359,6 +3431,7 @@ export type UserCreateWithoutCopiedTradesInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositCreateNestedManyWithoutUserInput
@@ -3403,6 +3476,7 @@ export type UserUncheckedCreateWithoutCopiedTradesInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedCreateNestedManyWithoutUserInput
@@ -3452,6 +3526,7 @@ export type UserCreateWithoutCopiedTradesAsTraderInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositCreateNestedManyWithoutUserInput
@@ -3496,6 +3571,7 @@ export type UserUncheckedCreateWithoutCopiedTradesAsTraderInput = {
   losses?: number | null
   traderTrades?: number | null
   minStartup?: number | null
+  profitShare?: number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedCreateNestedManyWithoutUserInput
@@ -3556,6 +3632,7 @@ export type UserUpdateWithoutCopiedTradesInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUpdateManyWithoutUserNestedInput
@@ -3600,6 +3677,7 @@ export type UserUncheckedUpdateWithoutCopiedTradesInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedUpdateManyWithoutUserNestedInput
@@ -3655,6 +3733,7 @@ export type UserUpdateWithoutCopiedTradesAsTraderInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUpdateManyWithoutUserNestedInput
@@ -3699,6 +3778,7 @@ export type UserUncheckedUpdateWithoutCopiedTradesAsTraderInput = {
   losses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   traderTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStartup?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  profitShare?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   wallets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   assets?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   deposits?: Prisma.DepositUncheckedUpdateManyWithoutUserNestedInput
@@ -3882,6 +3962,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   losses?: boolean
   traderTrades?: boolean
   minStartup?: boolean
+  profitShare?: boolean
   wallets?: boolean
   assets?: boolean
   deposits?: boolean | Prisma.User$depositsArgs<ExtArgs>
@@ -3928,6 +4009,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   losses?: boolean
   traderTrades?: boolean
   minStartup?: boolean
+  profitShare?: boolean
   wallets?: boolean
   assets?: boolean
 }, ExtArgs["result"]["user"]>
@@ -3960,6 +4042,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   losses?: boolean
   traderTrades?: boolean
   minStartup?: boolean
+  profitShare?: boolean
   wallets?: boolean
   assets?: boolean
 }, ExtArgs["result"]["user"]>
@@ -3992,11 +4075,12 @@ export type UserSelectScalar = {
   losses?: boolean
   traderTrades?: boolean
   minStartup?: boolean
+  profitShare?: boolean
   wallets?: boolean
   assets?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "username" | "passwordHash" | "createdAt" | "updatedAt" | "lastLogin" | "firstName" | "lastName" | "fullName" | "initials" | "balance" | "currency" | "phone" | "country" | "address" | "profileImage" | "displayName" | "verified" | "role" | "status" | "followers" | "winRate" | "wins" | "losses" | "traderTrades" | "minStartup" | "wallets" | "assets", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "username" | "passwordHash" | "createdAt" | "updatedAt" | "lastLogin" | "firstName" | "lastName" | "fullName" | "initials" | "balance" | "currency" | "phone" | "country" | "address" | "profileImage" | "displayName" | "verified" | "role" | "status" | "followers" | "winRate" | "wins" | "losses" | "traderTrades" | "minStartup" | "profitShare" | "wallets" | "assets", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   deposits?: boolean | Prisma.User$depositsArgs<ExtArgs>
   withdrawals?: boolean | Prisma.User$withdrawalsArgs<ExtArgs>
@@ -4061,6 +4145,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     losses: number | null
     traderTrades: number | null
     minStartup: number | null
+    profitShare: number | null
     wallets: runtime.JsonValue | null
     assets: runtime.JsonValue | null
   }, ExtArgs["result"]["user"]>
@@ -4526,6 +4611,7 @@ export interface UserFieldRefs {
   readonly losses: Prisma.FieldRef<"User", 'Int'>
   readonly traderTrades: Prisma.FieldRef<"User", 'Int'>
   readonly minStartup: Prisma.FieldRef<"User", 'Float'>
+  readonly profitShare: Prisma.FieldRef<"User", 'Float'>
   readonly wallets: Prisma.FieldRef<"User", 'Json'>
   readonly assets: Prisma.FieldRef<"User", 'Json'>
 }

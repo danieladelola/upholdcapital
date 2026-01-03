@@ -48,6 +48,7 @@ model User {
   losses            Int?
   traderTrades      Int?
   minStartup        Float?
+  profitShare       Float?
   wallets           Json?              @default("[]")
   assets            Json?              @default("[]")
   deposits          Deposit[]

@@ -124,11 +124,11 @@ function TraderCard({
   };
 
   return (
-    <div style={cardStyle} className="h-full transform transition-transform duration-300 hover:scale-105 hover:-translate-y-2">
+    <div style={cardStyle} className="h-full transform transition-transform duration-300 hover:-translate-y-2">
       <div style={innerStyle}>
         <div style={faceStyle}>
-          <Card className={`h-full flex flex-col shadow-2xl border-2 border-gray-200/50 rounded-lg ${cardBackgrounds[index % cardBackgrounds.length]}`}>
-            <CardHeader className="pb-2">
+          <Card className={`h-full flex flex-col shadow-2xl border-2 border-gray-200/50 rounded-lg bg-[#171D30]`}>
+            <CardHeader className="pb-2 text-left">
               <div className="flex items-center gap-2">
                 {/* Profile Picture */}
                 {trader.profileImage ? (
@@ -206,7 +206,7 @@ function TraderCard({
         </div>
 
         <div style={backStyle}>
-          <Card className={`h-full flex flex-col shadow-2xl border-2 border-gray-200/50 rounded-lg ${cardBackgrounds[index % cardBackgrounds.length]}`}>
+          <Card className={`h-full flex flex-col shadow-2xl border-2 border-gray-200/50 rounded-lg bg-[#171D30]`}>
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle className="text-lg">{trader.displayName || trader.firstName || trader.username}'s Trades</CardTitle>
@@ -441,13 +441,14 @@ export default function CopyTradingDashboard({ balance, assets, user: currentUse
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredTraders.map((trader, index) => (
-                <TraderCard
-                  key={trader.id}
-                  trader={trader}
-                  isCopied={copiedTrades[trader.id] || false}
-                  onCopy={() => handleCopyTrader(trader)}
-                  index={index}
-                />
+                <div key={trader.id} className="h-96">
+                  <TraderCard
+                    trader={trader}
+                    isCopied={copiedTrades[trader.id] || false}
+                    onCopy={() => handleCopyTrader(trader)}
+                    index={index}
+                  />
+                </div>
               ))}
             </div>
           )}
@@ -466,13 +467,14 @@ export default function CopyTradingDashboard({ balance, assets, user: currentUse
               {traders
                 .filter(t => copiedTrades[t.id])
                 .map((trader, index) => (
-                  <TraderCard
-                    key={trader.id}
-                    trader={trader}
-                    isCopied={true}
-                    onCopy={() => handleCopyTrader(trader)}
-                    index={index}
-                  />
+                  <div key={trader.id} className="h-96">
+                    <TraderCard
+                      trader={trader}
+                      isCopied={true}
+                      onCopy={() => handleCopyTrader(trader)}
+                      index={index}
+                    />
+                  </div>
                 ))}
             </div>
           )}
