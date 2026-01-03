@@ -10,15 +10,6 @@ export default function Footer() {
       ]
     },
     {
-      title: "Earn",
-      links: [
-        { name: "Crypto", href: "/crypto" },
-        { name: "Forex", href: "/forex" },
-        { name: "Stocks", href: "/stocks" },
-        { name: "Real Estate", href: "/real-estate" },
-      ]
-    },
-    {
       title: "Legal",
       links: [
         { name: "Legal", href: "/legal" },
@@ -30,7 +21,7 @@ export default function Footer() {
       title: "Support",
       links: [
         { name: "FAQ", href: "/faq" },
-        { name: "Send us an email", href: "mailto:support@octagonalpro.com" },
+        { name: "Send us an email", href: "mailto:support@upholdcapital.vip" },
       ]
     }
   ]
@@ -58,7 +49,7 @@ export default function Footer() {
           <p className="mb-4">The risk of loss in online trading of stocks, options, futures, currencies, foreign equities, and fixed Income can be substantial.</p>
           <p className="mb-4">Before trading, clients must read the relevant risk disclosure statements on our Warnings and Disclosures page. Trading on margin is only for experienced investors with high risk tolerance. You may lose more than your initial investment. For additional information about rates on margin loans, please see Margin Loan Rates. Security futures involve a high degree of risk and are not suitable for all investors. The amount you may lose may be greater than your initial investment.</p>
           <p className="mb-4">For trading security futures, read the Security Futures Risk Disclosure Statement. Structured products and fixed income products such as bonds are complex products that are more risky and are not suitable for all investors. Before trading, please read the Risk Warning and Disclosure Statement.</p>
-          <p>© 2016 - 2024 Uphold, Inc. All rights reserved.</p>
+          <p>© 2016 Uphold, Inc. All rights reserved.</p>
         </div>
       </div>
     </footer>

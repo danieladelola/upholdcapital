@@ -243,36 +243,27 @@ const CTA = () => (
 const Footer = () => (
   <footer className="bg-muted py-12">
     <div className="container mx-auto px-6">
-      <div className="grid md:grid-cols-4 gap-8">
+      <div className="grid md:grid-cols-3 gap-8">
         <div>
           <h4 className="font-semibold mb-4">About</h4>
           <ul className="space-y-2">
-            <li>About us</li>
-            <li>Why Uphold</li>
-          </ul>
-        </div>
-        <div>
-          <h4 className="font-semibold mb-4">Earn</h4>
-          <ul className="space-y-2">
-            <li>Crypto</li>
-            <li>Forex</li>
-            <li>Stocks</li>
-            <li>Real Estate</li>
+            <li><Link href="/about" className="hover:text-primary">About us</Link></li>
+            <li><Link href="/why-us" className="hover:text-primary">Why Uphold</Link></li>
           </ul>
         </div>
         <div>
           <h4 className="font-semibold mb-4">Legal</h4>
           <ul className="space-y-2">
-            <li>Legal</li>
-            <li>Privacy policy</li>
-            <li>Terms of service</li>
+            <li><Link href="/legal" className="hover:text-primary">Legal</Link></li>
+            <li><Link href="/privacy" className="hover:text-primary">Privacy policy</Link></li>
+            <li><Link href="/terms" className="hover:text-primary">Terms of service</Link></li>
           </ul>
         </div>
         <div>
           <h4 className="font-semibold mb-4">Support</h4>
           <ul className="space-y-2">
-            <li>FAQ</li>
-            <li>Send us an email</li>
+            <li><Link href="/faq" className="hover:text-primary">FAQ</Link></li>
+            <li><Link href="mailto:support@octagonalpro.com" className="hover:text-primary">Send us an email</Link></li>
           </ul>
         </div>
       </div>
