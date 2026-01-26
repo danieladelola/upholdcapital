@@ -99,6 +99,35 @@ async function fetchAssets() {
       console.error("Error fetching stock assets:", error);
     }
 
+    // Fetch custom assets from database
+    try {
+      const dbResponse = await fetch('/api/admin/assets');
+      if (dbResponse.ok) {
+        const dbAssets = await dbResponse.json();
+        console.log('[fetchAssets] Raw database assets:', dbAssets);
+        const customAssets = dbAssets.map((asset) => {
+          const price = asset.price_usd || asset.priceUsd || 0;
+          const logoUrl = asset.logo_url || asset.logoUrl;
+          return {
+            name: asset.name,
+            price: typeof price === 'number' ? price : parseFloat(price) || 0,
+            symbol: asset.symbol,
+            icon: logoUrl || `/asseticons/${asset.symbol}.svg`,
+            type: "custom",
+            amount: 0
+          };
+        });
+        
+        // Merge database assets, avoiding duplicates
+        const symbolSet = new Set(assets.map(a => a.symbol));
+        const newAssets = customAssets.filter(a => !symbolSet.has(a.symbol));
+        assets.push(...newAssets);
+        console.log(`[fetchAssets] Loaded ${newAssets.length} custom assets from database`, newAssets);
+      }
+    } catch (error) {
+      console.error("Error fetching custom assets from database:", error);
+    }
+
     console.log(`[fetchAssets] Total assets loaded: ${assets.length}`);
     return assets;
   } catch (error) {

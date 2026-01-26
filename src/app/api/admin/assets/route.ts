@@ -34,14 +34,25 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { symbol, name, priceUsd, logoUrl } = body;
+    const { symbol, name, price_usd, priceUsd, logo_url, logoUrl } = body;
+
+    // Handle both snake_case and camelCase
+    const finalPrice = priceUsd || price_usd;
+    const finalLogoUrl = logoUrl || logo_url;
+
+    if (!symbol || !name || finalPrice === undefined || finalPrice === null) {
+      return NextResponse.json(
+        { error: 'Missing required fields: symbol, name, and price_usd' },
+        { status: 400 }
+      );
+    }
 
     const asset = await prisma.asset.create({
       data: {
-        symbol,
+        symbol: symbol.toUpperCase(),
         name,
-        priceUsd,
-        logoUrl,
+        priceUsd: parseFloat(finalPrice),
+        logoUrl: finalLogoUrl || null,
       },
     });
 
@@ -49,7 +60,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating asset:', error);
     return NextResponse.json(
-      { error: 'Failed to create asset' },
+      { error: error instanceof Error ? error.message : 'Failed to create asset' },
       { status: 500 }
     );
   }

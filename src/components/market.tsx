@@ -10,14 +10,52 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import type { FetchedAsset as Asset} from "@/types/index"
 import Link from "next/link"
+import { fetchAssets } from "@/app/dashboard/[...slug]/utils"
 
-export default function MarketsPage({assets}:{assets:Asset[]}) {
+export default function MarketsPage({assets: initialAssets}:{assets:Asset[]}) {
   const [userBalance, setUserBalance] = useState(0)
+  const [assets, setAssets] = useState<Asset[]>(initialAssets || [])
+  const [isLoading, setIsLoading] = useState(false)
 
   const [searchTerm, setSearchTerm] = useState("")
   const [watchlist, setWatchlist] = useState<string[]>([])
   const [filter, setFilter] = useState("All")
   const [expandedRow, setExpandedRow] = useState<string | null>(null)
+
+  // Fetch all assets from database and external APIs on mount
+  useEffect(() => {
+    const loadAssets = async () => {
+      setIsLoading(true)
+      try {
+        const fetchedAssets = await fetchAssets()
+        if (fetchedAssets && fetchedAssets.length > 0) {
+          setAssets(fetchedAssets)
+        }
+      } catch (error) {
+        console.error("Error fetching assets:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadAssets()
+  }, [])
+
+  // Poll for asset updates every 15 seconds
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const fetchedAssets = await fetchAssets()
+        if (fetchedAssets && fetchedAssets.length > 0) {
+          setAssets(fetchedAssets)
+        }
+      } catch (error) {
+        console.error("Error polling assets:", error)
+      }
+    }, 15000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     const balance = assets.reduce((acc, asset) => acc + asset.amount * asset.price, 0)
@@ -33,11 +71,18 @@ export default function MarketsPage({assets}:{assets:Asset[]}) {
   const filteredAssets = useMemo(
     () =>
       assets.filter(
-        (asset) =>
-          asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          asset.symbol.toLowerCase().includes(searchTerm.toLowerCase()),
+        (asset) => {
+          const matchesSearch =
+            asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            asset.symbol.toLowerCase().includes(searchTerm.toLowerCase());
+          
+          if (filter === "All") return matchesSearch;
+          if (filter === "Crypto") return matchesSearch && asset.type === "crypto";
+          if (filter === "Stocks") return matchesSearch && asset.type === "stock";
+          return matchesSearch;
+        }
       ),
-    [assets, searchTerm],
+    [assets, searchTerm, filter],
   )
 
   const toggleWatchlist = (id: string) => {

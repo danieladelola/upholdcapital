@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,11 +12,14 @@ export default function AdminAssetsPage() {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     symbol: '',
     name: '',
     price_usd: '',
-    logo_url: ''
+    logo_url: '',
+    logoFile: null as File | null
   });
   const { toast } = useToast();
 
@@ -39,6 +42,30 @@ export default function AdminAssetsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      let logoUrl = formData.logo_url;
+
+      // Upload file if provided
+      if (formData.logoFile) {
+        setIsUploading(true);
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', formData.logoFile);
+        uploadFormData.append('symbol', formData.symbol.toUpperCase());
+
+        const uploadResponse = await fetch('/api/upload/asset-icon', {
+          method: 'POST',
+          body: uploadFormData,
+        });
+
+        if (!uploadResponse.ok) {
+          const errorData = await uploadResponse.json();
+          throw new Error(errorData.error || 'Failed to upload file');
+        }
+
+        const uploadedData = await uploadResponse.json();
+        logoUrl = uploadedData.logoUrl;
+        setIsUploading(false);
+      }
+
       const url = editingAsset ? `/api/admin/assets/${editingAsset.id}` : '/api/admin/assets';
       const method = editingAsset ? 'PUT' : 'POST';
 
@@ -51,7 +78,7 @@ export default function AdminAssetsPage() {
           symbol: formData.symbol,
           name: formData.name,
           price_usd: parseFloat(formData.price_usd),
-          logo_url: formData.logo_url || null,
+          logo_url: logoUrl || null,
         }),
       });
 
@@ -61,7 +88,7 @@ export default function AdminAssetsPage() {
         });
         setIsDialogOpen(false);
         setEditingAsset(null);
-        setFormData({ symbol: '', name: '', price_usd: '', logo_url: '' });
+        setFormData({ symbol: '', name: '', price_usd: '', logo_url: '', logoFile: null });
         fetchAssets();
       } else {
         toast({
@@ -74,7 +101,7 @@ export default function AdminAssetsPage() {
       console.error('Error saving asset:', error);
       toast({
         title: 'Error',
-        description: 'Failed to save asset',
+        description: error instanceof Error ? error.message : 'Failed to save asset',
         variant: 'destructive',
       });
     }
@@ -87,6 +114,7 @@ export default function AdminAssetsPage() {
       name: asset.name,
       price_usd: asset.priceUsd ? asset.priceUsd.toString() : '',
       logo_url: asset.logoUrl || '',
+      logoFile: null
     });
     setIsDialogOpen(true);
   };
@@ -129,7 +157,7 @@ export default function AdminAssetsPage() {
           <DialogTrigger asChild>
             <Button onClick={() => {
               setEditingAsset(null);
-              setFormData({ symbol: '', name: '', price_usd: '', logo_url: '' });
+              setFormData({ symbol: '', name: '', price_usd: '', logo_url: '', logoFile: null });
             }}>
               Add Asset
             </Button>
@@ -137,6 +165,7 @@ export default function AdminAssetsPage() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{editingAsset ? 'Edit Asset' : 'Add Asset'}</DialogTitle>
+              <p className="text-sm text-gray-500 hidden">Asset management form</p>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -144,7 +173,8 @@ export default function AdminAssetsPage() {
                 <Input
                   id="symbol"
                   value={formData.symbol}
-                  onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, symbol: e.target.value.toUpperCase() })}
+                  placeholder="e.g., BTC, TSLA"
                   required
                 />
               </div>
@@ -154,6 +184,7 @@ export default function AdminAssetsPage() {
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="e.g., Bitcoin, Tesla"
                   required
                 />
               </div>
@@ -169,15 +200,38 @@ export default function AdminAssetsPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="logo_url">Logo URL</Label>
-                <Input
-                  id="logo_url"
-                  value={formData.logo_url}
-                  onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
-                />
+                <Label htmlFor="logo_file">Asset Icon (SVG)</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    ref={fileInputRef}
+                    id="logo_file"
+                    type="file"
+                    accept=".svg"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (!file.name.toLowerCase().endsWith('.svg')) {
+                          toast({
+                            title: 'Error',
+                            description: 'Only SVG files are allowed',
+                            variant: 'destructive',
+                          });
+                          return;
+                        }
+                        setFormData({ ...formData, logoFile: file });
+                      }
+                    }}
+                  />
+                  {formData.logoFile && (
+                    <span className="text-sm text-green-600">✓ {formData.logoFile.name}</span>
+                  )}
+                </div>
+                {formData.logo_url && !formData.logoFile && (
+                  <p className="text-sm text-gray-500 mt-2">Current: {formData.logo_url}</p>
+                )}
               </div>
-              <Button type="submit" className="w-full">
-                {editingAsset ? 'Update' : 'Create'} Asset
+              <Button type="submit" className="w-full" disabled={isUploading}>
+                {isUploading ? 'Uploading...' : editingAsset ? 'Update' : 'Create'} Asset
               </Button>
             </form>
           </DialogContent>

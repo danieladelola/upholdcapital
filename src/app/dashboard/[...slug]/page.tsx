@@ -106,6 +106,36 @@ export default function Page() {
     }
   }, [userAssets, !loading, uid]);
 
+  // Poll for asset updates every 15 seconds to sync with database
+  useEffect(() => {
+    if (!loading && uid) {
+      const interval = setInterval(async () => {
+        try {
+          const fetchedAssets = await fetchAssets();
+          if (fetchedAssets) {
+            const updatedAssets = fetchedAssets.map((asset) => {
+              const userAsset = userAssets.find(
+                (ua) => ua.symbol === asset.symbol
+              );
+              if (userAsset) {
+                return {
+                  ...asset,
+                  amount: (asset.amount || 0) + userAsset.amount,
+                };
+              }
+              return asset;
+            });
+            setAssets(updatedAssets);
+          }
+        } catch (e) {
+          console.error("Error polling assets:", e);
+        }
+      }, 15000); // Poll every 15 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [loading, uid, userAssets]);
+
   // Fetch balance from database
   useEffect(() => {
     const fetchBalance = async () => {
