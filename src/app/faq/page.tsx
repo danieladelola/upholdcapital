@@ -65,7 +65,7 @@ export default function FAQ() {
           <div>
             <h2 className="text-2xl font-semibold mb-4">How do I contact support?</h2>
             <p className="mb-4">
-              You can reach our support team by emailing support@octagonalpro.com, using the live chat feature on our platform, or calling our support hotline.
+              You can reach our support team by emailing support@upholdcapital.vip, using the live chat feature on our platform, or calling our support hotline.
             </p>
           </div>
         </div>

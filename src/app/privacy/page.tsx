@@ -52,7 +52,7 @@ export default function PrivacyPolicy() {
           </div>
         </div>
         <p className="mt-8">
-          If you have any questions about this Privacy Policy, please contact us at support@octagonalpro.com.
+          If you have any questions about this Privacy Policy, please contact us at support@upholdcapital.vip.
         </p>
       </div>
       <Footer />

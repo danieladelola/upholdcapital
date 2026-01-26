@@ -75,9 +75,11 @@ const Hero = () => {
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.8, delay: 0.4 }}
         >
-          <Button size="lg">
-            Get started
-            <ArrowRight className="ml-2" />
+          <Button size="lg" asChild>
+            <Link href="/signup">
+              Get started
+              <ArrowRight className="ml-2" />
+            </Link>
           </Button>
         </motion.div>
       </div>
@@ -263,7 +265,7 @@ const Footer = () => (
           <h4 className="font-semibold mb-4">Support</h4>
           <ul className="space-y-2">
             <li><Link href="/faq" className="hover:text-primary">FAQ</Link></li>
-            <li><Link href="mailto:support@octagonalpro.com" className="hover:text-primary">Send us an email</Link></li>
+            <li><Link href="mailto:support@upholdcapital.vip" className="hover:text-primary">Send us an email</Link></li>
           </ul>
         </div>
       </div>
