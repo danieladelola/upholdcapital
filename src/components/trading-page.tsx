@@ -17,6 +17,20 @@ export function TradingPage({assets,user,balance}:{assets:Asset[],user:User,bala
   const [selectedSymbol, setSelectedSymbol] = useState<string>("NASDAQ:TSLA");
 
   const uid = user.id;
+  
+  // Log assets for debugging
+  useEffect(() => {
+    console.log('[TradingPage] Assets loaded:', {
+      count: assets.length,
+      assets: assets.slice(0, 5).map(a => ({
+        symbol: a.symbol,
+        name: a.name,
+        price: a.price,
+        type: a.type
+      }))
+    });
+  }, [assets]);
+  
   useEffect(() => {
     const fetchTrades = async () => {
       if (user?.id) {

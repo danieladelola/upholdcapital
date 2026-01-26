@@ -37,22 +37,50 @@ export function TradingControls({assets,userBalance,user, onAssetSelect}: {asset
   const [targetasset, setTargetAsset] = useState("")
   const [asset, setAsset] = useState<Asset>()
   const {toast} = useToast()
+  
+  // Log assets for debugging
+  useEffect(() => {
+    console.log('[TradingControls] Assets received:', {
+      count: assets.length,
+      hasAssets: assets.length > 0,
+      firstFewAssets: assets.slice(0, 3).map(a => ({
+        symbol: a.symbol,
+        name: a.name,
+        price: a.price,
+        type: a.type
+      }))
+    });
+  }, [assets]);
+  
   useEffect(() => {
     if(targetasset){
-      const asset = assets.find(a => a.symbol === targetasset)
-      setAsset(asset)
-      if (asset && onAssetSelect) {
-        const tvSymbol = asset.type === 'crypto' ? `BINANCE:${asset.symbol}USDT` : `NASDAQ:${asset.symbol}`;
+      const foundAsset = assets.find(a => a.symbol === targetasset)
+      console.log(`[TradingControls] Selected asset: ${targetasset}, found:`, foundAsset);
+      setAsset(foundAsset)
+      if (foundAsset && onAssetSelect) {
+        const tvSymbol = foundAsset.type === 'crypto' ? `BINANCE:${foundAsset.symbol}USDT` : `NASDAQ:${foundAsset.symbol}`;
         onAssetSelect(tvSymbol)
       }
     }
-  },[targetasset])
+  },[targetasset, assets])
 
   const handleTrade = async () => {
-    console.log(`${tradeType} ${amount} ${asset}`)
+    console.log(`${tradeType} ${amount} ${asset?.symbol}`)
     if(!asset || !user?.id){
       toast({
-        title: `Select an asset`
+        title: `Select an asset`,
+        description: asset ? 'User not found' : 'Please select an asset'
+      })
+      return
+    }
+
+    // Validate price
+    if (!asset.price || asset.price <= 0) {
+      console.error('Invalid price for asset:', asset.symbol, asset.price);
+      toast({
+        title: `Invalid asset price`,
+        description: `Price for ${asset.symbol} is invalid. Current price: ${asset.price}`,
+        variant: "destructive"
       })
       return
     }
@@ -63,6 +91,8 @@ export function TradingControls({assets,userBalance,user, onAssetSelect}: {asset
       return
     }
 
+    console.log(`Executing ${tradeTypeLower} trade: ${amount} ${asset.symbol} @ $${asset.price}`);
+    
     const result = await executeTrade(
       user.id,
       asset.symbol, // Use symbol
@@ -77,6 +107,7 @@ export function TradingControls({assets,userBalance,user, onAssetSelect}: {asset
         description: `${amount} ${asset.symbol} ${tradeTypeLower === 'buy' ? 'bought' : 'sold'}`
       })
     } else {
+      console.error('Trade failed:', result.error);
       toast({
         title: `Trade failed`,
         description: result.error,

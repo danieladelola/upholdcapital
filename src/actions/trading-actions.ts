@@ -11,22 +11,63 @@ export async function executeTrade(
   priceUsd: number
 ) {
   try {
+    const normalizedSymbol = assetIdentifier.toUpperCase();
+    console.log(`[executeTrade] Starting trade for asset: ${assetIdentifier} (normalized: ${normalizedSymbol})`);
+    
     // Find asset by ID or symbol
     let asset = await prisma.asset.findUnique({
       where: { id: assetIdentifier },
     })
 
     if (!asset) {
+      console.log(`[executeTrade] Asset not found by ID, trying by symbol: ${normalizedSymbol}`);
       asset = await prisma.asset.findUnique({
-        where: { symbol: assetIdentifier },
+        where: { symbol: normalizedSymbol },
       })
     }
 
+    // If asset doesn't exist, create it with the provided price
     if (!asset) {
-      throw new Error("Asset not found")
+      console.log(`[executeTrade] Asset ${normalizedSymbol} not found in database. Creating new asset...`);
+      try {
+        asset = await prisma.asset.create({
+          data: {
+            symbol: normalizedSymbol,
+            name: normalizedSymbol,
+            priceUsd: priceUsd || 0,
+            logoUrl: `/asseticons/${normalizedSymbol}.svg`,
+          },
+        })
+        console.log(`[executeTrade] Asset ${normalizedSymbol} created successfully with ID: ${asset.id}`);
+      } catch (createError) {
+        console.error(`[executeTrade] Error creating asset ${normalizedSymbol}:`, createError);
+        // Try to fetch it again in case of race condition (unique constraint error)
+        try {
+          asset = await prisma.asset.findUnique({
+            where: { symbol: normalizedSymbol },
+          })
+          if (asset) {
+            console.log(`[executeTrade] Asset ${normalizedSymbol} found after retry with ID: ${asset.id}`);
+          } else {
+            console.error(`[executeTrade] Asset ${normalizedSymbol} still not found after retry`);
+            throw new Error(`Failed to create or find asset: ${normalizedSymbol}. Error: ${createError instanceof Error ? createError.message : String(createError)}`);
+          }
+        } catch (retryError) {
+          console.error(`[executeTrade] Retry fetch failed for asset ${normalizedSymbol}:`, retryError);
+          throw new Error(`Failed to create or find asset: ${normalizedSymbol}`);
+        }
+      }
+    } else {
+      console.log(`[executeTrade] Asset found: ${asset.symbol} (ID: ${asset.id})`);
     }
 
     // Start a transaction
+    if (!asset || !asset.id) {
+      throw new Error(`Asset object is invalid: ${JSON.stringify(asset)}`);
+    }
+    
+    console.log(`[executeTrade] Proceeding with asset: ${asset.symbol} (ID: ${asset.id})`);
+
     await prisma.$transaction(async (tx) => {
       // Get or create user asset record
       let userAsset = await tx.userAsset.findUnique({
@@ -134,10 +175,12 @@ export async function executeTrade(
 
     return { success: true }
   } catch (error) {
-    console.error("Trade execution failed:", error)
+    const errorMessage = error instanceof Error ? error.message : "Trade failed";
+    console.error("Trade execution failed:", errorMessage);
+    console.error("Full error:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Trade failed",
+      error: errorMessage,
     }
   }
 }

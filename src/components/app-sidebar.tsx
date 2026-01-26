@@ -105,12 +105,6 @@ const data = {
       permission: null, // Show to all users
     },
     {
-      name: "Connect Wallet",
-      url: "/dashboard/connect-wallet",
-      icon: PlugZap2,
-      permission: null, // Show to all users
-    },
-    {
       name: "Settings",
       url: "/dashboard/settings",
       icon: Settings2,
