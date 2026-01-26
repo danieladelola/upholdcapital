@@ -29,6 +29,10 @@ export type DepositMethodMinAggregateOutputType = {
   name: string | null
   enabled: boolean | null
   description: string | null
+  cryptoType: string | null
+  network: string | null
+  networkName: string | null
+  address: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -38,6 +42,10 @@ export type DepositMethodMaxAggregateOutputType = {
   name: string | null
   enabled: boolean | null
   description: string | null
+  cryptoType: string | null
+  network: string | null
+  networkName: string | null
+  address: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -47,6 +55,10 @@ export type DepositMethodCountAggregateOutputType = {
   name: number
   enabled: number
   description: number
+  cryptoType: number
+  network: number
+  networkName: number
+  address: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -58,6 +70,10 @@ export type DepositMethodMinAggregateInputType = {
   name?: true
   enabled?: true
   description?: true
+  cryptoType?: true
+  network?: true
+  networkName?: true
+  address?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -67,6 +83,10 @@ export type DepositMethodMaxAggregateInputType = {
   name?: true
   enabled?: true
   description?: true
+  cryptoType?: true
+  network?: true
+  networkName?: true
+  address?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -76,6 +96,10 @@ export type DepositMethodCountAggregateInputType = {
   name?: true
   enabled?: true
   description?: true
+  cryptoType?: true
+  network?: true
+  networkName?: true
+  address?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -158,6 +182,10 @@ export type DepositMethodGroupByOutputType = {
   name: string
   enabled: boolean
   description: string | null
+  cryptoType: string | null
+  network: string | null
+  networkName: string | null
+  address: string | null
   createdAt: Date
   updatedAt: Date
   _count: DepositMethodCountAggregateOutputType | null
@@ -188,6 +216,10 @@ export type DepositMethodWhereInput = {
   name?: Prisma.StringFilter<"DepositMethod"> | string
   enabled?: Prisma.BoolFilter<"DepositMethod"> | boolean
   description?: Prisma.StringNullableFilter<"DepositMethod"> | string | null
+  cryptoType?: Prisma.StringNullableFilter<"DepositMethod"> | string | null
+  network?: Prisma.StringNullableFilter<"DepositMethod"> | string | null
+  networkName?: Prisma.StringNullableFilter<"DepositMethod"> | string | null
+  address?: Prisma.StringNullableFilter<"DepositMethod"> | string | null
   createdAt?: Prisma.DateTimeFilter<"DepositMethod"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DepositMethod"> | Date | string
 }
@@ -197,6 +229,10 @@ export type DepositMethodOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  cryptoType?: Prisma.SortOrderInput | Prisma.SortOrder
+  network?: Prisma.SortOrderInput | Prisma.SortOrder
+  networkName?: Prisma.SortOrderInput | Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -209,6 +245,10 @@ export type DepositMethodWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.DepositMethodWhereInput | Prisma.DepositMethodWhereInput[]
   enabled?: Prisma.BoolFilter<"DepositMethod"> | boolean
   description?: Prisma.StringNullableFilter<"DepositMethod"> | string | null
+  cryptoType?: Prisma.StringNullableFilter<"DepositMethod"> | string | null
+  network?: Prisma.StringNullableFilter<"DepositMethod"> | string | null
+  networkName?: Prisma.StringNullableFilter<"DepositMethod"> | string | null
+  address?: Prisma.StringNullableFilter<"DepositMethod"> | string | null
   createdAt?: Prisma.DateTimeFilter<"DepositMethod"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DepositMethod"> | Date | string
 }, "id" | "name">
@@ -218,6 +258,10 @@ export type DepositMethodOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  cryptoType?: Prisma.SortOrderInput | Prisma.SortOrder
+  network?: Prisma.SortOrderInput | Prisma.SortOrder
+  networkName?: Prisma.SortOrderInput | Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.DepositMethodCountOrderByAggregateInput
@@ -233,6 +277,10 @@ export type DepositMethodScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"DepositMethod"> | string
   enabled?: Prisma.BoolWithAggregatesFilter<"DepositMethod"> | boolean
   description?: Prisma.StringNullableWithAggregatesFilter<"DepositMethod"> | string | null
+  cryptoType?: Prisma.StringNullableWithAggregatesFilter<"DepositMethod"> | string | null
+  network?: Prisma.StringNullableWithAggregatesFilter<"DepositMethod"> | string | null
+  networkName?: Prisma.StringNullableWithAggregatesFilter<"DepositMethod"> | string | null
+  address?: Prisma.StringNullableWithAggregatesFilter<"DepositMethod"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DepositMethod"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DepositMethod"> | Date | string
 }
@@ -242,6 +290,10 @@ export type DepositMethodCreateInput = {
   name: string
   enabled?: boolean
   description?: string | null
+  cryptoType?: string | null
+  network?: string | null
+  networkName?: string | null
+  address?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -251,6 +303,10 @@ export type DepositMethodUncheckedCreateInput = {
   name: string
   enabled?: boolean
   description?: string | null
+  cryptoType?: string | null
+  network?: string | null
+  networkName?: string | null
+  address?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -260,6 +316,10 @@ export type DepositMethodUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cryptoType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  network?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  networkName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -269,6 +329,10 @@ export type DepositMethodUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cryptoType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  network?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  networkName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -278,6 +342,10 @@ export type DepositMethodCreateManyInput = {
   name: string
   enabled?: boolean
   description?: string | null
+  cryptoType?: string | null
+  network?: string | null
+  networkName?: string | null
+  address?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -287,6 +355,10 @@ export type DepositMethodUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cryptoType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  network?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  networkName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -296,6 +368,10 @@ export type DepositMethodUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cryptoType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  network?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  networkName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -305,6 +381,10 @@ export type DepositMethodCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  cryptoType?: Prisma.SortOrder
+  network?: Prisma.SortOrder
+  networkName?: Prisma.SortOrder
+  address?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -314,6 +394,10 @@ export type DepositMethodMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  cryptoType?: Prisma.SortOrder
+  network?: Prisma.SortOrder
+  networkName?: Prisma.SortOrder
+  address?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -323,6 +407,10 @@ export type DepositMethodMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  cryptoType?: Prisma.SortOrder
+  network?: Prisma.SortOrder
+  networkName?: Prisma.SortOrder
+  address?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -338,6 +426,10 @@ export type DepositMethodSelect<ExtArgs extends runtime.Types.Extensions.Interna
   name?: boolean
   enabled?: boolean
   description?: boolean
+  cryptoType?: boolean
+  network?: boolean
+  networkName?: boolean
+  address?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["depositMethod"]>
@@ -347,6 +439,10 @@ export type DepositMethodSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   name?: boolean
   enabled?: boolean
   description?: boolean
+  cryptoType?: boolean
+  network?: boolean
+  networkName?: boolean
+  address?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["depositMethod"]>
@@ -356,6 +452,10 @@ export type DepositMethodSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   name?: boolean
   enabled?: boolean
   description?: boolean
+  cryptoType?: boolean
+  network?: boolean
+  networkName?: boolean
+  address?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["depositMethod"]>
@@ -365,11 +465,15 @@ export type DepositMethodSelectScalar = {
   name?: boolean
   enabled?: boolean
   description?: boolean
+  cryptoType?: boolean
+  network?: boolean
+  networkName?: boolean
+  address?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DepositMethodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "enabled" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["depositMethod"]>
+export type DepositMethodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "enabled" | "description" | "cryptoType" | "network" | "networkName" | "address" | "createdAt" | "updatedAt", ExtArgs["result"]["depositMethod"]>
 
 export type $DepositMethodPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DepositMethod"
@@ -379,6 +483,10 @@ export type $DepositMethodPayload<ExtArgs extends runtime.Types.Extensions.Inter
     name: string
     enabled: boolean
     description: string | null
+    cryptoType: string | null
+    network: string | null
+    networkName: string | null
+    address: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["depositMethod"]>
@@ -808,6 +916,10 @@ export interface DepositMethodFieldRefs {
   readonly name: Prisma.FieldRef<"DepositMethod", 'String'>
   readonly enabled: Prisma.FieldRef<"DepositMethod", 'Boolean'>
   readonly description: Prisma.FieldRef<"DepositMethod", 'String'>
+  readonly cryptoType: Prisma.FieldRef<"DepositMethod", 'String'>
+  readonly network: Prisma.FieldRef<"DepositMethod", 'String'>
+  readonly networkName: Prisma.FieldRef<"DepositMethod", 'String'>
+  readonly address: Prisma.FieldRef<"DepositMethod", 'String'>
   readonly createdAt: Prisma.FieldRef<"DepositMethod", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DepositMethod", 'DateTime'>
 }

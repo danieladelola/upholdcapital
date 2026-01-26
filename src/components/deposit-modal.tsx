@@ -22,94 +22,59 @@ import { Copy } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import { toast } from "@/hooks/use-toast";
 
+interface DepositMethod {
+  id: string;
+  name: string;
+  enabled: boolean;
+  description: string | null;
+  cryptoType: string | null;
+  network: string | null;
+  networkName: string | null;
+  address: string | null;
+}
+
 interface DepositModalProps {
   onDeposit: (amount: number, crypto: string, network: string, txHash: string) => void;
 }
 
-const SUPPORTED_CRYPTOS = [
-  "BTC",
-  "ETH",
-  "USDT",
-  "USDC",
-  "SOL",
-  "TRX"
-] as const;
-
-const NETWORKS_CONFIG = {
-  BTC: [
-    {
-      id: "BTC",
-      name: "Bitcoin",
-      address: "bc1q2vn9hhsdgej2p8jd89wfnfj85kfgy9adh7vyxs"
-    }
-  ],
-  ETH: [
-    {
-      id: "ERC20",
-      name: "ERC20 (Ethereum)",
-      address: "0x1979B6A224074DfC7C05289b260af113F198a5bD"
-    }
-  ],
-  USDT: [
-    {
-      id: "ERC20",
-      name: "ERC20",
-      address: "0x1979B6A224074DfC7C05289b260af113F198a5bD"
-    },
-    {
-      id: "TRC20",
-      name: "TRC20",
-      address: "TSUGbqhpf4J4YAEL8Lt6kGTBoJbukHseNu"
-    }
-  ],
-  USDC: [
-    {
-      id: "ERC20",
-      name: "ERC20",
-      address: "0x1979B6A224074DfC7C05289b260af113F198a5bD"
-    }
-  ],
-  SOL: [
-    {
-      id: "SOL",
-      name: "Solana",
-      address: "DZN8jHdpAC5NsoXtYN8ZeYPxqxKmceXUPGa4fPo6CkzV"
-    }
-  ],
-  TRX: [
-    {
-      id: "TRC20",
-      name: "TRC20 (TRON)",
-      address: "TSUGbqhpf4J4YAEL8Lt6kGTBoJbukHseNu"
-    }
-  ]
-} as const;
-
 export function DepositModal({ onDeposit }: DepositModalProps) {
   const [open, setOpen] = useState(false);
-  const [crypto, setCrypto] = useState<typeof SUPPORTED_CRYPTOS[number]>(SUPPORTED_CRYPTOS[0]);
-  // network can be different id strings (BTC, ERC20, TRC20, SOL, etc.) — use a wider string type
-  const [network, setNetwork] = useState<string>(NETWORKS_CONFIG[SUPPORTED_CRYPTOS[0]][0].id);
+  const [methods, setMethods] = useState<DepositMethod[]>([]);
+  const [selectedMethod, setSelectedMethod] = useState<DepositMethod | null>(null);
   const [amount, setAmount] = useState("");
   const [txHash, setTxHash] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // Update network when crypto changes
   useEffect(() => {
-    const networks = NETWORKS_CONFIG[crypto as keyof typeof NETWORKS_CONFIG];
-    if (networks?.length > 0) {
-      setNetwork(networks[0].id);
+    fetchDepositMethods();
+  }, []);
+
+  const fetchDepositMethods = async () => {
+    try {
+      const res = await fetch('/api/admin/deposit-methods');
+      if (res.ok) {
+        const data = await res.json();
+        const enabledMethods = data.filter((m: DepositMethod) => m.enabled);
+        setMethods(enabledMethods);
+        if (enabledMethods.length > 0) {
+          setSelectedMethod(enabledMethods[0]);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching deposit methods:', error);
+      toast({ title: "Error", description: "Failed to load deposit methods" });
+    } finally {
+      setLoading(false);
     }
-  }, [crypto]);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onDeposit(parseFloat(amount), crypto, network, txHash);
+    if (!selectedMethod) return;
+    onDeposit(parseFloat(amount), selectedMethod.cryptoType || '', selectedMethod.network || '', txHash);
     setOpen(false);
-  };
-
-  const getCurrentAddress = () => {
-    const networks = NETWORKS_CONFIG[crypto as keyof typeof NETWORKS_CONFIG];
-    return networks?.find(n => n.id === network)?.address || "";
+    setAmount("");
+    setTxHash("");
   };
 
   const copyToClipboard = (text: string) => {
@@ -128,93 +93,104 @@ export function DepositModal({ onDeposit }: DepositModalProps) {
           <DialogTitle>Deposit</DialogTitle>
         </DialogHeader>
         <ScrollArea className="max-h-[70vh] w-full">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="crypto-select">Cryptocurrency</Label>
-              <Select 
-                value={crypto} 
-                onValueChange={(value) => setCrypto(value as typeof SUPPORTED_CRYPTOS[number])}
-              >
-                <SelectTrigger id="crypto-select">
-                  <SelectValue placeholder="Select cryptocurrency" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SUPPORTED_CRYPTOS.map((coin) => (
-                    <SelectItem key={coin} value={coin}>
-                      {coin}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="network-select">Network</Label>
-              <Select value={network} onValueChange={setNetwork}>
-                <SelectTrigger id="network-select">
-                  <SelectValue placeholder="Select network" />
-                </SelectTrigger>
-                <SelectContent>
-                  {NETWORKS_CONFIG[crypto as keyof typeof NETWORKS_CONFIG]?.map((net) => (
-                    <SelectItem key={net.id} value={net.id}>
-                      {net.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Deposit Address</Label>
-              <div className="flex items-center space-x-2">
-                <Input
-                  value={getCurrentAddress()}
-                  readOnly
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => copyToClipboard(getCurrentAddress())}
+          {loading ? (
+            <div className="p-4">Loading deposit methods...</div>
+          ) : methods.length === 0 ? (
+            <div className="p-4">No deposit methods available. Please contact support.</div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4 p-4">
+              <div className="space-y-2">
+                <Label htmlFor="method-select">Deposit Method</Label>
+                <Select 
+                  value={selectedMethod?.id || ''} 
+                  onValueChange={(methodId) => {
+                    const method = methods.find(m => m.id === methodId);
+                    setSelectedMethod(method || null);
+                  }}
                 >
-                  <Copy className="h-4 w-4" />
-                </Button>
+                  <SelectTrigger id="method-select">
+                    <SelectValue placeholder="Select deposit method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {methods.map((method) => (
+                      <SelectItem key={method.id} value={method.id}>
+                        {method.name} {method.cryptoType && `(${method.cryptoType})`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="amount">Amount</Label>
-              <div className="flex items-center space-x-2">
+              {selectedMethod && (
+                <>
+                  {selectedMethod.description && (
+                    <div className="text-sm text-muted-foreground">
+                      {selectedMethod.description}
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label>Network</Label>
+                    <div className="text-sm">
+                      {selectedMethod.networkName || selectedMethod.network || 'N/A'}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Deposit Address</Label>
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        value={selectedMethod.address || ''}
+                        readOnly
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => copyToClipboard(selectedMethod.address || '')}
+                        disabled={!selectedMethod.address}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="amount">Amount</Label>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    id="amount"
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="Enter amount"
+                    min="0"
+                    step="any"
+                    required
+                  />
+                  <span>USD</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tx-hash">Transaction Hash</Label>
                 <Input
-                  id="amount"
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="Enter amount"
-                  min="0"
-                  step="any"
+                  id="tx-hash"
+                  type="text"
+                  value={txHash}
+                  onChange={(e) => setTxHash(e.target.value)}
+                  placeholder="Enter transaction hash"
                   required
                 />
-                <span>USD</span>
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="tx-hash">Transaction Hash</Label>
-              <Input
-                id="tx-hash"
-                type="text"
-                value={txHash}
-                onChange={(e) => setTxHash(e.target.value)}
-                placeholder="Enter transaction hash"
-                required
-              />
-            </div>
-
-            <Button type="submit" className="w-full">
-              Confirm Deposit
-            </Button>
-          </form>
+              <Button type="submit" className="w-full" disabled={!selectedMethod}>
+                Confirm Deposit
+              </Button>
+            </form>
+          )}
         </ScrollArea>
       </DialogContent>
     </Dialog>

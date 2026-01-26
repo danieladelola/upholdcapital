@@ -1869,6 +1869,10 @@ export const DepositMethodScalarFieldEnum = {
   name: 'name',
   enabled: 'enabled',
   description: 'description',
+  cryptoType: 'cryptoType',
+  network: 'network',
+  networkName: 'networkName',
+  address: 'address',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

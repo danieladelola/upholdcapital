@@ -4,11 +4,6 @@ import { prisma } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   try {
-    const currentUser = await getUserFromRequest(req);
-    if (!currentUser || currentUser.role !== 'admin') {
-      return new NextResponse("Forbidden", { status: 403 });
-    }
-
     const methods = await prisma.depositMethod.findMany({
       orderBy: {
         createdAt: 'desc',
@@ -29,12 +24,21 @@ export async function POST(req: NextRequest) {
       return new NextResponse("Forbidden", { status: 403 });
     }
 
-    const { name, description } = await req.json();
+    const { name, description, cryptoType, network, networkName, address, enabled } = await req.json();
+
+    if (!name) {
+      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+    }
 
     const method = await prisma.depositMethod.create({
       data: {
         name,
         description,
+        cryptoType,
+        network,
+        networkName,
+        address,
+        enabled: enabled !== undefined ? enabled : true,
       },
     });
 

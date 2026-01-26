@@ -101,6 +101,10 @@ model DepositMethod {
   name        String   @unique
   enabled     Boolean  @default(true)
   description String?
+  cryptoType  String?  // e.g., BTC, ETH, USDT, SOL, TRX, USDC
+  network     String?  // e.g., ERC20, TRC20, BTC, SOL
+  networkName String?  // e.g., "Ethereum", "TRON", "Bitcoin", "Solana"
+  address     String?  // Deposit address for this method
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
