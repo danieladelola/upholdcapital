@@ -62,18 +62,18 @@ export function TradingPage({assets,user,balance}:{assets:Asset[],user:User,bala
 
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#090F15] text-white">
       {/* Header Section */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-[#090F15] border-b border-gray-700">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Trading Dashboard</h1>
-              <p className="text-gray-600 mt-1">Execute trades and monitor your portfolio</p>
+              <h1 className="text-3xl font-bold text-white">Trading Dashboard</h1>
+              <p className="text-gray-300 mt-1">Execute trades and monitor your portfolio</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-500">Available Balance</p>
-              <p className="text-2xl font-semibold text-green-600">${balance.toFixed(2)}</p>
+              <p className="text-sm text-gray-400">Available Balance</p>
+              <p className="text-2xl font-semibold text-green-400">${balance.toFixed(2)}</p>
             </div>
           </div>
         </div>
@@ -81,13 +81,13 @@ export function TradingPage({assets,user,balance}:{assets:Asset[],user:User,bala
 
       {/* Main Trading Interface */}
       <div className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           {/* Chart Section - Takes 2 columns on large screens */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-[#0b1216] rounded-lg shadow-sm border border-gray-700 p-6 min-h-[500px]">
               <div className="mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">Market Chart</h2>
-                <p className="text-sm text-gray-600">Real-time price data for {selectedSymbol}</p>
+                <h2 className="text-xl font-semibold text-white">Market Chart</h2>
+                <p className="text-sm text-gray-300">Real-time price data for {selectedSymbol}</p>
               </div>
               <div className="h-[500px] w-full">
                 <TradingviewWidget symbol={selectedSymbol} />
@@ -96,23 +96,19 @@ export function TradingPage({assets,user,balance}:{assets:Asset[],user:User,bala
           </div>
 
           {/* Trading Controls Section - Takes 1 column */}
-          <div className="lg:col-span-1">
-            <TradingControls user={user} userBalance={balance} assets={assets} onAssetSelect={setSelectedSymbol} />
+          <div className="lg:col-span-1 flex">
+            <div className="w-full">
+              <TradingControls user={user} userBalance={balance} assets={assets} onAssetSelect={setSelectedSymbol} />
+            </div>
           </div>
         </div>
 
-        {/* Market Overview */}
-        <div className="mt-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Market Overview</h2>
-            <SingleTicker />
-          </div>
-        </div>
+        {/* Market Overview removed */}
 
         {/* Trade History */}
         <div className="mt-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Trade History</h2>
+          <div className="bg-[#0b1216] rounded-lg shadow-sm border border-gray-700 p-6">
+            <h2 className="text-xl font-semibold text-white mb-4">Trade History</h2>
             <TradesTable activeTab={activeTab} trades={tradeHistory} setActiveTab={setActiveTab} />
           </div>
         </div>

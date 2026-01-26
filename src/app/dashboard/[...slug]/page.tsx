@@ -74,28 +74,16 @@ export default function Page() {
   //   }
   // }, [uid, user]);
 
-  // Fetch assets and merge with user assets
+  // Fetch assets once on mount
   useEffect(() => {
     const fetchAndUpdateAssets = async () => {
       try {
         const fetchedAssets = await fetchAssets();
         if (fetchedAssets) {
-          const updatedAssets = fetchedAssets.map((asset) => {
-            const userAsset = userAssets.find(
-              (ua) => ua.symbol === asset.symbol
-            );
-            if (userAsset) {
-              return {
-                ...asset,
-                amount: (asset.amount || 0) + userAsset.amount,
-              };
-            }
-            return asset;
-          });
-          setAssets(updatedAssets);
+          setAssets(fetchedAssets);
         }
       } catch (e) {
-        console.error("Error fetching or updating assets:", e);
+        console.error("Error fetching assets:", e);
       } finally {
         setIsLoading(false);
       }
@@ -104,39 +92,9 @@ export default function Page() {
     if (!loading && uid) {
       fetchAndUpdateAssets();
     }
-  }, [userAssets, !loading, uid]);
+  }, [loading, uid]);
 
-  // Poll for asset updates every 15 seconds to sync with database
-  useEffect(() => {
-    if (!loading && uid) {
-      const interval = setInterval(async () => {
-        try {
-          const fetchedAssets = await fetchAssets();
-          if (fetchedAssets) {
-            const updatedAssets = fetchedAssets.map((asset) => {
-              const userAsset = userAssets.find(
-                (ua) => ua.symbol === asset.symbol
-              );
-              if (userAsset) {
-                return {
-                  ...asset,
-                  amount: (asset.amount || 0) + userAsset.amount,
-                };
-              }
-              return asset;
-            });
-            setAssets(updatedAssets);
-          }
-        } catch (e) {
-          console.error("Error polling assets:", e);
-        }
-      }, 15000); // Poll every 15 seconds
-
-      return () => clearInterval(interval);
-    }
-  }, [loading, uid, userAssets]);
-
-  // Fetch balance from database
+  // Fetch balance from database - only on user change
   useEffect(() => {
     const fetchBalance = async () => {
       if (!user?.id) return;
@@ -152,9 +110,9 @@ export default function Page() {
     };
 
     fetchBalance();
-  }, [user]);
+  }, [user?.id]);
 
-  // Listen for real-time updates on user assets (from database)
+  // Fetch user assets once per user ID
   useEffect(() => {
     const fetchUserAssets = async () => {
       if (uid) {
@@ -176,6 +134,23 @@ export default function Page() {
 
     fetchUserAssets();
   }, [uid]);
+
+  // Merge user assets with fetched assets
+  useEffect(() => {
+    if (assets.length > 0 && userAssets.length > 0) {
+      const mergedAssets = assets.map((asset) => {
+        const userAsset = userAssets.find((ua) => ua.symbol === asset.symbol);
+        if (userAsset) {
+          return {
+            ...asset,
+            amount: userAsset.amount,
+          };
+        }
+        return asset;
+      });
+      setAssets(mergedAssets);
+    }
+  }, [userAssets]);
 
   const routeMap: { [key: string]: (props: any) => JSX.Element } = {
     "copy-trading": () =>

@@ -41,22 +41,6 @@ export default function MarketsPage({assets: initialAssets}:{assets:Asset[]}) {
     loadAssets()
   }, [])
 
-  // Poll for asset updates every 15 seconds
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      try {
-        const fetchedAssets = await fetchAssets()
-        if (fetchedAssets && fetchedAssets.length > 0) {
-          setAssets(fetchedAssets)
-        }
-      } catch (error) {
-        console.error("Error polling assets:", error)
-      }
-    }, 15000)
-
-    return () => clearInterval(interval)
-  }, [])
-
   useEffect(() => {
     const balance = assets.reduce((acc, asset) => acc + asset.amount * asset.price, 0)
     setUserBalance(balance)

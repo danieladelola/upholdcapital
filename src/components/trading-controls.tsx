@@ -157,23 +157,28 @@ interface TradeFormProps {
 
 function TradeForm({ type, amount, setAmount, asset, setAsset, onTrade,assets,userBalance }: TradeFormProps) {
   const [assetType, setAssetType] = useState<AssetType>("Crypto")
-  const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])
-  const [selectedAsset,setSelectedAsset] = useState<Asset|any>(null)
-  useEffect(() => {
-    // Ensure the initial filter works by checking the assetType at first render
-    const newAssets = assets.filter((a) => a.type.toLowerCase() === assetType.toLowerCase());
-    setFilteredAssets(newAssets);
-  }, [assets]); // Only depend on assets to ensure it happens once
+  const [filteredAssets, setFilteredAssets] = useState<Asset[]>(() => assets)
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null)
 
-  // Update filtered assets whenever assetType changes
+  // Update filtered assets whenever assetType or assets change
+  // Crypto type shows ALL assets; Stock type shows only stock assets
   useEffect(() => {
-    const newAssets = assets.filter((a) => a.type.toLowerCase() === assetType.toLowerCase());
-    setFilteredAssets(newAssets);
-  }, [assetType, assets]); // Depend on both assetType and assets
-  useEffect(()=>{
-    const att = assets.find(a => a.symbol === asset)
-    setSelectedAsset(att)
-  },[asset])
+    const type = (assetType || '').toLowerCase()
+    if (type === 'crypto') {
+      // Crypto = show all assets
+      setFilteredAssets(assets)
+    } else if (type === 'stock') {
+      // Stock = show only stock assets
+      setFilteredAssets(assets.filter((a) => (a.type || '').toLowerCase() === 'stock'))
+    } else {
+      setFilteredAssets(assets)
+    }
+  }, [assetType, assets])
+
+  useEffect(() => {
+    const att = assets.find((a) => a.symbol === asset)
+    setSelectedAsset(att ?? null)
+  }, [asset, assets])
 
 
   return (
@@ -185,7 +190,7 @@ function TradeForm({ type, amount, setAmount, asset, setAsset, onTrade,assets,us
             <SelectValue placeholder="Select type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Crypto">Crypto</SelectItem>
+            <SelectItem value="Crypto">All Assets</SelectItem>
             <SelectItem value="Stock">Stocks</SelectItem>
           </SelectContent>
         </Select>
@@ -232,7 +237,7 @@ function TradeForm({ type, amount, setAmount, asset, setAsset, onTrade,assets,us
             <span className="font-bold tex">
               {type.toLowerCase() =='buy'?'Cost:':'Total:'}
             </span>
-             ${isNaN(parseFloat(selectedAsset.price )* parseFloat(amount)) ? 0 : (selectedAsset.price * parseFloat(amount)).toLocaleString('en-US')}</p>
+             ${isNaN(selectedAsset.price * parseFloat(amount)) ? '0.00' : (selectedAsset.price * parseFloat(amount)).toLocaleString('en-US')}</p>
         </div>
       )}
             <AlertDialog>
@@ -282,11 +287,26 @@ function ConvertForm({ assets,uid }: ConvertFormProps) {
   const [tasset,setTasset] = useState<Asset>()
   const {toast} = useToast()
   useEffect(() => {
-    const filteredFromAssets = assets.filter(asset => asset.type.toLowerCase() === fromType.toLocaleLowerCase())
-    const filteredToAssets = assets.filter(asset => asset.type.toLowerCase() === toType.toLocaleLowerCase())
-    setFilteredFrom(filteredFromAssets);
-    setFilteredTo(filteredToAssets);
-  }, [assets]); // Only depend on assets to ensure it happens once
+    const fromTypeLC = (fromType || '').toLowerCase()
+    const toTypeLC = (toType || '').toLowerCase()
+    
+    if (fromTypeLC === 'crypto') {
+      setFilteredFrom(assets)
+    } else if (fromTypeLC === 'stock') {
+      setFilteredFrom(assets.filter((a) => (a.type || '').toLowerCase() === 'stock'))
+    } else {
+      setFilteredFrom(assets)
+    }
+    
+    if (toTypeLC === 'crypto') {
+      setFilteredTo(assets)
+    } else if (toTypeLC === 'stock') {
+      setFilteredTo(assets.filter((a) => (a.type || '').toLowerCase() === 'stock'))
+    } else {
+      setFilteredTo(assets)
+    }
+  }, [fromType, toType, assets]);
+  
   useEffect(()=>{
     if(fromAsset.length){
       const fromAssetData = assets.find(a => a.symbol === fromAsset)
@@ -296,14 +316,7 @@ function ConvertForm({ assets,uid }: ConvertFormProps) {
       const toAssetData = assets.find(a => a.symbol === toAsset)
       setTasset(toAssetData)
     }
-  },[fromAsset,toAsset])
-  // Update filtered assets whenever assetType changes
-  useEffect(() => {
-    const filteredFromAssets = assets.filter(asset => asset.type === fromType.toLocaleLowerCase())
-    const filteredToAssets = assets.filter(asset => asset.type === toType.toLocaleLowerCase())
-    setFilteredFrom(filteredFromAssets);
-    setFilteredTo(filteredToAssets);
-  }, [fromType,toType]); // Depend on both assetType and assets
+  },[fromAsset,toAsset, assets])
 
   useEffect(()=>{
     const fromAssetData = assets.find(a => a.symbol === fromAsset)
@@ -363,7 +376,7 @@ function ConvertForm({ assets,uid }: ConvertFormProps) {
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Crypto">Crypto</SelectItem>
+              <SelectItem value="Crypto">All Assets</SelectItem>
               <SelectItem value="Stock">Stocks</SelectItem>
             </SelectContent>
           </Select>
@@ -375,7 +388,7 @@ function ConvertForm({ assets,uid }: ConvertFormProps) {
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Crypto">Crypto</SelectItem>
+              <SelectItem value="Crypto">All Assets</SelectItem>
               <SelectItem value="Stock">Stocks</SelectItem>
             </SelectContent>
           </Select>
@@ -454,4 +467,3 @@ function ConvertForm({ assets,uid }: ConvertFormProps) {
     </div>
   )
 }
-

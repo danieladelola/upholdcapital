@@ -1,52 +1,61 @@
 // TradingViewWidget.jsx
 import React, { useEffect, useRef, memo } from 'react';
-//take assetSymbol as props
+
 function TradingViewWidget({ symbol = "NASDAQ:TSLA" }) {
-  const container = useRef();
+  const container = useRef(null);
 
   useEffect(() => {
-    const currentContainer = container.current;
+    const current = container.current;
+    if (!current) return;
 
-    // Clear previous content
-    currentContainer.innerHTML = '<div class="tradingview-widget-container__widget" style="height: calc(100% - 32px); width: 100%;"></div>';
+    // clear
+    current.innerHTML = '';
 
-    // Create the script element
-    const script = document.createElement("script");
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-    script.type = "text/javascript";
+    // create inner div for widget
+    const widgetDiv = document.createElement('div');
+    const widgetId = `tradingview_${Math.random().toString(36).slice(2)}`;
+    widgetDiv.id = widgetId;
+    widgetDiv.style.height = '100%';
+    widgetDiv.style.width = '100%';
+    current.appendChild(widgetDiv);
+
+    // load script
+    const script = document.createElement('script');
+    script.src = 'https://s3.tradingview.com/tv.js';
     script.async = true;
-    script.innerHTML = `
-      {
-        "autosize": true,
-        "symbol": "${symbol}",
-        "interval": "D",
-        "timezone": "Etc/UTC",
-        "theme": "light",
-        "style": "1",
-        "locale": "en",
-        "allow_symbol_change": true,
-        "calendar": false,
-        "support_host": "https://www.tradingview.com"
-      }`;
 
-    // Append the script to the container
-    currentContainer.appendChild(script);
-
-    // Cleanup on unmount
-    return () => {
-      if (currentContainer.contains(script)) {
-        currentContainer.removeChild(script);
+    script.onload = () => {
+      try {
+        if (window.TradingView && typeof window.TradingView.widget === 'function') {
+          new window.TradingView.widget({
+            autosize: true,
+            symbol: symbol,
+            interval: 'D',
+            timezone: 'Etc/UTC',
+            theme: 'dark',
+            style: '1',
+            locale: 'en',
+            container_id: widgetId,
+            allow_symbol_change: true,
+            studies: [],
+          });
+        }
+      } catch (e) {
+        // fail silently
       }
     };
-  }, [symbol]); // Depend on symbol to re-render when it changes
+
+    document.head.appendChild(script);
+
+    return () => {
+      // cleanup
+      if (script.parentNode) script.parentNode.removeChild(script);
+      if (widgetDiv.parentNode) widgetDiv.parentNode.removeChild(widgetDiv);
+    };
+  }, [symbol]);
 
   return (
-
-    <div className="tradingview-widget-container h-full" ref={container} style={{ height: "100%", width: "100%" }}>
-      <div className="tradingview-widget-container__widget" style={{ height: "calc(100% - 32px)", width: "100%" }}></div>
-    </div>
-
-
+    <div className="tradingview-widget-container h-full" ref={container} style={{ height: '100%', width: '100%' }} />
   );
 }
 

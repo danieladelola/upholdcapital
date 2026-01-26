@@ -1,16 +1,17 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import type { FetchedAsset as Asset } from "@/types/index"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import Image from "next/image"
 import { ChevronDown, DollarSign, Briefcase, PieChart, TrendingUp, TrendingDown } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
 import React from "react"
 import { useRouter } from "next/navigation"
-import type { User } from '../../types';
+import type { User } from '../../types'
+import type { UserAsset } from "@/types/index"
+import { getUserAssets } from "@/actions/trading-actions";
 
 
 export default function PortfolioDashboard({
@@ -22,14 +23,14 @@ export default function PortfolioDashboard({
   balance: number,
   user:User
 }) {
-  const [displayedAssets, setDisplayedAssets] = useState<Asset[]>([])
   const [expandedRow, setExpandedRow] = useState<string | null>(null)
+  const [portfolioValue, setPortfolioValue] = useState<number | null>(null)
   const router = useRouter()
 
-  useEffect(() => {
+  const displayedAssets = useMemo(() => {
     const ownedAssets = assets.filter((value) => value.amount > 0)
     if (ownedAssets.length >= 5) {
-      setDisplayedAssets(ownedAssets.slice(0, 5))
+      return ownedAssets.slice(0, 5)
     } else {
       const remainingSlots = 5 - ownedAssets.length
       const sortedAssets = [...assets].sort((a, b) => {
@@ -40,7 +41,7 @@ export default function PortfolioDashboard({
       const topAssetsToAdd = sortedAssets
         .filter((asset) => !ownedAssets.some((ownedAsset) => ownedAsset.symbol === asset.symbol))
         .slice(0, remainingSlots)
-      setDisplayedAssets([...ownedAssets, ...topAssetsToAdd])
+      return [...ownedAssets, ...topAssetsToAdd]
     }
   }, [assets])
 
@@ -48,18 +49,32 @@ export default function PortfolioDashboard({
     setExpandedRow(expandedRow === id ? null : id)
   }
 
-  const totalPortfolioValue = assets.reduce((total, asset) => total + asset.amount * asset.price, 0)
+  const totalPortfolioValue = assets.filter((asset) => asset.amount > 0).reduce((total, asset) => total + asset.amount * asset.price, 0)
+
+  useEffect(() => {
+    const fetchUserAssetsValue = async () => {
+      if (!user?.id) return
+      try {
+        const userAssetsData = await getUserAssets(user.id)
+        const value = userAssetsData.reduce((acc, ua) => {
+          const symbol = ua.asset?.symbol || ''
+          const matching = assets.find(a => a.symbol === symbol)
+          if (!matching) return acc
+          return acc + (ua.balance * (matching.price || 0))
+        }, 0)
+        setPortfolioValue(value)
+      } catch (e) {
+        setPortfolioValue(null)
+      }
+    }
+    fetchUserAssetsValue()
+  }, [user, assets])
 
   return (
     <div className="container mx-auto p-4 bg-background min-h-screen">
-      <motion.h1
-        className="text-3xl md:text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+      <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
         Welcome, {user?.firstname || "Investor"}!
-      </motion.h1>
+      </h1>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
       <StatCard
@@ -71,7 +86,7 @@ export default function PortfolioDashboard({
 
         <StatCard
           title="Portfolio Value"
-          value={`$${totalPortfolioValue.toLocaleString('en-US')}`}
+          value={`$${((portfolioValue !== null) ? portfolioValue : totalPortfolioValue).toLocaleString('en-US')}`}
           icon={<Briefcase className="h-6 w-6" />}
           gradient="from-primary to-secondary"
         />
@@ -100,15 +115,15 @@ export default function PortfolioDashboard({
               </TableHeader>
               <TableBody>
                 {displayedAssets.map((asset) => (
-                  <React.Fragment key={asset.symbol}>
+                    <React.Fragment key={asset.symbol}>
                     <TableRow
                       className="cursor-pointer hover:bg-muted/50 transition-colors"
                       onClick={() => toggleRowExpansion(asset.symbol)}
                     >
                       <TableCell>
-                        <motion.div animate={{ rotate: expandedRow === asset.symbol ? 180 : 0 }}>
+                        <div>
                           <ChevronDown className="h-4 w-4" />
-                        </motion.div>
+                        </div>
                       </TableCell>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
@@ -128,56 +143,49 @@ export default function PortfolioDashboard({
                       <TableCell className="text-right">{asset.amount.toLocaleString('en-US')}</TableCell>
                       <TableCell className="text-right">${(asset.amount * asset.price).toLocaleString('en-US')}</TableCell>
                     </TableRow>
-                    <AnimatePresence>
-                      {expandedRow === asset.symbol && (
-                        <TableRow>
-                          <TableCell colSpan={4}>
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: "auto" }}
-                              exit={{ opacity: 0, height: 0 }}
-                              transition={{ duration: 0.3 }}
-                            >
-                              <Card className="bg-muted/30 backdrop-blur-sm">
-                                <CardContent className="p-4">
-                                  <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
-                                    <div>
-                                      <dt className="font-medium">Current Price</dt>
-                                      <dd>${asset.price.toLocaleString('en-US')}</dd>
+                    {expandedRow === asset.symbol && (
+                      <TableRow>
+                        <TableCell colSpan={4}>
+                          <div>
+                            <Card className="bg-muted/30 backdrop-blur-sm">
+                              <CardContent className="p-4">
+                                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                                  <div>
+                                    <dt className="font-medium">Current Price</dt>
+                                    <dd>${asset.price.toLocaleString('en-US')}</dd>
+                                  </div>
+                                  <div>
+                                    <dt className="font-medium">Type</dt>
+                                    <dd>{asset.type}</dd>
+                                  </div>
+                                  <div className="sm:col-span-2 mt-4">
+                                    <div className="flex justify-end gap-2">
+                                      <Button
+                                        size="sm"
+                                        className="bg-green-500 hover:bg-green-600"
+                                        onClick={() => router.push("/dashboard/trade")}
+                                      >
+                                        <TrendingUp className="mr-2 h-4 w-4" />
+                                        Buy
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                                        onClick={() => router.push("/dashboard/trade")}
+                                      >
+                                        <TrendingDown className="mr-2 h-4 w-4" />
+                                        Sell
+                                      </Button>
                                     </div>
-                                    <div>
-                                      <dt className="font-medium">Type</dt>
-                                      <dd>{asset.type}</dd>
-                                    </div>
-                                    <div className="sm:col-span-2 mt-4">
-                                      <div className="flex justify-end gap-2">
-                                        <Button
-                                          size="sm"
-                                          className="bg-green-500 hover:bg-green-600"
-                                          onClick={() => router.push("/dashboard/trade")}
-                                        >
-                                          <TrendingUp className="mr-2 h-4 w-4" />
-                                          Buy
-                                        </Button>
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-                                          onClick={() => router.push("/dashboard/trade")}
-                                        >
-                                          <TrendingDown className="mr-2 h-4 w-4" />
-                                          Sell
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  </dl>
-                                </CardContent>
-                              </Card>
-                            </motion.div>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </AnimatePresence>
+                                  </div>
+                                </dl>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </React.Fragment>
                 ))}
               </TableBody>
@@ -192,12 +200,13 @@ export default function PortfolioDashboard({
 function StatCard({
   title,
   value,
+  subtitle,
   icon,
   gradient,
-}: { title: string; value: string; icon: React.ReactNode; gradient: string }) {
+}: { title: string; value: string; subtitle?: string; icon: React.ReactNode; gradient: string }) {
   return (
     <Card className="overflow-hidden">
-      <div className={`bg-gradient-to-br ${gradient} p-6 transition-all duration-300 group hover:scale-105`}>
+      <div className={`bg-gradient-to-br ${gradient} p-6`}>
         <CardHeader className="p-0">
           <CardTitle className="text-white mb-1 flex items-center">
             {icon}
@@ -205,14 +214,12 @@ function StatCard({
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <motion.p
-            className="text-3xl md:text-4xl font-bold text-white"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
+          <p className="text-3xl md:text-4xl font-bold text-white">
             {value}
-          </motion.p>
+          </p>
+          {subtitle && (
+            <p className="text-sm text-white/80 mt-1">{subtitle}</p>
+          )}
         </CardContent>
       </div>
     </Card>
