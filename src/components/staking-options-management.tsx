@@ -6,6 +6,16 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Label } from "@/components/ui/label"
+import { useToast } from "@/hooks/use-toast"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+type Asset = {
+  id: string
+  symbol: string
+  name: string
+}
 
 export type AssetStaking = {
   id: string
@@ -23,11 +33,18 @@ export type Pool = AssetStaking;
 
 export default function StakingOptionsManagement() {
   const [assets, setAssets] = useState<AssetStaking[]>([])
+  const [allAssets, setAllAssets] = useState<Asset[]>([])
   const [editing, setEditing] = useState<string | null>(null)
   const [editData, setEditData] = useState<Partial<AssetStaking>>({})
+  const [isAddingNew, setIsAddingNew] = useState(false)
+  const [newStakingData, setNewStakingData] = useState<Partial<AssetStaking>>({
+    stakingEnabled: true,
+  })
+  const { toast } = useToast()
 
   useEffect(() => {
     fetchAssets()
+    fetchAllAssets()
   }, [])
 
   const fetchAssets = async () => {
@@ -35,6 +52,26 @@ export default function StakingOptionsManagement() {
     if (res.ok) {
       const data = await res.json()
       setAssets(data)
+    }
+  }
+
+  const fetchAllAssets = async () => {
+    const res = await fetch('/api/admin/assets')
+    if (res.ok) {
+      const data = await res.json()
+      setAllAssets(data)
+    }
+  }
+
+  const handleAssetSelect = (assetId: string) => {
+    const selected = allAssets.find(a => a.id === assetId)
+    if (selected) {
+      setNewStakingData({
+        ...newStakingData,
+        id: selected.id,
+        symbol: selected.symbol,
+        name: selected.name,
+      })
     }
   }
 
@@ -66,10 +103,118 @@ export default function StakingOptionsManagement() {
     setEditData({})
   }
 
+  const handleAddNew = async () => {
+    if (!newStakingData.symbol || !newStakingData.name) {
+      toast({ title: 'Error', description: 'Asset selection is required' })
+      return
+    }
+
+    try {
+      const res = await fetch('/api/admin/staking-options', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newStakingData),
+      })
+      if (res.ok) {
+        await fetchAssets()
+        setIsAddingNew(false)
+        setNewStakingData({ stakingEnabled: true })
+        toast({ title: 'Success', description: 'Staking option added' })
+      } else {
+        const error = await res.json()
+        toast({ title: 'Error', description: error.error || 'Failed to add staking option' })
+      }
+    } catch (err) {
+      toast({ title: 'Error', description: 'Failed to add staking option' })
+    }
+  }
+
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Manage Staking Options</CardTitle>
+        <Sheet open={isAddingNew} onOpenChange={setIsAddingNew}>
+          <SheetTrigger asChild>
+            <Button>Add Staking</Button>
+          </SheetTrigger>
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>Add New Staking Option</SheetTitle>
+            </SheetHeader>
+            <div className="space-y-4 mt-4">
+              <div>
+                <Label htmlFor="asset">Select Asset</Label>
+                <Select value={newStakingData.id || ''} onValueChange={handleAssetSelect}>
+                  <SelectTrigger id="asset">
+                    <SelectValue placeholder="Select an asset..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allAssets.map((asset) => (
+                      <SelectItem key={asset.id} value={asset.id}>
+                        {asset.symbol} - {asset.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {newStakingData.symbol && newStakingData.name && (
+                <div className="p-3 bg-muted rounded">
+                  <p className="text-sm"><strong>Symbol:</strong> {newStakingData.symbol}</p>
+                  <p className="text-sm"><strong>Name:</strong> {newStakingData.name}</p>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <Label htmlFor="enabled">Enabled</Label>
+                <Switch
+                  id="enabled"
+                  checked={newStakingData.stakingEnabled || false}
+                  onCheckedChange={(checked) => setNewStakingData({ ...newStakingData, stakingEnabled: checked })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="stakeMin">Min Stake</Label>
+                <Input
+                  id="stakeMin"
+                  type="number"
+                  placeholder="100"
+                  value={newStakingData.stakeMin || ''}
+                  onChange={(e) => setNewStakingData({ ...newStakingData, stakeMin: parseFloat(e.target.value) || undefined })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="stakeMax">Max Stake</Label>
+                <Input
+                  id="stakeMax"
+                  type="number"
+                  placeholder="10000"
+                  value={newStakingData.stakeMax || ''}
+                  onChange={(e) => setNewStakingData({ ...newStakingData, stakeMax: parseFloat(e.target.value) || undefined })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="stakeRoi">ROI %</Label>
+                <Input
+                  id="stakeRoi"
+                  type="number"
+                  placeholder="5"
+                  value={newStakingData.stakeRoi || ''}
+                  onChange={(e) => setNewStakingData({ ...newStakingData, stakeRoi: parseFloat(e.target.value) || undefined })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="stakeCycleDays">Cycle Days</Label>
+                <Input
+                  id="stakeCycleDays"
+                  type="number"
+                  placeholder="30"
+                  value={newStakingData.stakeCycleDays || ''}
+                  onChange={(e) => setNewStakingData({ ...newStakingData, stakeCycleDays: parseInt(e.target.value) || undefined })}
+                />
+              </div>
+              <Button onClick={handleAddNew} className="w-full">Add Staking Option</Button>
+            </div>
+          </SheetContent>
+        </Sheet>
       </CardHeader>
       <CardContent>
         <Table>
