@@ -234,9 +234,11 @@ const CTA = () => (
     <div className="container mx-auto px-6 text-center">
       <h3 className="text-3xl font-bold mb-4">Get started with trading today</h3>
       <p className="mb-8">It's easy to get started. Register an account with us and get started with trading today.</p>
-      <Button size="lg" variant="secondary">
-        Get started
-        <ArrowRight className="ml-2" />
+      <Button size="lg" variant="secondary" asChild>
+        <Link href="/signup">
+          Get started
+          <ArrowRight className="ml-2" />
+        </Link>
       </Button>
     </div>
   </section>
