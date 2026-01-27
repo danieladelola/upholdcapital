@@ -15,6 +15,14 @@ export async function GET(request: NextRequest) {
         stakingEnabled: true,
       },
       include: {
+        userAssets: {
+          where: {
+            userId: currentUser.id,
+          },
+          select: {
+            balance: true,
+          },
+        },
         userAssetBalances: {
           where: {
             userId: currentUser.id,
@@ -26,18 +34,25 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const result = assets.map(asset => ({
-      id: asset.id,
-      name: asset.name,
-      symbol: asset.symbol,
-      logoUrl: asset.logoUrl,
-      stakingEnabled: asset.stakingEnabled,
-      stakeMin: asset.stakeMin,
-      stakeMax: asset.stakeMax,
-      stakeRoi: asset.stakeRoi,
-      stakeCycleDays: asset.stakeCycleDays,
-      userBalance: asset.userAssetBalances[0]?.balance || 0,
-    }));
+    const result = assets.map(asset => {
+      // Prefer userAssets balance, fallback to userAssetBalances, default to 0
+      const userAssetBalance = asset.userAssets[0]?.balance;
+      const userAssetBalanceFromBalance = asset.userAssetBalances[0]?.balance;
+      const balance = userAssetBalance !== undefined ? userAssetBalance : (userAssetBalanceFromBalance || 0);
+
+      return {
+        id: asset.id,
+        name: asset.name,
+        symbol: asset.symbol,
+        logoUrl: asset.logoUrl,
+        stakingEnabled: asset.stakingEnabled,
+        stakeMin: asset.stakeMin,
+        stakeMax: asset.stakeMax,
+        stakeRoi: asset.stakeRoi,
+        stakeCycleDays: asset.stakeCycleDays,
+        userBalance: balance,
+      };
+    });
 
     return NextResponse.json(result);
   } catch (error) {

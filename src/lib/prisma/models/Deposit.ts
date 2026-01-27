@@ -39,6 +39,7 @@ export type DepositMinAggregateOutputType = {
   userId: string | null
   amount: number | null
   method: string | null
+  proofImage: string | null
   status: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -49,6 +50,7 @@ export type DepositMaxAggregateOutputType = {
   userId: string | null
   amount: number | null
   method: string | null
+  proofImage: string | null
   status: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -59,6 +61,7 @@ export type DepositCountAggregateOutputType = {
   userId: number
   amount: number
   method: number
+  proofImage: number
   status: number
   createdAt: number
   updatedAt: number
@@ -79,6 +82,7 @@ export type DepositMinAggregateInputType = {
   userId?: true
   amount?: true
   method?: true
+  proofImage?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -89,6 +93,7 @@ export type DepositMaxAggregateInputType = {
   userId?: true
   amount?: true
   method?: true
+  proofImage?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -99,6 +104,7 @@ export type DepositCountAggregateInputType = {
   userId?: true
   amount?: true
   method?: true
+  proofImage?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -196,6 +202,7 @@ export type DepositGroupByOutputType = {
   userId: string
   amount: number
   method: string
+  proofImage: string | null
   status: string
   createdAt: Date
   updatedAt: Date
@@ -229,6 +236,7 @@ export type DepositWhereInput = {
   userId?: Prisma.StringFilter<"Deposit"> | string
   amount?: Prisma.FloatFilter<"Deposit"> | number
   method?: Prisma.StringFilter<"Deposit"> | string
+  proofImage?: Prisma.StringNullableFilter<"Deposit"> | string | null
   status?: Prisma.StringFilter<"Deposit"> | string
   createdAt?: Prisma.DateTimeFilter<"Deposit"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Deposit"> | Date | string
@@ -240,6 +248,7 @@ export type DepositOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   method?: Prisma.SortOrder
+  proofImage?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -254,6 +263,7 @@ export type DepositWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.StringFilter<"Deposit"> | string
   amount?: Prisma.FloatFilter<"Deposit"> | number
   method?: Prisma.StringFilter<"Deposit"> | string
+  proofImage?: Prisma.StringNullableFilter<"Deposit"> | string | null
   status?: Prisma.StringFilter<"Deposit"> | string
   createdAt?: Prisma.DateTimeFilter<"Deposit"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Deposit"> | Date | string
@@ -265,6 +275,7 @@ export type DepositOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   method?: Prisma.SortOrder
+  proofImage?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -283,6 +294,7 @@ export type DepositScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"Deposit"> | string
   amount?: Prisma.FloatWithAggregatesFilter<"Deposit"> | number
   method?: Prisma.StringWithAggregatesFilter<"Deposit"> | string
+  proofImage?: Prisma.StringNullableWithAggregatesFilter<"Deposit"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"Deposit"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Deposit"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Deposit"> | Date | string
@@ -292,6 +304,7 @@ export type DepositCreateInput = {
   id?: string
   amount: number
   method: string
+  proofImage?: string | null
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -303,6 +316,7 @@ export type DepositUncheckedCreateInput = {
   userId: string
   amount: number
   method: string
+  proofImage?: string | null
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -312,6 +326,7 @@ export type DepositUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  proofImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -323,6 +338,7 @@ export type DepositUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  proofImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -333,6 +349,7 @@ export type DepositCreateManyInput = {
   userId: string
   amount: number
   method: string
+  proofImage?: string | null
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -342,6 +359,7 @@ export type DepositUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  proofImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -352,6 +370,7 @@ export type DepositUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  proofImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -372,6 +391,7 @@ export type DepositCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   method?: Prisma.SortOrder
+  proofImage?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -386,6 +406,7 @@ export type DepositMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   method?: Prisma.SortOrder
+  proofImage?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -396,6 +417,7 @@ export type DepositMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   method?: Prisma.SortOrder
+  proofImage?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -459,6 +481,7 @@ export type DepositCreateWithoutUserInput = {
   id?: string
   amount: number
   method: string
+  proofImage?: string | null
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -468,6 +491,7 @@ export type DepositUncheckedCreateWithoutUserInput = {
   id?: string
   amount: number
   method: string
+  proofImage?: string | null
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -507,6 +531,7 @@ export type DepositScalarWhereInput = {
   userId?: Prisma.StringFilter<"Deposit"> | string
   amount?: Prisma.FloatFilter<"Deposit"> | number
   method?: Prisma.StringFilter<"Deposit"> | string
+  proofImage?: Prisma.StringNullableFilter<"Deposit"> | string | null
   status?: Prisma.StringFilter<"Deposit"> | string
   createdAt?: Prisma.DateTimeFilter<"Deposit"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Deposit"> | Date | string
@@ -516,6 +541,7 @@ export type DepositCreateManyUserInput = {
   id?: string
   amount: number
   method: string
+  proofImage?: string | null
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -525,6 +551,7 @@ export type DepositUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  proofImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -534,6 +561,7 @@ export type DepositUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  proofImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -543,6 +571,7 @@ export type DepositUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   method?: Prisma.StringFieldUpdateOperationsInput | string
+  proofImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -555,6 +584,7 @@ export type DepositSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   userId?: boolean
   amount?: boolean
   method?: boolean
+  proofImage?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -566,6 +596,7 @@ export type DepositSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   userId?: boolean
   amount?: boolean
   method?: boolean
+  proofImage?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -577,6 +608,7 @@ export type DepositSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   userId?: boolean
   amount?: boolean
   method?: boolean
+  proofImage?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -588,12 +620,13 @@ export type DepositSelectScalar = {
   userId?: boolean
   amount?: boolean
   method?: boolean
+  proofImage?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DepositOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "amount" | "method" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["deposit"]>
+export type DepositOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "amount" | "method" | "proofImage" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["deposit"]>
 export type DepositInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -614,6 +647,7 @@ export type $DepositPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     userId: string
     amount: number
     method: string
+    proofImage: string | null
     status: string
     createdAt: Date
     updatedAt: Date
@@ -1045,6 +1079,7 @@ export interface DepositFieldRefs {
   readonly userId: Prisma.FieldRef<"Deposit", 'String'>
   readonly amount: Prisma.FieldRef<"Deposit", 'Float'>
   readonly method: Prisma.FieldRef<"Deposit", 'String'>
+  readonly proofImage: Prisma.FieldRef<"Deposit", 'String'>
   readonly status: Prisma.FieldRef<"Deposit", 'String'>
   readonly createdAt: Prisma.FieldRef<"Deposit", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Deposit", 'DateTime'>

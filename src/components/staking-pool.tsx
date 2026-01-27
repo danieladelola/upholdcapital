@@ -44,7 +44,7 @@ export function StakingPool({ asset, onStake }: StakingPoolProps) {
             <span className="font-semibold">Max:</span> {asset.stakeMax || 0}
           </p>
           <p>
-            <span className="font-semibold">Cycle:</span> {asset.stakeCycleDays || 0} days
+            <span className="font-semibold">Cycle:</span> {asset.stakeCycleDays || 0} months
           </p>
           <p>
             <span className="font-semibold">Balance:</span> {asset.userBalance}

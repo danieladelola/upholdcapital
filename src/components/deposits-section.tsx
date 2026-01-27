@@ -41,16 +41,22 @@ export function DepositsSection() {
     return matchesSearch && matchesFilter
   })
 
-  const handleDeposit = async (amount: number, crypto: string, network: string, txHash: string) => {
+  const handleDeposit = async (amount: number, crypto: string, network: string, file: File) => {
     if (!user?.id) {
       toast({ title: "Error", description: "You need to be signed in to make a deposit" });
       return;
     }
     try {
-      const method = `${crypto} (${network})`;
-      await createDeposit(user.id, amount, method);
-      toast({ title: "Deposit queued", description: "Deposit queued, awaiting review." });
-      // Optionally refresh deposits, but since it's pending, and user sees status
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64Image = reader.result as string;
+        const method = `${crypto} (${network})`;
+        await createDeposit(user.id as string, amount, method, base64Image);
+        toast({ title: "Deposit queued", description: "Deposit queued, awaiting review." });
+        fetchDeposits();
+      };
+      reader.readAsDataURL(file);
     } catch (error) {
       console.error("Error creating deposit:", error);
       toast({ title: "Error", description: "Failed to create deposit" });

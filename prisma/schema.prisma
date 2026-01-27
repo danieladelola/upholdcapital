@@ -81,6 +81,7 @@ model Deposit {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   amount    Float
   method    String
+  proofImage String?  // Base64 encoded image or file path
   status    String   @default("pending") // pending, approved, declined
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -91,6 +92,8 @@ model Withdrawal {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   amountUsd Float
+  cryptoType String?  // ETH, BTC, USDT, USDC, SOL, TRX
+  address   String?   // Withdrawal address
   status    String   @default("pending") // pending, approved, declined
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -28,6 +28,7 @@ interface StakingModalProps {
 
 export function StakingModal({ isOpen, onClose, asset, onStake }: StakingModalProps) {
   const [amount, setAmount] = useState((asset.stakeMin || 0).toString())
+  const [selectedCycle, setSelectedCycle] = useState(String(asset.stakeCycleDays || 3))
   // const sasset = assets.find(value=>value.symbol == asset.symbol)
   const { user } = useAuth()
   // Prefer a provided userId prop (server/parent), fallback to client useUser()
@@ -148,8 +149,13 @@ export function StakingModal({ isOpen, onClose, asset, onStake }: StakingModalPr
           <DialogTitle>Stake {asset.symbol}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
+          <div className="bg-muted p-3 rounded-lg">
+            <p className="text-sm text-muted-foreground">Available Balance</p>
+            <p className="text-2xl font-bold">{asset.userBalance} {asset.symbol}</p>
+          </div>
+          
           <div className="space-y-2">
-            <Label htmlFor="amount">Amount</Label>
+            <Label htmlFor="amount">Stake Amount</Label>
             <div className="flex items-center space-x-2">
               <Input
                 id="amount"
@@ -161,23 +167,53 @@ export function StakingModal({ isOpen, onClose, asset, onStake }: StakingModalPr
               />
               <span>{asset.symbol}</span>
             </div>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">
-              Current balance: {asset.userBalance} {asset.symbol}
+            <p className="text-xs text-muted-foreground">
+              Min: {asset.stakeMin || 0} | Max: {asset.stakeMax || 0}
             </p>
           </div>
           <div>
-            <Label>Cycle</Label>
-            <p className="text-lg">{asset.stakeCycleDays || 0} days</p>
+            <Label>Cycle Duration</Label>
+            <Select value={selectedCycle} onValueChange={setSelectedCycle}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select cycle duration" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="3">3 months</SelectItem>
+                <SelectItem value="6">6 months</SelectItem>
+                <SelectItem value="12">12 months</SelectItem>
+                <SelectItem value="24">24 months</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label>ROI</Label>
             <p className="text-2xl font-bold">{calculateROI()} {asset.symbol}</p>
           </div>
-          <Button onClick={handleStake} className="w-full" disabled={submitting || Number(amount) < (asset.stakeMin || 0) || Number(amount) > (asset.stakeMax || 0)}>
-            {submitting ? 'Staking...' : 'Stake'}
+          <Button 
+            onClick={handleStake} 
+            className="w-full" 
+            disabled={
+              submitting || 
+              Number(amount) < (asset.stakeMin || 0) || 
+              Number(amount) > (asset.stakeMax || 0) ||
+              asset.userBalance < Number(amount)
+            }
+          >
+            {submitting 
+              ? 'Staking...' 
+              : asset.userBalance < Number(amount)
+              ? 'Insufficient Balance'
+              : Number(amount) < (asset.stakeMin || 0)
+              ? `Minimum ${asset.stakeMin || 0} ${asset.symbol}`
+              : 'Stake'
+            }
           </Button>
+          
+          {asset.userBalance < (asset.stakeMin || 0) && (
+            <p className="text-sm text-red-500">
+              You need at least {asset.stakeMin || 0} {asset.symbol} to stake
+            </p>
+          )}
         </div>
       </DialogContent>
     </Dialog>

@@ -3,13 +3,19 @@
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-export async function createDeposit(userId: string, amount: number, method: string) {
+export async function createDeposit(
+  userId: string,
+  amount: number,
+  method: string,
+  proofImage?: string
+) {
   try {
     const deposit = await prisma.deposit.create({
       data: {
         userId,
         amount,
         method,
+        proofImage,
         status: "pending",
       },
     });

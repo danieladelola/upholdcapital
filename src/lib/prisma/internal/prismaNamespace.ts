@@ -1844,6 +1844,7 @@ export const DepositScalarFieldEnum = {
   userId: 'userId',
   amount: 'amount',
   method: 'method',
+  proofImage: 'proofImage',
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1856,6 +1857,8 @@ export const WithdrawalScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   amountUsd: 'amountUsd',
+  cryptoType: 'cryptoType',
+  address: 'address',
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

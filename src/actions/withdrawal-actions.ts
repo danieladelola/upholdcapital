@@ -3,7 +3,12 @@
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-export async function createWithdrawal(userId: string, amountUsd: number) {
+export async function createWithdrawal(
+  userId: string,
+  amountUsd: number,
+  cryptoType?: string,
+  address?: string
+) {
   try {
     // Check user balance
     const user = await prisma.user.findUnique({
@@ -18,6 +23,8 @@ export async function createWithdrawal(userId: string, amountUsd: number) {
       data: {
         userId,
         amountUsd,
+        cryptoType,
+        address,
         status: "pending",
       },
     });

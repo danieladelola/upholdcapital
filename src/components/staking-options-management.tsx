@@ -202,14 +202,18 @@ export default function StakingOptionsManagement() {
                 />
               </div>
               <div>
-                <Label htmlFor="stakeCycleDays">Cycle Days</Label>
-                <Input
-                  id="stakeCycleDays"
-                  type="number"
-                  placeholder="30"
-                  value={newStakingData.stakeCycleDays || ''}
-                  onChange={(e) => setNewStakingData({ ...newStakingData, stakeCycleDays: parseInt(e.target.value) || undefined })}
-                />
+                <Label htmlFor="stakeCycleDays">Cycle Duration</Label>
+                <Select value={String(newStakingData.stakeCycleDays || '')} onValueChange={(value) => setNewStakingData({ ...newStakingData, stakeCycleDays: parseInt(value) || undefined })}>
+                  <SelectTrigger id="stakeCycleDays">
+                    <SelectValue placeholder="Select cycle duration" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="3">3 months</SelectItem>
+                    <SelectItem value="6">6 months</SelectItem>
+                    <SelectItem value="12">12 months</SelectItem>
+                    <SelectItem value="24">24 months</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <Button onClick={handleAddNew} className="w-full">Add Staking Option</Button>
             </div>
@@ -226,7 +230,7 @@ export default function StakingOptionsManagement() {
               <TableHead>Min Stake</TableHead>
               <TableHead>Max Stake</TableHead>
               <TableHead>ROI %</TableHead>
-              <TableHead>Cycle Days</TableHead>
+              <TableHead>Cycle Duration</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -265,11 +269,17 @@ export default function StakingOptionsManagement() {
                       />
                     </TableCell>
                     <TableCell>
-                      <Input
-                        type="number"
-                        value={editData.stakeCycleDays || ''}
-                        onChange={(e) => setEditData({ ...editData, stakeCycleDays: parseInt(e.target.value) || undefined })}
-                      />
+                      <Select value={String(editData.stakeCycleDays || '')} onValueChange={(value) => setEditData({ ...editData, stakeCycleDays: parseInt(value) || undefined })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select cycle" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="3">3 months</SelectItem>
+                          <SelectItem value="6">6 months</SelectItem>
+                          <SelectItem value="12">12 months</SelectItem>
+                          <SelectItem value="24">24 months</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell>
                       <Button onClick={() => handleSave(asset.id)} className="mr-2">Save</Button>

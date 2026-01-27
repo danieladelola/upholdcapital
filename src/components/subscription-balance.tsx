@@ -8,11 +8,17 @@ interface SubscriptionBalanceProps {
 }
 
 export function SubscriptionBalance({ balance, onDeposit,bankDetails,cryptoDetails }: SubscriptionBalanceProps) {
-  // DepositModal now calls onDeposit(amount, crypto, network, txHash)
+  // DepositModal now calls onDeposit(amount, crypto, network, file)
   // Wrap the provided onDeposit (legacy signature) so existing callers still work.
-  const handleModalDeposit = (amount: number, crypto: string, network: string, txHash: string) => {
-    // image empty, method = 'Crypto', type = 'subscription', address empty
-    onDeposit(amount, "", "Crypto", "subscription", crypto, network, txHash, "")
+  const handleModalDeposit = (amount: number, crypto: string, network: string, file: File) => {
+    // Convert file to base64
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Image = reader.result as string;
+      // image = base64, method = 'Crypto', type = 'subscription', address empty
+      onDeposit(amount, base64Image, "Crypto", "subscription", crypto, network, "", "")
+    };
+    reader.readAsDataURL(file);
   }
   return (
     <div className="flex justify-between items-center">

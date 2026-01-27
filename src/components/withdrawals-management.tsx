@@ -15,6 +15,8 @@ interface Withdrawal {
     lastname: string | null
   }
   amountUsd: number
+  cryptoType: string | null
+  address: string | null
   status: string
   createdAt: string
   updatedAt: string
@@ -84,6 +86,8 @@ export default function WithdrawalsManagement() {
             <TableHead>Date</TableHead>
             <TableHead>User</TableHead>
             <TableHead>Amount (USD)</TableHead>
+            <TableHead>Cryptocurrency</TableHead>
+            <TableHead>Address</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -94,12 +98,14 @@ export default function WithdrawalsManagement() {
               <TableCell>{new Date(withdrawal.createdAt).toLocaleString('en-US')}</TableCell>
               <TableCell>{withdrawal.user.firstname} {withdrawal.user.lastname} ({withdrawal.user.email})</TableCell>
               <TableCell>${withdrawal.amountUsd.toFixed(2)}</TableCell>
+              <TableCell>{withdrawal.cryptoType || '-'}</TableCell>
+              <TableCell className="max-w-xs truncate text-xs">{withdrawal.address || '-'}</TableCell>
               <TableCell>{withdrawal.status}</TableCell>
               <TableCell>
                 {withdrawal.status === "pending" && (
                   <>
-                    <Button onClick={() => handleApprove(withdrawal.id)} className="mr-2">Approve</Button>
-                    <Button onClick={() => handleReject(withdrawal.id)} variant="destructive">Decline</Button>
+                    <Button onClick={() => handleApprove(withdrawal.id)} className="mr-2" size="sm">Approve</Button>
+                    <Button onClick={() => handleReject(withdrawal.id)} variant="destructive" size="sm">Decline</Button>
                   </>
                 )}
               </TableCell>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useAuth } from "@/components/AuthProvider"
 import { useToast } from "@/hooks/use-toast"
 import { createWithdrawal } from "@/actions/withdrawal-actions"
@@ -11,14 +12,27 @@ import { createWithdrawal } from "@/actions/withdrawal-actions"
 interface Withdrawal {
   id: string
   amountUsd: number
+  cryptoType: string | null
+  address: string | null
   status: string
   createdAt: string
   updatedAt: string
 }
 
+const CRYPTOCURRENCY_OPTIONS = [
+  { value: "ETH", label: "ETH" },
+  { value: "BTC", label: "BTC" },
+  { value: "USDT", label: "USDT" },
+  { value: "USDC", label: "USD COIN" },
+  { value: "SOL", label: "SOLANA" },
+  { value: "TRX", label: "TRON" },
+]
+
 export function WithdrawalsSection({ user, balance }: { user: any, balance: number }) {
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([])
   const [amount, setAmount] = useState("")
+  const [cryptoType, setCryptoType] = useState("")
+  const [address, setAddress] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
 
@@ -53,12 +67,22 @@ export function WithdrawalsSection({ user, balance }: { user: any, balance: numb
       toast({ title: "Error", description: "Insufficient balance" });
       return;
     }
+    if (!cryptoType) {
+      toast({ title: "Error", description: "Please select a cryptocurrency" });
+      return;
+    }
+    if (!address || address.trim() === "") {
+      toast({ title: "Error", description: "Please enter a withdrawal address" });
+      return;
+    }
 
     setIsSubmitting(true);
     try {
-      await createWithdrawal(user.id, withdrawalAmount);
+      await createWithdrawal(user.id, withdrawalAmount, cryptoType, address);
       toast({ title: "Success", description: "Withdrawal request submitted successfully" });
       setAmount("");
+      setCryptoType("");
+      setAddress("");
       fetchWithdrawals();
     } catch (error) {
       toast({ title: "Error", description: "Failed to submit withdrawal request" });
@@ -69,11 +93,11 @@ export function WithdrawalsSection({ user, balance }: { user: any, balance: numb
 
   return (
     <div className="space-y-6">
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-2xl font-bold mb-4">Request Withdrawal</h2>
+      <div className="p-6 rounded-lg shadow" style={{ backgroundColor: '#0E141B' }}>
+        <h2 className="text-2xl font-bold mb-4 text-white">Request Withdrawal</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Amount (USD)</label>
+            <label className="block text-sm font-medium mb-2 text-gray-200">Amount (USD)</label>
             <Input
               type="number"
               value={amount}
@@ -81,9 +105,38 @@ export function WithdrawalsSection({ user, balance }: { user: any, balance: numb
               placeholder="Enter amount"
               min="0"
               step="0.01"
+              className="bg-gray-900 text-white border-gray-700"
             />
           </div>
-          <div className="text-sm text-gray-600">
+          
+          <div>
+            <label className="block text-sm font-medium mb-2 text-gray-200">Cryptocurrency</label>
+            <Select value={cryptoType} onValueChange={setCryptoType}>
+              <SelectTrigger className="bg-gray-900 text-white border-gray-700">
+                <SelectValue placeholder="Select cryptocurrency" />
+              </SelectTrigger>
+              <SelectContent>
+                {CRYPTOCURRENCY_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2 text-gray-200">Withdrawal Address</label>
+            <Input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Enter your withdrawal address"
+              className="bg-gray-900 text-white border-gray-700"
+            />
+          </div>
+          
+          <div className="text-sm text-gray-400">
             Available Balance: ${balance.toFixed(2)}
           </div>
           <Button onClick={handleWithdrawal} disabled={isSubmitting}>
@@ -92,22 +145,26 @@ export function WithdrawalsSection({ user, balance }: { user: any, balance: numb
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-2xl font-bold mb-4">Withdrawal History</h2>
+      <div className="p-6 rounded-lg shadow" style={{ backgroundColor: '#0E141B' }}>
+        <h2 className="text-2xl font-bold mb-4 text-white">Withdrawal History</h2>
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Amount (USD)</TableHead>
-              <TableHead>Status</TableHead>
+            <TableRow className="border-gray-700">
+              <TableHead className="text-gray-300">Date</TableHead>
+              <TableHead className="text-gray-300">Amount (USD)</TableHead>
+              <TableHead className="text-gray-300">Cryptocurrency</TableHead>
+              <TableHead className="text-gray-300">Address</TableHead>
+              <TableHead className="text-gray-300">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {withdrawals.map((withdrawal) => (
-              <TableRow key={withdrawal.id}>
-                <TableCell>{new Date(withdrawal.createdAt).toLocaleString('en-US')}</TableCell>
-                <TableCell>${withdrawal.amountUsd.toFixed(2)}</TableCell>
-                <TableCell>{withdrawal.status}</TableCell>
+              <TableRow key={withdrawal.id} className="border-gray-700 hover:bg-gray-900">
+                <TableCell className="text-gray-300">{new Date(withdrawal.createdAt).toLocaleString('en-US')}</TableCell>
+                <TableCell className="text-gray-300">${withdrawal.amountUsd.toFixed(2)}</TableCell>
+                <TableCell className="text-gray-300">{withdrawal.cryptoType || '-'}</TableCell>
+                <TableCell className="text-gray-300 max-w-xs truncate text-xs">{withdrawal.address || '-'}</TableCell>
+                <TableCell className="text-gray-300">{withdrawal.status}</TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -25,50 +25,42 @@ export default function PortfolioDashboard({
 }) {
   const [expandedRow, setExpandedRow] = useState<string | null>(null)
   const [portfolioValue, setPortfolioValue] = useState<number | null>(null)
+  const [userAssets, setUserAssets] = useState<any[]>([])
   const router = useRouter()
 
-  const displayedAssets = useMemo(() => {
-    const ownedAssets = assets.filter((value) => value.amount > 0)
-    if (ownedAssets.length >= 5) {
-      return ownedAssets.slice(0, 5)
-    } else {
-      const remainingSlots = 5 - ownedAssets.length
-      const sortedAssets = [...assets].sort((a, b) => {
-        if (a.symbol === "TSLA") return -1
-        if (b.symbol === "TSLA") return 1
-        return b.price - a.price
-      })
-      const topAssetsToAdd = sortedAssets
-        .filter((asset) => !ownedAssets.some((ownedAsset) => ownedAsset.symbol === asset.symbol))
-        .slice(0, remainingSlots)
-      return [...ownedAssets, ...topAssetsToAdd]
+  useEffect(() => {
+    const fetchUserAssets = async () => {
+      if (user?.id) {
+        const userAssetsData = await getUserAssets(user.id)
+        setUserAssets(userAssetsData)
+      }
     }
-  }, [assets])
+    fetchUserAssets()
+  }, [user])
+
+  const displayedAssets = useMemo(() => {
+    return userAssets
+      .map(userAsset => {
+        const asset = assets.find(a => a.symbol === userAsset.asset?.symbol)
+        if (!asset) return null
+        return {
+          ...asset,
+          amount: userAsset.balance
+        }
+      })
+      .filter((asset): asset is Asset => asset !== null)
+      .sort((a, b) => {
+        const valueA = a.amount * a.price
+        const valueB = b.amount * b.price
+        return valueB - valueA
+      })
+  }, [userAssets, assets])
 
   const toggleRowExpansion = (id: string) => {
     setExpandedRow(expandedRow === id ? null : id)
   }
 
-  const totalPortfolioValue = assets.filter((asset) => asset.amount > 0).reduce((total, asset) => total + asset.amount * asset.price, 0)
-
-  useEffect(() => {
-    const fetchUserAssetsValue = async () => {
-      if (!user?.id) return
-      try {
-        const userAssetsData = await getUserAssets(user.id)
-        const value = userAssetsData.reduce((acc, ua) => {
-          const symbol = ua.asset?.symbol || ''
-          const matching = assets.find(a => a.symbol === symbol)
-          if (!matching) return acc
-          return acc + (ua.balance * (matching.price || 0))
-        }, 0)
-        setPortfolioValue(value)
-      } catch (e) {
-        setPortfolioValue(null)
-      }
-    }
-    fetchUserAssetsValue()
-  }, [user, assets])
+  const totalPortfolioValue = displayedAssets.reduce((total, asset) => total + asset.amount * asset.price, 0)
 
   return (
     <div className="container mx-auto p-4 bg-background min-h-screen">
@@ -92,7 +84,7 @@ export default function PortfolioDashboard({
         />
         <StatCard
           title="Asset Diversity"
-          value={`${assets.filter((a) => a.amount > 0).length} assets`}
+          value={`${displayedAssets.length} assets`}
           icon={<PieChart className="h-6 w-6" />}
           gradient="from-primary to-secondary"
         />

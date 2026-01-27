@@ -34,7 +34,7 @@ interface DepositMethod {
 }
 
 interface DepositModalProps {
-  onDeposit: (amount: number, crypto: string, network: string, txHash: string) => void;
+  onDeposit: (amount: number, crypto: string, network: string, file: File) => void;
 }
 
 export function DepositModal({ onDeposit }: DepositModalProps) {
@@ -42,7 +42,7 @@ export function DepositModal({ onDeposit }: DepositModalProps) {
   const [methods, setMethods] = useState<DepositMethod[]>([]);
   const [selectedMethod, setSelectedMethod] = useState<DepositMethod | null>(null);
   const [amount, setAmount] = useState("");
-  const [txHash, setTxHash] = useState("");
+  const [depositFile, setDepositFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -70,11 +70,11 @@ export function DepositModal({ onDeposit }: DepositModalProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedMethod) return;
-    onDeposit(parseFloat(amount), selectedMethod.cryptoType || '', selectedMethod.network || '', txHash);
+    if (!selectedMethod || !depositFile) return;
+    onDeposit(parseFloat(amount), selectedMethod.cryptoType || '', selectedMethod.network || '', depositFile);
     setOpen(false);
     setAmount("");
-    setTxHash("");
+    setDepositFile(null);
   };
 
   const copyToClipboard = (text: string) => {
@@ -175,18 +175,47 @@ export function DepositModal({ onDeposit }: DepositModalProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="tx-hash">Transaction Hash</Label>
+                <Label htmlFor="proof-file">Proof of Deposit (PNG/JPEG)</Label>
                 <Input
-                  id="tx-hash"
-                  type="text"
-                  value={txHash}
-                  onChange={(e) => setTxHash(e.target.value)}
-                  placeholder="Enter transaction hash"
+                  id="proof-file"
+                  type="file"
+                  accept=".png,.jpeg,.jpg"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+
+                    // Validate file type
+                    const validTypes = ['image/png', 'image/jpeg'];
+                    if (!validTypes.includes(file.type)) {
+                      toast({ 
+                        title: "Invalid file type", 
+                        description: "Please upload a PNG or JPEG file" 
+                      });
+                      return;
+                    }
+
+                    // Validate file size (10MB max)
+                    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                    if (file.size > maxSize) {
+                      toast({ 
+                        title: "File too large", 
+                        description: "Maximum file size is 10MB" 
+                      });
+                      return;
+                    }
+
+                    setDepositFile(file);
+                  }}
                   required
                 />
+                {depositFile && (
+                  <p className="text-sm text-green-600">
+                    ✓ {depositFile.name} ({(depositFile.size / 1024 / 1024).toFixed(2)}MB)
+                  </p>
+                )}
               </div>
 
-              <Button type="submit" className="w-full" disabled={!selectedMethod}>
+              <Button type="submit" className="w-full" disabled={!selectedMethod || !depositFile}>
                 Confirm Deposit
               </Button>
             </form>
