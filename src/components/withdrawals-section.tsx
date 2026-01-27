@@ -26,6 +26,7 @@ const CRYPTOCURRENCY_OPTIONS = [
   { value: "USDC", label: "USD COIN" },
   { value: "SOL", label: "SOLANA" },
   { value: "TRX", label: "TRON" },
+  { value: "XRP", label: "XRP" },
 ]
 
 export function WithdrawalsSection({ user, balance }: { user: any, balance: number }) {
